@@ -17,7 +17,7 @@ const ProgressContainer = styled(Box)(({ theme }) => ({
 
 const StepContainer = styled(Box)(() => ({
   display: "flex",
-  alignItems: "center",
+  alignItems: "flex-start",
   justifyContent: "space-between",
   marginBottom: 20,
 }));
@@ -34,10 +34,10 @@ const StepContent = styled(Box)<{ active: boolean; completed: boolean }>(
   })
 );
 
-const StepTitle = styled(Typography)<{ active: boolean; completed: boolean }>(
-  ({ theme, active, completed }) => ({
+const StepTitle = styled(Typography)<{ $active: boolean; completed: boolean }>(
+  ({ theme, $active, completed }) => ({
     color:
-      active || completed
+      $active || completed
         ? theme.palette.primary.main
         : theme.palette.text.secondary,
     fontFamily: "Iceland",
@@ -99,8 +99,7 @@ const PlanCard = styled("img")<{ active: boolean; completed: boolean }>(
 
 const CharacterMascot = styled("img")<{ active: boolean; completed: boolean }>(
   ({ active, completed }) => ({
-    width: 114,
-    height: 209,
+    height: 150,
     opacity: active || completed ? 1 : 0.5,
     filter: active || completed ? "none" : "grayscale(100%)",
     transition: "all 0.3s ease",
@@ -147,25 +146,9 @@ const ProgressDot = styled(Box)<{ active: boolean; completed: boolean }>(
       active && !completed ? `2px solid ${theme.palette.primary.main}` : "none",
     position: "absolute",
     top: "50%",
-    transform: "translate(-50%, -70%)",
+    transform: "translate(-50%, -75%)",
     transition: "all 0.3s ease",
     zIndex: 1,
-  })
-);
-
-const StepNumber = styled(Typography)<{ active: boolean; completed: boolean }>(
-  ({ theme, active, completed }) => ({
-    position: "absolute",
-    top: -30,
-    left: "50%",
-    transform: "translateX(-50%)",
-    fontSize: "12px",
-    fontWeight: "bold",
-    color:
-      active || completed
-        ? theme.palette.primary.main
-        : theme.palette.text.secondary,
-    transition: "color 0.3s ease",
   })
 );
 
@@ -211,7 +194,7 @@ const defaultSteps: Step[] = [
     id: 4,
     title: "Step4",
     subtitle: "完了!!",
-    image: "/images/character-mascot.png",
+    image: "/images/conoha_image1.png",
   },
 ];
 
@@ -365,13 +348,6 @@ export const EasyProgressStepper: React.FC<ProgressStepperProps> = ({
                   completed={completed}
                   style={{ left: `${position}%` }}
                 />
-                <StepNumber
-                  active={active}
-                  completed={completed}
-                  style={{ left: `${position}%` }}
-                >
-                  {step.id}
-                </StepNumber>
               </Box>
             );
           })}
