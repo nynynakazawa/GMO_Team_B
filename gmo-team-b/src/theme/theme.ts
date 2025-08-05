@@ -25,25 +25,72 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: '"Iceland", "Noto Sans", sans-serif',
+    h1: {
+      fontSize: '40px',
+      fontWeight: 400,
+      fontFamily: '"Noto Sans", sans-serif'
+    },
+    h2: {
+      fontSize: '36px',
+      fontWeight: 400,
+      fontFamily: 'Iceland',
+      color: '#19b8d7',
+      WebkitTextStroke: '1px #000000'
+    },
     h6: {
       fontSize: '24px',
       fontWeight: 400,
-      fontFamily: 'Iceland'
+      fontFamily: 'Iceland',
+      color: '#19b8d7',
+      WebkitTextStroke: '1px #000000'
     },
     body1: {
-      fontSize: '14px',
+      fontSize: '24px',
       fontWeight: 400,
       fontFamily: '"Noto Sans", sans-serif'
     },
     body2: {
-      fontSize: '18px',
+      fontSize: '16px',
       fontWeight: 400,
-      fontFamily: 'Iceland'
+      fontFamily: '"Noto Sans", sans-serif'
+    },
+    button: {
+      fontSize: '32px',
+      fontWeight: 400,
+      fontFamily: '"Noto Sans", sans-serif',
+      textTransform: 'none'
     }
   },
   shape: {
     borderRadius: 10
-  }
+  },
+  shadows: [
+    'none',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)',
+    '0px 4px 4px rgba(0, 0, 0, 0.25)'
+  ]
 });
 
 export default theme;

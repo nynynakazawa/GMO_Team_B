@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Button, Stack } from "@mui/material";
@@ -17,7 +17,7 @@ const ProgressContainer = styled(Box)(({ theme }) => ({
 
 const StepContainer = styled(Box)(() => ({
   display: "flex",
-  alignItems: "center",
+  alignItems: "flex-start",
   justifyContent: "space-between",
   marginBottom: 20,
 }));
@@ -34,17 +34,16 @@ const StepContent = styled(Box)<{ active: boolean; completed: boolean }>(
   })
 );
 
-const StepTitle = styled(Typography)<{ active: boolean; completed: boolean }>(
-  ({ theme, active, completed }) => ({
+const StepTitle = styled(Typography)<{ $active: boolean; completed: boolean }>(
+  ({ theme, $active, completed }) => ({
     color:
-      active || completed
+      $active || completed
         ? theme.palette.primary.main
         : theme.palette.text.secondary,
     fontFamily: "Iceland",
     fontSize: "24px",
     fontWeight: 400,
     textAlign: "center",
-    WebkitTextStroke: active || completed ? "1px #000000" : "none",
     marginBottom: theme.spacing(2),
     transition: "all 0.3s ease",
   })
@@ -100,8 +99,7 @@ const PlanCard = styled("img")<{ active: boolean; completed: boolean }>(
 
 const CharacterMascot = styled("img")<{ active: boolean; completed: boolean }>(
   ({ active, completed }) => ({
-    width: 114,
-    height: 209,
+    height: 150,
     opacity: active || completed ? 1 : 0.5,
     filter: active || completed ? "none" : "grayscale(100%)",
     transition: "all 0.3s ease",
@@ -116,12 +114,12 @@ const ProgressLineContainer = styled(Box)(() => ({
 }));
 
 const ProgressLine = styled(Box)(({ theme }) => ({
-  width: "80%",
+  width: "75%",
   height: 8,
   backgroundColor: theme.palette.grey[300],
   borderRadius: 4,
   position: "relative",
-  overflow: "hidden",
+  overflow: "visible",
 }));
 
 const ProgressFill = styled(Box)<{ progress: number }>(
@@ -148,25 +146,9 @@ const ProgressDot = styled(Box)<{ active: boolean; completed: boolean }>(
       active && !completed ? `2px solid ${theme.palette.primary.main}` : "none",
     position: "absolute",
     top: "50%",
-    transform: "translateY(-50%)",
+    transform: "translate(-50%, -75%)",
     transition: "all 0.3s ease",
     zIndex: 1,
-  })
-);
-
-const StepNumber = styled(Typography)<{ active: boolean; completed: boolean }>(
-  ({ theme, active, completed }) => ({
-    position: "absolute",
-    top: -30,
-    left: "50%",
-    transform: "translateX(-50%)",
-    fontSize: "12px",
-    fontWeight: "bold",
-    color:
-      active || completed
-        ? theme.palette.primary.main
-        : theme.palette.text.secondary,
-    transition: "color 0.3s ease",
   })
 );
 
@@ -193,30 +175,30 @@ const defaultSteps: Step[] = [
   {
     id: 1,
     title: "Step1",
-    subtitle: "サーバーを追加",
-    buttonText: "追加",
+    subtitle: "ゲームを選択",
+    image: "/images/game-selection.png",
   },
   {
     id: 2,
     title: "Step2",
-    subtitle: "ゲームを選択",
-    image: "/images/game-selection.png",
+    subtitle: "期間を設定",
+    image: "/images/set-term.jpg",
   },
   {
     id: 3,
     title: "Step3",
     subtitle: "プランを選択",
-    image: "/images/plan-card.png",
+    image: "/images/select-plan.jpg",
   },
   {
     id: 4,
     title: "Step4",
     subtitle: "完了!!",
-    image: "/images/character-mascot.png",
+    image: "/images/conoha_image1.png",
   },
 ];
 
-export const ProgressStepper: React.FC<ProgressStepperProps> = ({
+export const EasyProgressStepper: React.FC<ProgressStepperProps> = ({
   currentStep: externalCurrentStep,
   steps = defaultSteps,
   autoProgress = false,
@@ -366,13 +348,6 @@ export const ProgressStepper: React.FC<ProgressStepperProps> = ({
                   completed={completed}
                   style={{ left: `${position}%` }}
                 />
-                <StepNumber
-                  active={active}
-                  completed={completed}
-                  style={{ left: `${position}%` }}
-                >
-                  {step.id}
-                </StepNumber>
               </Box>
             );
           })}
