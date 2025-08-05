@@ -1,9 +1,12 @@
 "use client"
 
-import React, { useState, useEffect } from "react";
-import { Box, Typography, Button, Stack } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import AddIcon from "@mui/icons-material/Add";
+
+import React from 'react';
+import { Box, Typography, Button } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import AddIcon from '@mui/icons-material/Add';
+import ProgressLineIcon from './icons/ProgressLineIcon';
+
 
 const ProgressContainer = styled(Box)(({ theme }) => ({
   border: `2px solid ${theme.palette.grey[400]}`,
@@ -124,61 +127,8 @@ const ProgressLine = styled(Box)(({ theme }) => ({
   overflow: "hidden",
 }));
 
-const ProgressFill = styled(Box)<{ progress: number }>(
-  ({ theme, progress }) => ({
-    width: `${progress}%`,
-    height: "100%",
-    backgroundColor: theme.palette.primary.main,
-    borderRadius: 4,
-    transition: "width 0.5s ease",
-  })
-);
 
-const ProgressDot = styled(Box)<{ active: boolean; completed: boolean }>(
-  ({ theme, active, completed }) => ({
-    width: 16,
-    height: 16,
-    borderRadius: "50%",
-    backgroundColor: completed
-      ? theme.palette.primary.main
-      : active
-      ? theme.palette.primary.light
-      : theme.palette.grey[300],
-    border:
-      active && !completed ? `2px solid ${theme.palette.primary.main}` : "none",
-    position: "absolute",
-    top: "50%",
-    transform: "translateY(-50%)",
-    transition: "all 0.3s ease",
-    zIndex: 1,
-  })
-);
 
-const StepNumber = styled(Typography)<{ active: boolean; completed: boolean }>(
-  ({ theme, active, completed }) => ({
-    position: "absolute",
-    top: -30,
-    left: "50%",
-    transform: "translateX(-50%)",
-    fontSize: "12px",
-    fontWeight: "bold",
-    color:
-      active || completed
-        ? theme.palette.primary.main
-        : theme.palette.text.secondary,
-    transition: "color 0.3s ease",
-  })
-);
-
-interface Step {
-  id: number;
-  title: string;
-  subtitle: string;
-  image?: string;
-  action?: () => void;
-  buttonText?: string;
-  completed?: boolean;
-}
 
 interface ProgressStepperProps {
   currentStep?: number;

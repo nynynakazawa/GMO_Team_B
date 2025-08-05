@@ -3,7 +3,7 @@
 import React from 'react';
 import { Box, Typography, Stack } from '@mui/material';
 
-import UserAvatarIcon from './icons/UserAvatarIcon';
+
 
 export const AuthHeader: React.FC = () => {
   return (

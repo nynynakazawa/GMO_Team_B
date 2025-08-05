@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Switch, Divider, Paper, Link } from "@mui/material";
 
+
 interface UserMenuProps {
   isOpen: boolean;
   easyMode: boolean;
@@ -12,6 +13,7 @@ export default function UserMenu({
   easyMode,
   onEasyModeChange,
 }: UserMenuProps) {
+  const router = useRouter();
   if (!isOpen) return null;
 
   return (
@@ -56,6 +58,7 @@ export default function UserMenu({
               Myサーバー
             </Typography>
           </Link>
+
         </Box>
 
         <Divider sx={{ my: 0 }} />
@@ -108,7 +111,6 @@ export default function UserMenu({
             }}
           />
         </Box>
-
         <Divider sx={{ my: 0 }} />
 
         {/* アカウント設定 */}
