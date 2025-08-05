@@ -5,6 +5,8 @@ import { Box, Typography, Stack, Paper } from '@mui/material'
 import { InputField } from './InputField'
 import { ActionButton } from './ActionButton'
 import { LinkText } from './LinkText'
+import { auth } from "../firebase/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 interface LoginFormProps {
   onLogin?: (email: string, password: string) => void
@@ -56,8 +58,21 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       isValid = false
     }
 
-    if (isValid && onLogin) {
-      onLogin(email, password)
+    if (isValid) {
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // ログイン成功時の処理
+          const user = userCredential.user;
+          console.log("ログイン成功:", user);
+          if (onLogin) {
+            onLogin(email, password);
+          }
+        })
+        .catch((error) => {
+          // エラー処理
+          console.error("ログインエラー:", error);
+          setEmailError("ログインに失敗しました。メールアドレスまたはパスワードを確認してください。");
+        });
     }
   }
 
