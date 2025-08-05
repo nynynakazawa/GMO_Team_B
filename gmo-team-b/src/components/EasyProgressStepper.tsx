@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Button, Stack } from "@mui/material";
@@ -44,7 +44,6 @@ const StepTitle = styled(Typography)<{ active: boolean; completed: boolean }>(
     fontSize: "24px",
     fontWeight: 400,
     textAlign: "center",
-    WebkitTextStroke: active || completed ? "1px #000000" : "none",
     marginBottom: theme.spacing(2),
     transition: "all 0.3s ease",
   })
@@ -116,12 +115,12 @@ const ProgressLineContainer = styled(Box)(() => ({
 }));
 
 const ProgressLine = styled(Box)(({ theme }) => ({
-  width: "80%",
+  width: "75%",
   height: 8,
   backgroundColor: theme.palette.grey[300],
   borderRadius: 4,
   position: "relative",
-  overflow: "hidden",
+  overflow: "visible",
 }));
 
 const ProgressFill = styled(Box)<{ progress: number }>(
@@ -148,7 +147,7 @@ const ProgressDot = styled(Box)<{ active: boolean; completed: boolean }>(
       active && !completed ? `2px solid ${theme.palette.primary.main}` : "none",
     position: "absolute",
     top: "50%",
-    transform: "translateY(-50%)",
+    transform: "translate(-50%, -70%)",
     transition: "all 0.3s ease",
     zIndex: 1,
   })
@@ -193,20 +192,20 @@ const defaultSteps: Step[] = [
   {
     id: 1,
     title: "Step1",
-    subtitle: "サーバーを追加",
-    buttonText: "追加",
+    subtitle: "ゲームを選択",
+    image: "/images/game-selection.png",
   },
   {
     id: 2,
     title: "Step2",
-    subtitle: "ゲームを選択",
-    image: "/images/game-selection.png",
+    subtitle: "期間を設定",
+    image: "/images/set-term.jpg",
   },
   {
     id: 3,
     title: "Step3",
     subtitle: "プランを選択",
-    image: "/images/plan-card.png",
+    image: "/images/select-plan.jpg",
   },
   {
     id: 4,
@@ -216,7 +215,7 @@ const defaultSteps: Step[] = [
   },
 ];
 
-export const ProgressStepper: React.FC<ProgressStepperProps> = ({
+export const EasyProgressStepper: React.FC<ProgressStepperProps> = ({
   currentStep: externalCurrentStep,
   steps = defaultSteps,
   autoProgress = false,
