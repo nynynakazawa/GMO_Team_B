@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Box, Container, Typography, IconButton, Stack } from "@mui/material";
 import { Person } from "@mui/icons-material";
 import UserMenu from "./UserMenu";
+import Link from "next/link";
 
 export const Header: React.FC = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -38,17 +39,19 @@ export const Header: React.FC = () => {
             alignItems: "center",
           }}
         >
-          <Stack direction="row" alignItems="baseline" spacing={0.5}>
-            <Typography
-              variant="h5"
-              sx={{ color: "#19B8D7", fontWeight: "bold" }}
-            >
-              ConoHa for GAME
-            </Typography>
-            <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              by GMO
-            </Typography>
-          </Stack>
+          <Link href="/easy/serverinfo" style={{ textDecoration: "none" }}>
+            <Stack direction="row" alignItems="baseline" spacing={0.5}>
+              <Typography
+                variant="h5"
+                sx={{ color: "#19B8D7", fontWeight: "bold" }}
+              >
+                ConoHa for GAME
+              </Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                by GMO
+              </Typography>
+            </Stack>
+          </Link>
           <Box sx={{ position: "relative" }}>
             <IconButton
               sx={{ bgcolor: "#e3f2fd", color: "#19B8D7" }}
