@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react';
-import { Box, Typography, Button, Stack } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import ProgressLineIcon from './icons/ProgressLineIcon';
@@ -73,6 +73,8 @@ const ProgressLineContainer = styled(Box)(() => ({
   display: 'flex',
   justifyContent: 'center'
 }));
+
+
 
 interface ProgressStepperProps {
   currentStep: number;

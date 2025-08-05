@@ -8,7 +8,6 @@ import { SignupForm } from './SignupForm';
 
 interface AuthenticationPageProps {
   onLogin?: (email: string, password: string) => void;
-  onSignup?: (email: string, password: string) => void;
   onNavigateToSignup?: () => void;
   onNavigateToLogin?: () => void;
   onForgotPassword?: () => void;
@@ -16,7 +15,6 @@ interface AuthenticationPageProps {
 
 export const AuthenticationPage: React.FC<AuthenticationPageProps> = ({
   onLogin,
-  onSignup,
   onNavigateToSignup,
   onNavigateToLogin,
   onForgotPassword
@@ -30,12 +28,7 @@ export const AuthenticationPage: React.FC<AuthenticationPageProps> = ({
     }
   };
 
-  const handleSignup = (email: string, password: string) => {
-    console.log('Signup attempt:', { email, password });
-    if (onSignup) {
-      onSignup(email, password);
-    }
-  };
+  
 
   const handleForgotPassword = () => {
     console.log('Forgot password clicked');
