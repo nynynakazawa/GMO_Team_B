@@ -1,10 +1,12 @@
 "use client"
 
 import React, { useState } from 'react'
-import { Box, Typography, Stack, Paper } from '@mui/material'
+import { Box,Button, Typography, Stack, Paper } from '@mui/material'
 import { InputField } from './InputField'
 import { ActionButton } from './ActionButton'
 import { LinkText } from './LinkText'
+import GoogleIcon from "@mui/icons-material/Google"; 
+import { signInWithGoogle } from "../components/firebaseAuth"
 
 interface LoginFormProps {
   onLogin?: (email: string, password: string) => void
@@ -91,6 +93,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           ログイン
         </Typography>
 
+
         {/* Form */}
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
           <Stack spacing={2.5}>
@@ -140,8 +143,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                   helperText={passwordError}
                 />
               </Box>
+              
             </Stack>
-
+        <Box sx={{ display: 'flex',  justifyContent: 'flex-start', marginTop: '16px' }}>
+  <Button
+    variant="outlined"
+    startIcon={<GoogleIcon />}
+    onClick={signInWithGoogle}
+    sx={{
+      textTransform: 'none',
+      fontWeight: 500,
+      fontFamily: "'Noto Sans', sans-serif",
+    }}
+  >
+    Googleでログイン
+  </Button>
+</Box>
             {/* Navigation Links */}
             <Stack spacing={1} sx={{ marginTop: '24px' }}>
               <LinkText onClick={onCreateAccount}>
