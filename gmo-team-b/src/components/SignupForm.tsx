@@ -7,12 +7,12 @@ import { ActionButton } from './ActionButton'
 import { LinkText } from './LinkText'
 
 interface SignupFormProps {
-  onSignup?: (email: string, password: string) => void
+  onLogin?: (email: string, password: string) => void
   onExistingAccount?: () => void
 }
 
 export const SignupForm: React.FC<SignupFormProps> = ({
-  onSignup,
+  onLogin,
   onExistingAccount
 }) => {
   const [email, setEmail] = useState('')
@@ -54,8 +54,8 @@ export const SignupForm: React.FC<SignupFormProps> = ({
       isValid = false
     }
 
-    if (isValid && onSignup) {
-      onSignup(email, password)
+    if (isValid && onLogin) {
+      onLogin(email, password)
     }
   }
 

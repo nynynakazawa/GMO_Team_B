@@ -1,12 +1,21 @@
 // Mock data for authentication page
+import { auth } from './firebase/firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 // Data passed as props to the root component
 export const mockRootProps = {
   onLogin: (email: string, password: string) => {
-    console.log('Mock login:', { email, password });
-  },
-  onSignup: (email: string, password: string) => {
-    console.log('Mock signup:', { email, password });
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in 
+        const user = userCredential.user;
+        console.log('User signed in:', user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error('Login error:', errorCode, errorMessage);
+      });
   },
   onNavigateToSignup: () => {
     console.log('Navigate to signup');
