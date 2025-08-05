@@ -39,6 +39,9 @@ import ServerSettingsTab from '../../../components/ServerSettingsTab';
 import ServerNameEditor from '../../../components/ServerNameEditor';
 import UserMenu from '../../../components/UserMenu';
 import BillingCards from '../../../components/BillingCards';
+import { usePathname } from 'next/navigation';
+import { menuLabels } from "../../../data/menuLabels"
+
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -123,6 +126,14 @@ export default function ServerInfoPage() {
     setEasyMode(checked);
   };
 
+
+const pathname = usePathname();
+const getPageTitle = () => {
+  if (pathname === '/easy/serverinfo') return menuLabels.myServer;
+  if (pathname === '/account') return menuLabels.accountSettings;
+  if (pathname === '/create') return menuLabels.createServer;
+  return '';
+};
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
       {/* Header */}
@@ -136,6 +147,17 @@ export default function ServerInfoPage() {
               <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                 by GMO
               </Typography>
+              
+
+             {/* getPageTitle 関数と以下プログラムをヘッダーに入れてください */}
+              {getPageTitle() && (
+                <Typography variant="subtitle2" sx={{ color: '#888', ml: 1 }}>
+                  / {getPageTitle()}
+                </Typography>
+              )}
+               {/* ここまで */}
+
+
             </Box>
             <Box sx={{ position: 'relative' }}>
               <IconButton 

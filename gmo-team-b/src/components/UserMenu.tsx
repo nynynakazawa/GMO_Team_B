@@ -7,6 +7,7 @@ import {
   Paper,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import { menuLabels } from "../data/menuLabels"
 
 interface UserMenuProps {
   isOpen: boolean;
@@ -50,7 +51,7 @@ export default function UserMenu({
         {/* Myサーバー */}
         <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={() => router.push('/easy/serverinfo')}>
           <Typography variant="body2" sx={{ color: 'text.primary', textAlign: 'center' }}>
-            Myサーバー
+            {menuLabels.myServer}
           </Typography>
         </Box>
         
@@ -59,7 +60,7 @@ export default function UserMenu({
         {/* 新規サーバー作成 */}
         <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }}>
           <Typography variant="body2" sx={{ color: 'text.primary', textAlign: 'center' }}>
-            新規サーバー作成
+           {menuLabels. createServer}
           </Typography>
         </Box>
         
@@ -68,7 +69,7 @@ export default function UserMenu({
         {/* 簡単モード */}
         <Box sx={{ px: 3, py: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="body2" sx={{ color: 'text.primary' }}>
-            簡単モード
+            {menuLabels.easyMode}
           </Typography>
           <Switch
             checked={easyMode}
@@ -90,7 +91,7 @@ export default function UserMenu({
         {/* アカウント設定 */}
         <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={() => router.push('/account')}>
           <Typography variant="body2" sx={{ color: 'text.primary', textAlign: 'center' }}>
-            アカウント設定
+            {menuLabels.accountSettings}
           </Typography>
         </Box>
         
@@ -99,7 +100,7 @@ export default function UserMenu({
         {/* ログアウト */}
         <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }}>
           <Typography variant="body2" sx={{ color: 'text.primary', textAlign: 'center' }}>
-            ログアウト
+            {menuLabels.logout}
           </Typography>
         </Box>
       </Box>
