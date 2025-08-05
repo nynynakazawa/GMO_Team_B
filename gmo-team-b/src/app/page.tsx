@@ -1,6 +1,5 @@
-import { Dashboard } from "../components/Dashboard";
-import { mockRootProps } from "../data/dashboardMockData";
+import { AuthenticationPage } from "../components/AuthenticationPage";
 
 export default function Home() {
-  return <Dashboard {...mockRootProps} />;
+  return <AuthenticationPage />;
 }
