@@ -83,7 +83,7 @@ export const AuthenticationPage: React.FC<AuthenticationPageProps> = ({
             />
           ) : (
             <SignupForm
-              onSignup={handleSignup}
+              onLogin={handleLogin}
               onExistingAccount={handleExistingAccount}
             />
           )}
