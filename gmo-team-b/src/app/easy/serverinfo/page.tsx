@@ -38,6 +38,7 @@ import { serverInfoMockData, ServerAction, ServerSetting } from '../../../data/s
 import ServerSettingsTab from '../../../components/ServerSettingsTab';
 import ServerNameEditor from '../../../components/ServerNameEditor';
 import UserMenu from '../../../components/UserMenu';
+import BillingCards from '../../../components/BillingCards';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -327,6 +328,9 @@ export default function ServerInfoPage() {
             </Box>
           </TabPanel>
         </Paper>
+
+        {/* Billing Cards */}
+        <BillingCards />
 
         {/* Help Link */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>

@@ -6,6 +6,7 @@ import {
   Divider,
   Paper,
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 interface UserMenuProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export default function UserMenu({
   easyMode,
   onEasyModeChange,
 }: UserMenuProps) {
+  const router = useRouter();
   if (!isOpen) return null;
 
   return (
@@ -46,7 +48,7 @@ export default function UserMenu({
     >
       <Box sx={{ py: 1 }}>
         {/* Myサーバー */}
-        <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }}>
+        <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={() => router.push('/easy/serverinfo')}>
           <Typography variant="body2" sx={{ color: 'text.primary', textAlign: 'center' }}>
             Myサーバー
           </Typography>
@@ -86,7 +88,7 @@ export default function UserMenu({
         <Divider sx={{ my: 0 }} />
         
         {/* アカウント設定 */}
-        <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }}>
+        <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={() => router.push('/account')}>
           <Typography variant="body2" sx={{ color: 'text.primary', textAlign: 'center' }}>
             アカウント設定
           </Typography>
