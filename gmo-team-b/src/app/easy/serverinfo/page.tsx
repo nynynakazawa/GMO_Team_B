@@ -218,15 +218,24 @@ export default function ServerInfoPage() {
               value={tabValue}
               onChange={handleTabChange}
               sx={{
+                minHeight: 40,
+                alignItems: 'center',
                 '& .MuiTab-root': {
                   textTransform: 'none',
                   fontWeight: 'medium',
+                  minHeight: 40,
+                  fontSize: '1rem',
+                  px: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  lineHeight: 1.5,
                 },
                 '& .Mui-selected': {
                   color: '#19B8D7',
                 },
                 '& .MuiTabs-indicator': {
                   backgroundColor: '#19B8D7',
+                  height: 3,
                 },
               }}
             >
@@ -251,10 +260,9 @@ export default function ServerInfoPage() {
               <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
                 プランを変更しますか?
               </Typography>
-              <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', color: 'text.secondary' }}>
-                ストレージ容量は変更されません。これまでのリソースグラフのデータは削除されます。
+              <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', color: 'text.secondary', display: 'inline' }}>
+                ストレージ容量は変更されません。<br />これまでのリソースグラフのデータは削除されます。
               </Typography>
-
               <Card sx={{ mb: 3 }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -273,11 +281,16 @@ export default function ServerInfoPage() {
                           value={selectedPlan}
                           onChange={handlePlanChange}
                           displayEmpty
-                          sx={{ '& .MuiSelect-icon': { color: '#19B8D7' } }}
+                          sx={{ '& .MuiSelect-icon': { color: '#19B8D7' }, fontSize: '1rem' }}
+                          MenuProps={{
+                            PaperProps: {
+                              sx: { fontSize: '1rem' }
+                            }
+                          }}
                         >
-                          <MenuItem value="8GB/6Core">メモリ 8GB/CPU 6Core</MenuItem>
-                          <MenuItem value="16GB/8Core">メモリ 16GB/CPU 8Core</MenuItem>
-                          <MenuItem value="32GB/12Core">メモリ 32GB/CPU 12Core</MenuItem>
+                          <MenuItem value="8GB/6Core" sx={{ fontSize: '1rem' }}>メモリ 8GB/CPU 6Core</MenuItem>
+                          <MenuItem value="16GB/8Core" sx={{ fontSize: '1rem' }}>メモリ 16GB/CPU 8Core</MenuItem>
+                          <MenuItem value="32GB/12Core" sx={{ fontSize: '1rem' }}>メモリ 32GB/CPU 12Core</MenuItem>
                         </Select>
                       </FormControl>
                     </Box>
@@ -318,12 +331,9 @@ export default function ServerInfoPage() {
 
               <Typography variant="caption" sx={{ textAlign: 'center', display: 'block', color: 'text.secondary' }}>
                 ※表示料金にはサービス維持調整費が含まれています。
-                <Typography
-                  component="span"
-                  sx={{ color: '#19B8D7', cursor: 'pointer', textDecoration: 'underline' }}
-                >
+                <span style={{ color: '#19B8D7', cursor: 'pointer', textDecoration: 'underline', fontSize: 'inherit', marginLeft: 4 }}>
                   詳しくはこちら
-                </Typography>
+                </span>
               </Typography>
             </Box>
           </TabPanel>
