@@ -1,9 +1,6 @@
-import Image from "next/image";
+import { Dashboard } from "../components/Dashboard";
+import { mockRootProps } from "../data/dashboardMockData";
 
 export default function Home() {
-  return (
-    <div>
-      <h1>テスト</h1>
-    </div>
-  )
+  return <Dashboard {...mockRootProps} />;
 }
