@@ -38,7 +38,6 @@ const theme = createTheme({
       fontWeight: 400,
       fontFamily: "Iceland",
       color: "#19b8d7",
-      WebkitTextStroke: "1px #000000",
     },
     h4: {
       fontSize: "40px",
@@ -50,7 +49,6 @@ const theme = createTheme({
       fontWeight: 400,
       fontFamily: "Iceland",
       color: "#19b8d7",
-      WebkitTextStroke: "1px #000000",
     },
     body1: {
       fontSize: "24px",
@@ -63,7 +61,7 @@ const theme = createTheme({
       fontFamily: '"Noto Sans", sans-serif',
     },
     button: {
-      fontSize: "32px",
+      fontSize: "1.1rem", // わずかに大きく
       fontWeight: 400,
       fontFamily: '"Noto Sans", sans-serif',
       textTransform: "none",
@@ -73,6 +71,32 @@ const theme = createTheme({
     borderRadius: 10,
   },
   shadows: ["none", "0px 4px 4px rgba(0, 0, 0, 0.25)"],
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          fontSize: '1.2rem', // わずかに大きく
+          padding: '4px 16px',
+          minHeight: '32px',
+        },
+      },
+      defaultProps: {
+        size: 'small',
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          fontSize: '1.2rem', // わずかに大きく
+          minHeight: '32px',
+          padding: '4px 8px',
+        },
+      },
+      defaultProps: {
+        size: 'small',
+      },
+    },
+  },
 });
 
 export default theme;
