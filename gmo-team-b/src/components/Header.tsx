@@ -1,52 +1,69 @@
 "use client";
 
-import React from "react";
-import { Box, Typography, Stack } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import UserAvatarIcon from "./icons/UserAvatarIcon";
-
-const HeaderContainer = styled(Box)(() => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "15px 17px",
-  backgroundColor: "#ffffff",
-  borderBottom: "1px solid #000000",
-}));
-
-const Logo = styled("img")(() => ({
-  height: 84,
-  width: "auto",
-}));
-
-const MyPageText = styled(Typography)(({ theme }) => ({
-  fontSize: "16px",
-  fontWeight: 400,
-  fontFamily: '"Noto Sans", sans-serif',
-  color: "#ffffff",
-}));
-
-const RightSection = styled(Stack)(() => ({
-  alignItems: "center",
-  gap: 2,
-}));
-
-const UserIconContainer = styled(Box)(() => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
+import React, { useState } from "react";
+import { Box, Container, Typography, IconButton, Stack } from "@mui/material";
+import { Person } from "@mui/icons-material";
+import UserMenu from "./UserMenu";
 
 export const Header: React.FC = () => {
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [easyMode, setEasyMode] = useState(true);
+
+  const handleUserMenuToggle = () => {
+    setIsUserMenuOpen(!isUserMenuOpen);
+  };
+
+  const handleEasyModeChange = (checked: boolean) => {
+    setEasyMode(checked);
+  };
+
   return (
-    <HeaderContainer>
-      <Logo src="/images/conoha-logo.png" alt="ConoHa for GAME" />
-      <RightSection direction="row">
-        <MyPageText>マイページ</MyPageText>
-        <UserIconContainer>
-          <UserAvatarIcon width={80} height={80} color="#19b8d7" />
-        </UserIconContainer>
-      </RightSection>
-    </HeaderContainer>
+    <Box
+      sx={{
+        bgcolor: "white",
+        borderBottom: 1,
+        borderColor: "divider",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+      height={"60px"}
+    >
+      <Container maxWidth="xl">
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Stack direction="row" alignItems="baseline" spacing={0.5}>
+            <Typography
+              variant="h5"
+              sx={{ color: "#19B8D7", fontWeight: "bold" }}
+            >
+              ConoHa for GAME
+            </Typography>
+            <Typography variant="caption" sx={{ color: "text.secondary" }}>
+              by GMO
+            </Typography>
+          </Stack>
+          <Box sx={{ position: "relative" }}>
+            <IconButton
+              sx={{ bgcolor: "#e3f2fd", color: "#19B8D7" }}
+              onClick={handleUserMenuToggle}
+            >
+              <Person />
+            </IconButton>
+            <UserMenu
+              isOpen={isUserMenuOpen}
+              easyMode={easyMode}
+              onEasyModeChange={handleEasyModeChange}
+            />
+          </Box>
+        </Box>
+      </Container>
+    </Box>
   );
 };
