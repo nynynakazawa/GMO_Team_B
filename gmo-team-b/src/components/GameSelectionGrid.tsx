@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Typography, TextField, Stack } from "@mui/material";
+import { Box, Typography, TextField, Stack, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { GameCard } from "./GameCard";
@@ -14,7 +14,7 @@ const SectionContainer = styled(Box)(() => ({
 const SectionHeader = styled(Stack)(() => ({
   alignItems: "center",
   justifyContent: "space-between",
-  marginBottom: 20,
+  // marginBottom: 20,
 }));
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
@@ -73,6 +73,26 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
   const filteredGames = games.filter((game) =>
     game.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (selectedGame) {
+    return (
+      <SectionContainer>
+        <Stack direction="row" spacing={3} alignItems={"center"}>
+          <SectionTitle>ゲームを選択</SectionTitle>
+          <Typography variant="body1" color="#19b8d7">
+            {selectedGame}
+          </Typography>
+          <Button
+            variant="outlined"
+            sx={{ width: 100, height: 38, fontSize: 16 }}
+            onClick={() => onGameSelect("")} // 空文字でリセット
+          >
+            再選択
+          </Button>
+        </Stack>
+      </SectionContainer>
+    );
+  }
 
   return (
     <SectionContainer>

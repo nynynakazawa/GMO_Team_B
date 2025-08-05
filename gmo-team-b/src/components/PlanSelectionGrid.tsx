@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Typography, Stack } from "@mui/material";
+import { Box, Typography, Stack, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { PlanCard } from "./PlanCard";
 import { Plan } from "../types/gameServerSetup";
@@ -36,6 +36,26 @@ export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
   selectedPlan,
   onPlanSelect,
 }) => {
+  if (selectedPlan) {
+    return (
+      <SectionContainer>
+        <Stack direction="row" spacing={3} alignItems={"center"}>
+          <SectionTitle>期間を選択</SectionTitle>
+          <Typography variant="body1" color="#19b8d7">
+            {selectedPlan}
+          </Typography>
+          <Button
+            variant="outlined"
+            sx={{ width: 100, height: 38, fontSize: 16 }}
+            onClick={() => onPlanSelect("")} // 空文字でリセット
+          >
+            再選択
+          </Button>
+        </Stack>
+      </SectionContainer>
+    );
+  }
+
   return (
     <SectionContainer>
       <SectionTitle>プランを選択</SectionTitle>

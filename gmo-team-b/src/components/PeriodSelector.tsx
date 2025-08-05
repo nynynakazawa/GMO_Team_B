@@ -1,10 +1,18 @@
 "use client";
 
 import React from "react";
-import { Box, Typography, Select, MenuItem, FormControl } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  Stack,
+  Button,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import DropdownArrowIcon from "./icons/DropdownArrowIcon";
-import { PeriodOption } from "../types/gameServerSetup";
+import { PeriodOption } from "../types/PeriodServerSetup";
 
 const SectionContainer = styled(Box)(() => ({
   marginBottom: 40,
@@ -61,6 +69,26 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
   selectedPeriod,
   onPeriodSelect,
 }) => {
+  if (selectedPeriod) {
+    return (
+      <SectionContainer>
+        <Stack direction="row" spacing={3} alignItems={"center"}>
+          <SectionTitle>期間を選択</SectionTitle>
+          <Typography variant="body1" color="#19b8d7">
+            {selectedPeriod}
+          </Typography>
+          <Button
+            variant="outlined"
+            sx={{ width: 100, height: 38, fontSize: 16 }}
+            onClick={() => onPeriodSelect("")} // 空文字でリセット
+          >
+            再選択
+          </Button>
+        </Stack>
+      </SectionContainer>
+    );
+  }
+
   return (
     <SectionContainer>
       <SectionTitle>期間を選択</SectionTitle>
