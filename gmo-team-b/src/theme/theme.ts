@@ -70,30 +70,56 @@ const theme = createTheme({
   shape: {
     borderRadius: 10,
   },
-  shadows: ["none", "0px 4px 4px rgba(0, 0, 0, 0.25)"],
+  shadows: [
+    "none",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+  ],
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          fontSize: '1.2rem', // わずかに大きく
-          padding: '4px 16px',
-          minHeight: '32px',
+          fontSize: "1.2rem", // わずかに大きく
+          padding: "4px 16px",
+          minHeight: "32px",
         },
       },
       defaultProps: {
-        size: 'small',
+        size: "small",
       },
     },
     MuiTab: {
       styleOverrides: {
         root: {
-          fontSize: '1.2rem', // わずかに大きく
-          minHeight: '32px',
-          padding: '4px 8px',
+          fontSize: "1.2rem", // わずかに大きく
+          minHeight: "32px",
+          padding: "4px 8px",
         },
       },
       defaultProps: {
-        size: 'small',
+        size: "small",
       },
     },
   },
