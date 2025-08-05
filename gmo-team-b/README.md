@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+🚀 開発環境のセットアップと起動
 
-## Getting Started
+このプロジェクトをローカル環境で起動する手順は以下の通りです。
 
-First, run the development server:
+前提条件
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Node.js (v18.x 以上を推奨)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+npm (Node.js に同梱)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+手順
+① リポジトリをクローン
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+git clone https://github.com/your-username/your-repository.git
+cd GMO_Team_B.git
 
-## Learn More
+② 必要なパッケージをインストールします。
 
-To learn more about Next.js, take a look at the following resources:
+_npm のインストール_
+npm install
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+_material UI のインストール_
+npm install @mui/material
+npm install @emotion/react
+npm install @emotion/styled
+npm install @mui/icons-material
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+開発サーバーを起動します。
 
-## Deploy on Vercel
+ブラウザで確認します。
+npm run dev をし、ブラウザで http://localhost:3000 にアクセスすると、アプリケーションが表示されます。
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**✨ Kombai の使用方法**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+このプロジェクトでは、デザイン（Figma など）からコードを生成するために Kombai を使用することがあります。
+
+_インストール方法_
+
+①VScode の拡張機能から komai を検索しインストール
+
+②figma と kombai の連携
+
+③ 実際にプロンプトにて該当するコンポーネント(fimga の URL)を入力し、UI 生成
+
+_クレジットについて_
+
+Kombai はクレジットベースのサービスです。
+
+初期クレジット: 新規アカウントには 1000 クレジット が付与されます。
+
+クレジット消費量: 1 回のデザイン → コード変換で、約 30〜40 クレジット を消費します。
+
+クレジットの残量に注意しながら計画的に利用してください。
