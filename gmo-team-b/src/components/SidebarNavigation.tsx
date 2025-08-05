@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, List, ListItem, ListItemButton, ListItemText, Button, Stack } from '@mui/material';
+import Image from 'next/image';
+import { Box, List, ListItem, ListItemButton, ListItemText, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -61,9 +62,11 @@ export const SidebarNavigation: React.FC = () => {
   return (
     <SidebarContainer>
       <LogoContainer>
-        <img 
+        <Image 
           src="/images/conoha-logo.png" 
           alt="ConoHa Logo" 
+          width={165} 
+          height={78}
           style={{ maxWidth: '100%', maxHeight: '100%' }}
         />
       </LogoContainer>

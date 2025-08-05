@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react';
-import { Box, Stack } from '@mui/material';
+import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { SidebarNavigation } from './SidebarNavigation';
 import { HeaderTabs } from './HeaderTabs';
@@ -31,8 +31,7 @@ const ContentArea = styled(Box)(() => ({
 export const Dashboard: React.FC<DashboardProps> = ({
   currentStep,
   servers,
-  billingInfo,
-  planInfo
+  billingInfo
 }) => {
   return (
     <DashboardContainer>

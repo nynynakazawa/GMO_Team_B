@@ -46,7 +46,7 @@ export const HeaderTabs: React.FC = () => {
   return (
     <HeaderContainer>
       <StyledTabs value={value} onChange={handleChange}>
-        {tabs.map((tab, index) => (
+        {tabs.map((tab) => (
           <StyledTab key={tab.id} label={tab.label} />
         ))}
       </StyledTabs>

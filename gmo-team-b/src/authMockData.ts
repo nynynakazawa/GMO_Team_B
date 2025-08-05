@@ -1,6 +1,6 @@
 // Mock data for authentication page
 import { auth } from './firebase/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 // Data passed as props to the root component
 export const mockRootProps = {

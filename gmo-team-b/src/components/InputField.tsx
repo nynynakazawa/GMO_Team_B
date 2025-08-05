@@ -4,7 +4,7 @@ import React from 'react';
 import { TextField, TextFieldProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-const StyledTextField = styled(TextField)(({ theme }) => ({
+const StyledTextField = styled(TextField)(() => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: '10px',
     backgroundColor: 'transparent',
@@ -23,7 +23,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-const StyledTextFieldSignup = styled(TextField)(({ theme }) => ({
+const StyledTextFieldSignup = styled(TextField)(() => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: '10px',
     backgroundColor: 'transparent',

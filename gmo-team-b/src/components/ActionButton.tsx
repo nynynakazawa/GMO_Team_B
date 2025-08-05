@@ -4,7 +4,7 @@ import React from 'react';
 import { Button, ButtonProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-const StyledButton = styled(Button)(({ theme }) => ({
+const StyledButton = styled(Button)(() => ({
   backgroundColor: '#2BBBD8',
   color: '#ffffff',
   borderRadius: '10px',
