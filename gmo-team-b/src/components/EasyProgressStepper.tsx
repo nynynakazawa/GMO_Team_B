@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Button, Stack } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -22,32 +22,32 @@ const StepContainer = styled(Box)(() => ({
   marginBottom: 20,
 }));
 
-const StepContent = styled(Box)<{ active: boolean; completed: boolean }>(
-  ({ theme, active, completed }) => ({
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    flex: 1,
-    opacity: active || completed ? 1 : 0.6,
-    transform: active ? "scale(1.05)" : "scale(1)",
-    transition: "all 0.3s ease",
-  })
-);
+const StepContent = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "completed",
+})<{ completed: boolean }>(({ theme, completed }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  flex: 1,
+  // ここで completed を使う場合はコメントアウトを外してね
+  // opacity: completed ? 1 : 0.6,
+  transition: "all 0.3s ease",
+}));
 
-const StepTitle = styled(Typography)<{ $active: boolean; completed: boolean }>(
-  ({ theme, $active, completed }) => ({
-    color:
-      $active || completed
-        ? theme.palette.primary.main
-        : theme.palette.text.secondary,
-    fontFamily: "Iceland",
-    fontSize: "24px",
-    fontWeight: 400,
-    textAlign: "center",
-    marginBottom: theme.spacing(2),
-    transition: "all 0.3s ease",
-  })
-);
+const StepTitle = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== "active" && prop !== "completed",
+})<{ active: boolean; completed: boolean }>(({ theme, active, completed }) => ({
+  color:
+    active || completed
+      ? theme.palette.primary.main
+      : theme.palette.text.secondary,
+  fontFamily: "Iceland",
+  fontSize: "24px",
+  fontWeight: 400,
+  textAlign: "center",
+  marginBottom: theme.spacing(2),
+  transition: "all 0.3s ease",
+}));
 
 const ActionButton = styled(Button)<{ active: boolean }>(
   ({ theme, active }) => ({
@@ -132,25 +132,25 @@ const ProgressFill = styled(Box)<{ progress: number }>(
   })
 );
 
-const ProgressDot = styled(Box)<{ active: boolean; completed: boolean }>(
-  ({ theme, active, completed }) => ({
-    width: 16,
-    height: 16,
-    borderRadius: "50%",
-    backgroundColor: completed
-      ? theme.palette.primary.main
-      : active
-      ? theme.palette.primary.light
-      : theme.palette.grey[300],
-    border:
-      active && !completed ? `2px solid ${theme.palette.primary.main}` : "none",
-    position: "absolute",
-    top: "50%",
-    transform: "translate(-50%, -75%)",
-    transition: "all 0.3s ease",
-    zIndex: 1,
-  })
-);
+const ProgressDot = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "active" && prop !== "completed",
+})<{ active: boolean; completed: boolean }>(({ theme, active, completed }) => ({
+  width: 16,
+  height: 16,
+  borderRadius: "50%",
+  backgroundColor: completed
+    ? theme.palette.primary.main
+    : active
+    ? theme.palette.primary.light
+    : theme.palette.grey[300],
+  border:
+    active && !completed ? `2px solid ${theme.palette.primary.main}` : "none",
+  position: "absolute",
+  top: "50%",
+  transform: "translate(-50%, -75%)",
+  transition: "all 0.3s ease",
+  zIndex: 1,
+}));
 
 interface Step {
   id: number;
@@ -321,7 +321,7 @@ export const EasyProgressStepper: React.FC<ProgressStepperProps> = ({
           const completed = isStepCompleted(step.id);
 
           return (
-            <StepContent key={step.id} active={active} completed={completed}>
+            <StepContent key={step.id} completed={completed}>
               <StepTitle active={true} completed={completed}>
                 {step.title}
                 <br />

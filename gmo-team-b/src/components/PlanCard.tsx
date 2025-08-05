@@ -6,9 +6,11 @@ import { styled } from "@mui/material/styles";
 import { Plan } from "../types/gameServerSetup";
 import { formatPrice, formatDiscount } from "../data/stringFormatters";
 
-const PlanCardContainer = styled(Box)<{
+const PlanCardContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "selected" && prop !== "featured",
+})<{
   selected: boolean;
-  featured?: boolean;
+  featured: boolean;
 }>(({ theme, selected, featured }) => ({
   display: "flex",
   flexDirection: "column",

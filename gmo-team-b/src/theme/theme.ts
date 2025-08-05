@@ -38,7 +38,6 @@ const theme = createTheme({
       fontWeight: 400,
       fontFamily: "Iceland",
       color: "#19b8d7",
-      WebkitTextStroke: "1px #000000",
     },
     h4: {
       fontSize: "40px",
@@ -50,7 +49,6 @@ const theme = createTheme({
       fontWeight: 400,
       fontFamily: "Iceland",
       color: "#19b8d7",
-      WebkitTextStroke: "1px #000000",
     },
     body1: {
       fontSize: "24px",
@@ -72,7 +70,33 @@ const theme = createTheme({
   shape: {
     borderRadius: 10,
   },
-  shadows: ["none", "0px 4px 4px rgba(0, 0, 0, 0.25)"],
+  shadows: [
+    "none",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+  ],
 });
 
 export default theme;

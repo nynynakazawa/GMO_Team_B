@@ -7,7 +7,7 @@ import { Game } from "../types/gameServerSetup";
 
 const GameCardContainer = styled(Box)<{
   selected: boolean;
-  featured?: boolean;
+  featured: boolean;
 }>(({ theme, selected, featured }) => ({
   display: "flex",
   flexDirection: "column",
