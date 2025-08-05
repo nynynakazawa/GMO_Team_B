@@ -13,7 +13,6 @@ export default function UserMenu({
   easyMode,
   onEasyModeChange,
 }: UserMenuProps) {
-  const router = useRouter();
   if (!isOpen) return null;
 
   return (
@@ -58,7 +57,6 @@ export default function UserMenu({
               Myサーバー
             </Typography>
           </Link>
-
         </Box>
 
         <Divider sx={{ my: 0 }} />
