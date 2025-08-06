@@ -92,13 +92,44 @@ export default function EasyCreatePage() {
     setError(null);
 
     try {
+      // 選択されたプランの詳細情報を取得
+      const selectedPlanData = plans.find(plan => plan.id === selectedPlan);
+      
       console.log("VPSサーバー作成開始:", {
         game: selectedGame,
         period: selectedPeriod,
         plan: selectedPlan,
+        planData: selectedPlanData,
         serverName,
         timestamp: new Date().toISOString()
       });
+
+      // プラン情報から RAM、CPU、SSD を抽出
+      let ramGB = 1; // デフォルト
+      let cpuCores = 2; // デフォルト
+      let ssdSize = 100; // デフォルト
+
+      if (selectedPlanData) {
+        // capacity から RAM を抽出 (例: "1GB RAM" → 1)
+        const ramMatch = selectedPlanData.capacity.match(/(\d+)GB/);
+        if (ramMatch) {
+          ramGB = parseInt(ramMatch[1]);
+        }
+
+        // cpuCores から CPU数を抽出 (例: "2Core" → 2)
+        const cpuMatch = selectedPlanData.cpuCores.match(/(\d+)Core/);
+        if (cpuMatch) {
+          cpuCores = parseInt(cpuMatch[1]);
+        }
+
+        // storageCapacity から SSD容量を抽出 (例: "100GB" → 100)
+        const ssdMatch = selectedPlanData.storageCapacity.match(/(\d+)GB/);
+        if (ssdMatch) {
+          ssdSize = parseInt(ssdMatch[1]);
+        }
+      }
+
+      console.log("抽出されたプラン仕様:", { ramGB, cpuCores, ssdSize });
 
       const response = await fetch('/api/vps/create', {
         method: 'POST',
@@ -111,6 +142,9 @@ export default function EasyCreatePage() {
           password,
           game: selectedGame,
           period: selectedPeriod,
+          ramGB,
+          cpuCores,
+          ssdSize,
         }),
       });
 

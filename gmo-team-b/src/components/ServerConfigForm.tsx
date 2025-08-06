@@ -121,7 +121,7 @@ export const ServerConfigForm: React.FC<ServerConfigFormProps> = ({
             type="password"
             value={password}
             onChange={(e) => onPasswordChange(e.target.value)}
-            placeholder="パスワードを入力してください"
+            placeholder="パスワードを入力してください 大小英数字記号を含める必要があります"
             variant="outlined"
             inputProps={{
               minLength: 8,

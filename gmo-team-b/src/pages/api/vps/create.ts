@@ -4,17 +4,31 @@ import type { NextApiRequest, NextApiResponse } from "next";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { planId, serverName, password, game, period } = req.body as { 
+  const { planId, serverName, password, game, period, ramGB, cpuCores, ssdSize } = req.body as { 
     planId: string; 
     serverName: string; 
     password: string;
     game: string; 
-    period: string 
+    period: string;
+    ramGB?: number;
+    cpuCores?: number;
+    ssdSize?: number;
   };
   
   if (!planId || !serverName || !password || !game || !period) {
     return res.status(400).json({ message: "planId, serverName, password, game, period は必須です" });
   }
+
+  // デバッグ: 受け取ったパラメータを出力
+  console.log("受け取ったリクエストパラメータ:", {
+    planId,
+    serverName,
+    game,
+    period,
+    ramGB,
+    cpuCores,
+    ssdSize
+  });
 
   // ConoHaパスワード要件チェック（英数字記号を含む8-70文字）
   const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,70}$/;
@@ -24,11 +38,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 
-  // planIdからRAM容量を抽出（例: "plan-8gb" → 8）
-  const ramGB = parseInt(planId.replace('plan-', '').replace('gb', ''));
-  if (isNaN(ramGB)) {
-    return res.status(400).json({ message: "無効なプランIDです" });
+  // プラン選択からのパラメータを使用、なければplanIdから抽出
+  let selectedRamGB = ramGB;
+  let selectedCpuCores = cpuCores;
+  let selectedSsdSize = ssdSize || 100; // デフォルトは100GB
+  
+  // ramGBが送信されていない場合、planIdから抽出を試行
+  if (!selectedRamGB) {
+    // planIdからRAM容量を抽出（例: "plan-8gb" → 8）
+    const planIdMatch = planId.match(/(\d+)/);
+    if (planIdMatch) {
+      selectedRamGB = parseInt(planIdMatch[1]);
+    }
+    
+    if (!selectedRamGB || isNaN(selectedRamGB)) {
+      return res.status(400).json({ message: "無効なプランIDです" });
+    }
   }
+  
+  // CPU数が指定されていない場合、RAM容量に基づいてデフォルト値を設定
+  if (!selectedCpuCores) {
+    selectedCpuCores = selectedRamGB === 1 ? 2 : 
+                      selectedRamGB === 2 ? 3 : 
+                      selectedRamGB === 4 ? 4 : 
+                      selectedRamGB === 8 ? 6 : 8;
+  }
+  
+  console.log("最終的に使用するプラン仕様:", {
+    selectedRamGB,
+    selectedCpuCores,
+    selectedSsdSize
+  });
 
   try {
     const { token, computeEndpoint, projectId } = await getConoHaTokenAndEndpoint();
@@ -71,15 +111,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     });
 
-    // 小さくてシンプルなLinux用フレーバーを優先検索
+    // 選択されたプランの仕様に合うフレーバーを検索（条件を緩く設定）
     const suitableFlavors = publicFlavors.filter((f: any) => {
       const name = f.name.toLowerCase();
       
       // Linux VPS専用フレーバー（g2l）で、DBaaS用（g2d）ではない
       const isLinuxVPS = name.includes('g2l') && !name.includes('g2d');
       
-      // RAM容量の条件を緩く設定
-      const ramMatch = ramGB <= 4 || name.includes('m4') || name.includes('m8') || name.includes('m16');
+      // 選択されたRAM容量以上のフレーバーを許可（厳密な一致ではなく）
+      const ramMatch = name.includes(`m${selectedRamGB}`) || 
+                      (selectedRamGB <= 4 && (name.includes('m4') || name.includes('m8') || name.includes('m16'))) ||
+                      (selectedRamGB <= 8 && (name.includes('m8') || name.includes('m16'))) ||
+                      (selectedRamGB <= 16 && name.includes('m16'));
       
       return isLinuxVPS && ramMatch;
     });
@@ -91,35 +134,66 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ram: f.ram
     })));
     
-    // 特定の動作確認済みフレーバーを試す（Linux用を優先）
-    const knownWorkingFlavors = [
-      'g2l-t-c4m4',   // Linux用 4vCPU 4GB RAM
-      'g2l-p-c4m4',   // Linux用 4vCPU 4GB RAM (プレミアム)
-      'g2l-t-c6m8',   // Linux用 6vCPU 8GB RAM
-      'g2l-t-c8m16',  // Linux用 8vCPU 16GB RAM
-      'g2l-p-c6m8',   // Linux用 6vCPU 8GB RAM (プレミアム)
-      'g2l-p-c8m16'   // Linux用 8vCPU 16GB RAM (プレミアム)
-    ];
+    console.log(`選択されたプラン仕様: RAM=${selectedRamGB}GB, CPU=${selectedCpuCores || 'auto'}Core, SSD=${selectedSsdSize}GB`);
+    
+    // 選択されたプランの仕様に基づいて動作確認済みフレーバーを生成
+    const generateKnownFlavors = (ram: number, cpu?: number) => {
+      const flavors = [];
+      if (cpu) {
+        flavors.push(`g2l-t-c${cpu}m${ram}`);   // 通常プラン
+        flavors.push(`g2l-p-c${cpu}m${ram}`);   // プレミアムプラン
+      } else {
+        // CPU数が指定されていない場合は、RAM容量に応じたデフォルトを使用
+        const defaultCpu = ram === 1 ? 2 : ram === 2 ? 3 : ram === 4 ? 4 : ram === 8 ? 6 : 8;
+        flavors.push(`g2l-t-c${defaultCpu}m${ram}`);
+        flavors.push(`g2l-p-c${defaultCpu}m${ram}`);
+      }
+      return flavors;
+    };
+    
+    const knownWorkingFlavors = generateKnownFlavors(selectedRamGB, selectedCpuCores);
     
     let matchingFlavor = null;
     
-    // まず動作確認済みフレーバーを試す
+    // まず選択されたプランに合う動作確認済みフレーバーを試す
     for (const flavorName of knownWorkingFlavors) {
       const flavor = publicFlavors.find((f: any) => f.name.toLowerCase() === flavorName);
       if (flavor) {
         matchingFlavor = flavor;
-        console.log(`動作確認済みフレーバーを使用: ${flavorName}`);
+        console.log(`選択されたプランに合うフレーバーを使用: ${flavorName}`);
         break;
       }
     }
     
-    // 見つからない場合は最小のフレーバーを選択
+    // 見つからない場合は以前の動作確認済みフレーバーを試す
     if (!matchingFlavor) {
-      matchingFlavor = suitableFlavors.sort((a: any, b: any) => a.ram - b.ram)[0] || 
-                      publicFlavors.filter((f: any) => {
-                        const name = f.name.toLowerCase();
-                        return name.includes('g2w') && !name.includes('g2d');
-                      }).sort((a: any, b: any) => a.ram - b.ram)[0];
+      const fallbackFlavors = [
+        'g2l-t-c4m4',   // Linux用 4vCPU 4GB RAM
+        'g2l-p-c4m4',   // Linux用 4vCPU 4GB RAM (プレミアム)
+        'g2l-t-c6m8',   // Linux用 6vCPU 8GB RAM
+        'g2l-t-c8m16',  // Linux用 8vCPU 16GB RAM
+        'g2l-p-c6m8',   // Linux用 6vCPU 8GB RAM (プレミアム)
+        'g2l-p-c8m16'   // Linux用 8vCPU 16GB RAM (プレミアム)
+      ];
+      
+      // フォールバックフレーバーを試す
+      for (const flavorName of fallbackFlavors) {
+        const flavor = publicFlavors.find((f: any) => f.name.toLowerCase() === flavorName);
+        if (flavor) {
+          matchingFlavor = flavor;
+          console.log(`フォールバックフレーバーを使用: ${flavorName}`);
+          break;
+        }
+      }
+      
+      // それでも見つからない場合は適用可能なフレーバーから選択
+      if (!matchingFlavor) {
+        matchingFlavor = suitableFlavors.sort((a: any, b: any) => a.ram - b.ram)[0] || 
+                        publicFlavors.filter((f: any) => {
+                          const name = f.name.toLowerCase();
+                          return name.includes('g2w') && !name.includes('g2d');
+                        }).sort((a: any, b: any) => a.ram - b.ram)[0];
+      }
     }
     
     if (matchingFlavor) {
@@ -139,7 +213,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (!matchingFlavor) {
-      throw new Error(`要求仕様 (RAM=${ramGB}GB) を満たすVPS専用フレーバーが見つかりません`);
+      throw new Error(`要求仕様 (RAM=${selectedRamGB}GB${selectedCpuCores ? `, CPU=${selectedCpuCores}Core` : ''}) を満たすVPS専用フレーバーが見つかりません`);
     }
 
     /*--- イメージ一覧を取得 ---*/
@@ -254,12 +328,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     
     // ブートボリュームを作成（必ずイメージ指定）
-    // ボリュームタイプに応じてサイズを調整
-    let volumeSize = 100; // デフォルト
+    // 選択されたSSDサイズまたはボリュームタイプに応じてサイズを調整
+    let volumeSize = selectedSsdSize; // 選択されたSSDサイズを使用
     if (volumeType.includes('as01')) {
-      volumeSize = 30; // 512MBプラン用
-    } else if (volumeType.includes('ds02') || volumeType.includes('ds03')) {
-      volumeSize = 100; // 通常のVPSプラン用
+      volumeSize = Math.min(selectedSsdSize, 30); // 512MBプラン用は最大30GB
     }
     
     console.log(`ボリュームタイプ ${volumeType} に対してサイズ ${volumeSize}GB を使用`);
@@ -422,6 +494,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         id: volume.id,
         size: volume.size,
         name: volume.name
+      },
+      planSpecs: {
+        ramGB: selectedRamGB,
+        cpuCores: selectedCpuCores,
+        ssdSize: selectedSsdSize
       },
       message: "VPSサーバーの作成を開始しました"
     });
