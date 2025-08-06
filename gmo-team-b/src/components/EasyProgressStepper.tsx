@@ -181,19 +181,19 @@ const defaultSteps: Step[] = [
   {
     id: 2,
     title: "Step2",
-    subtitle: "期間を設定",
-    image: "/images/set-term.jpg",
+    subtitle: "RAMを選択",
+    image: "/images/server-card.png",
   },
   {
     id: 3,
     title: "Step3",
-    subtitle: "プランを選択",
-    image: "/images/select-plan.jpg",
+    subtitle: "期間を設定",
+    image: "/images/set-term.jpg",
   },
   {
     id: 4,
     title: "Step4",
-    subtitle: "完了!!",
+    subtitle: "サーバー作成",
     image: "/images/conoha_image1.png",
   },
 ];

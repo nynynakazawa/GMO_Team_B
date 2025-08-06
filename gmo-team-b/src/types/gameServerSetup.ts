@@ -14,7 +14,9 @@ export interface GameServerSetupProps {
   onPeriodSelect: (period: string) => void;
   onPlanSelect: (planId: string) => void;
   onServerNameChange: (name: string) => void;
-  onCreateServer: () => void;
+  onCreateServer: () => void | Promise<void>;
+  loading?: boolean;
+  error?: string | null;
 }
 
 export interface Game {

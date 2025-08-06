@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Typography, TextField, Button, Stack } from "@mui/material";
+import { Box, Typography, TextField, Button, Stack, CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const SectionContainer = styled(Box)(() => ({
@@ -76,12 +76,14 @@ interface ServerConfigFormProps {
   serverName: string;
   onServerNameChange: (name: string) => void;
   onCreateServer: () => void;
+  loading?: boolean;
 }
 
 export const ServerConfigForm: React.FC<ServerConfigFormProps> = ({
   serverName,
   onServerNameChange,
   onCreateServer,
+  loading = false,
 }) => {
   return (
     <SectionContainer>
@@ -98,7 +100,13 @@ export const ServerConfigForm: React.FC<ServerConfigFormProps> = ({
           />
         </InputRow>
 
-        <CreateButton onClick={onCreateServer}>作成</CreateButton>
+        <CreateButton 
+          onClick={onCreateServer} 
+          disabled={loading}
+          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+        >
+          {loading ? '作成中...' : '作成'}
+        </CreateButton>
       </FormContainer>
     </SectionContainer>
   );

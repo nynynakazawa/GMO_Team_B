@@ -36,6 +36,8 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
   onPlanSelect,
   onServerNameChange,
   onCreateServer,
+  loading = false,
+  error = null,
 }) => {
   return (
     <MainContainer>
@@ -61,6 +63,8 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
             plans={plans}
             selectedPlan={selectedPlan}
             onPlanSelect={onPlanSelect}
+            loading={loading}
+            error={error}
           />
 
           <ServerConfigForm

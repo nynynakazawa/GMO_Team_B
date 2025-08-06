@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Typography, Stack, Button } from "@mui/material";
+import { Box, Typography, Stack, Button, CircularProgress, Alert } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { PlanCard } from "./PlanCard";
 import { Plan } from "../types/gameServerSetup";
@@ -25,24 +25,36 @@ const PlansContainer = styled(Box)(() => ({
   marginTop: 20,
 }));
 
+const LoadingContainer = styled(Box)(() => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  minHeight: 200,
+}));
+
 interface PlanSelectionGridProps {
   plans: Plan[];
   selectedPlan: string | null;
   onPlanSelect: (planId: string) => void;
+  loading?: boolean;
+  error?: string | null;
 }
 
 export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
   plans,
   selectedPlan,
   onPlanSelect,
+  loading = false,
+  error = null,
 }) => {
   if (selectedPlan) {
+    const selectedPlanData = plans.find(plan => plan.id === selectedPlan);
     return (
       <SectionContainer>
         <Stack direction="row" spacing={3} alignItems={"center"}>
-          <SectionTitle>期間を選択</SectionTitle>
+          <SectionTitle>プランを選択</SectionTitle>
           <Typography variant="body1" color="#19b8d7">
-            {selectedPlan}
+            {selectedPlanData?.name || selectedPlan}
           </Typography>
           <Button
             variant="outlined"
@@ -52,6 +64,39 @@ export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
             再選択
           </Button>
         </Stack>
+      </SectionContainer>
+    );
+  }
+
+  if (loading) {
+    return (
+      <SectionContainer>
+        <SectionTitle>プランを選択</SectionTitle>
+        <LoadingContainer>
+          <CircularProgress />
+        </LoadingContainer>
+      </SectionContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <SectionContainer>
+        <SectionTitle>プランを選択</SectionTitle>
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
+      </SectionContainer>
+    );
+  }
+
+  if (plans.length === 0) {
+    return (
+      <SectionContainer>
+        <SectionTitle>プランを選択</SectionTitle>
+        <Alert severity="info" sx={{ mt: 2 }}>
+          利用可能なプランがありません
+        </Alert>
       </SectionContainer>
     );
   }
