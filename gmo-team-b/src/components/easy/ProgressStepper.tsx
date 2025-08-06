@@ -1,10 +1,10 @@
 "use client"
 
 import React from 'react';
-import { Box, Typography, Button, Stack } from '@mui/material';
+import { Box, Typography, Button, } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
-import ProgressLineIcon from './icons/ProgressLineIcon';
+import ProgressLineIcon from '../icons/ProgressLineIcon';
 
 const ProgressContainer = styled(Box)(({ theme }) => ({
   border: `2px solid ${theme.palette.grey[400]}`,

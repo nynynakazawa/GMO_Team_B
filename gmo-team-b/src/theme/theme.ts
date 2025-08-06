@@ -3,47 +3,126 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#19b8d7',
-      contrastText: '#ffffff'
+      main: "#2BBBD8", // Turquoise blue from login/signup buttons
+      contrastText: "#ffffff",
     },
     secondary: {
-      main: '#576062',
-      contrastText: '#ffffff'
+      main: "#576062",
+      contrastText: "#ffffff",
     },
     background: {
-      default: '#f5f5f5',
-      paper: '#ffffff'
+      default: "#f5f5f5", // Light gray background
+      paper: "#ffffff", // White for login form, #fafafa for signup form
     },
     text: {
-      primary: '#000000',
-      secondary: '#576062'
+      primary: "#000000",
+      secondary: "#666666",
     },
     grey: {
-      300: '#d9d9d9',
-      400: '#576062'
-    }
+      50: "#fafafa",
+      100: "#fafafa", // Signup form background
+      200: "#e0e0e0", // Input field borders
+      300: "#bdbdbd",
+      400: "#576062",
+    },
   },
   typography: {
     fontFamily: '"Iceland", "Noto Sans", sans-serif',
-    h6: {
-      fontSize: '24px',
+    h1: {
+      fontSize: "40px",
       fontWeight: 400,
-      fontFamily: 'Iceland'
+      fontFamily: '"Noto Sans", sans-serif',
+    },
+    h2: {
+      fontSize: "36px",
+      fontWeight: 400,
+      fontFamily: "Iceland",
+      color: "#19b8d7",
+    },
+    h4: {
+      fontSize: "40px",
+      fontWeight: 400,
+      color: "#000000",
+    },
+    h6: {
+      fontSize: "24px",
+      fontWeight: 400,
+      fontFamily: "Iceland",
+      color: "#19b8d7",
     },
     body1: {
-      fontSize: '14px',
+      fontSize: "24px",
       fontWeight: 400,
-      fontFamily: '"Noto Sans", sans-serif'
+      color: "#000000",
     },
     body2: {
-      fontSize: '18px',
+      fontSize: "16px",
       fontWeight: 400,
-      fontFamily: 'Iceland'
-    }
+      fontFamily: '"Noto Sans", sans-serif',
+    },
+    button: {
+      fontSize: "1.1rem", // わずかに大きく
+      fontWeight: 400,
+      fontFamily: '"Noto Sans", sans-serif',
+      textTransform: "none",
+    },
   },
   shape: {
-    borderRadius: 10
-  }
+    borderRadius: 10,
+  },
+  shadows: [
+    "none",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    "0px 4px 4px rgba(0, 0, 0, 0.25)",
+  ],
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          fontSize: "1.2rem", // わずかに大きく
+          padding: "4px 16px",
+          minHeight: "32px",
+        },
+      },
+      defaultProps: {
+        size: "small",
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          fontSize: "1.2rem", // わずかに大きく
+          minHeight: "32px",
+          padding: "4px 8px",
+        },
+      },
+      defaultProps: {
+        size: "small",
+      },
+    },
+  },
 });
 
 export default theme;

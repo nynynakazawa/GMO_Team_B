@@ -1,13 +1,13 @@
-import AddIcon from '@mui/icons-material/Add';
-import { Box, List, ListItem, ListItemButton, ListItemText, Button, Stack } from '@mui/material';
+import React from 'react';
+import Image from 'next/image';
+import { Box, List, ListItem, ListItemButton, ListItemText, Button } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { FaServer, FaCompactDisc, FaFolder } from "react-icons/fa";
 import { FaNetworkWired, FaKey } from "react-icons/fa6";
 import { GrDomain } from "react-icons/gr";
 import { HiServer } from "react-icons/hi2";
 import { IoIosAdd, IoIosPaper,IoLogoGameControllerB} from "react-icons/io";
 import { MdLanguage } from "react-icons/md";
-import { styled } from '@mui/material/styles';
-import React from 'react';
 
 
 
@@ -75,10 +75,12 @@ export const SidebarNavigation: React.FC = () => {
   return (
     <SidebarContainer>
       <LogoContainer>
-        <img 
+        <Image 
           src="/images/conoha-logo.png" 
           alt="ConoHa Logo" 
-          style={{ maxWidth: '100%', maxHeight: '100%' ,borderRadius: '4px',boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)' }}
+          width={165} 
+          height={78}
+          style={{ maxWidth: '100%', maxHeight: '100%' }}
         />
       </LogoContainer>
       

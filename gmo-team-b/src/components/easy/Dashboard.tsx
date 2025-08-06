@@ -1,14 +1,14 @@
 "use client"
 
 import React from 'react';
-import { Box, Stack } from '@mui/material';
+import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { SidebarNavigation } from './SidebarNavigation';
 import { HeaderTabs } from './HeaderTabs';
 import { ProgressStepper } from './ProgressStepper';
 import { ServicesList } from './ServicesList';
-import { BillingSection } from './BillingSection';
-import { DashboardProps } from '../types/dashboard';
+import { BillingSection } from './serverinfo/BillingSection';
+import { DashboardProps } from '../../types/dashboard';
 
 const DashboardContainer = styled(Box)(() => ({
   display: 'flex',
@@ -31,8 +31,7 @@ const ContentArea = styled(Box)(() => ({
 export const Dashboard: React.FC<DashboardProps> = ({
   currentStep,
   servers,
-  billingInfo,
-  planInfo
+  billingInfo
 }) => {
   return (
     <DashboardContainer>

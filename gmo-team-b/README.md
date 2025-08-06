@@ -25,6 +25,9 @@ npm install @emotion/react
 npm install @emotion/styled
 npm install @mui/icons-material
 
+*Firebaseのセットアップ*
+npm insatall firebaseを行う
+
 開発サーバーを起動します。
 
 ブラウザで確認します。
