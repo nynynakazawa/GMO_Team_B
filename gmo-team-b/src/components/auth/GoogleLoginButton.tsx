@@ -1,6 +1,6 @@
 // GoogleLoginButton.tsx
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../components/firebase"
+import { auth } from "@/firebase/firebase";
 
 const GoogleLoginButton = () => {
   const handleLogin = async () => {

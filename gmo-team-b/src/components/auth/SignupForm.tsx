@@ -1,27 +1,20 @@
 "use client"
 
 import React, { useState } from 'react'
-import { Box,Button, Typography, Stack, Paper } from '@mui/material'
-import { InputField } from './InputField'
-import { ActionButton } from './ActionButton'
-import { LinkText } from './LinkText'
-import GoogleIcon from "@mui/icons-material/Google"; 
-import { signInWithGoogle } from "./firebaseAuth"
-import { auth } from "../firebase/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { Box, Typography, Stack, Paper } from '@mui/material'
+import { InputField } from './ui/InputField'
+import { ActionButton } from './ui/ActionButton'
+import { LinkText } from './ui/LinkText'
 
+import { signUpWithEmailAndPassword } from './firebaseAuth'
 
-
-interface LoginFormProps {
-  onLogin?: (email: string, password: string) => void
-  onForgotPassword?: () => void
-  onCreateAccount?: () => void
+interface SignupFormProps {
+  onLogin: (email: string, password: string) => void
+  onExistingAccount?: () => void
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({
-  onLogin,
-  onForgotPassword,
-  onCreateAccount
+export const SignupForm: React.FC<SignupFormProps> = ({
+  onExistingAccount
 }) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -37,7 +30,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     return password.length >= 6
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     // Reset errors
@@ -63,24 +56,17 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     }
 
     if (isValid) {
-      signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          // ログイン成功時の処理
-          const user = userCredential.user;
-          console.log("ログイン成功:", user);
-          console.log("ログインユーザーのメールアドレス:", user.email)
-          console.log("ログインユーザーのパスワード:", password)
-          localStorage.setItem('user_email', user.email || '');
-          localStorage.setItem('user_password', password);
-          if (onLogin) {
-            onLogin(email, password);
-          }
-        })
-        .catch((error) => {
-          // エラー処理
-          console.error("ログインエラー:", error);
-          setEmailError("ログインに失敗しました。メールアドレスまたはパスワードを確認してください。");
-        });
+      try {
+        await signUpWithEmailAndPassword(email, password)
+        // サインアップ成功後の処理（例: ダッシュボードへリダイレクト）
+      } catch (error) {
+        // エラー処理
+        if (error.code === 'auth/email-already-in-use') {
+          setEmailError('このメールアドレスは既に使用されています')
+        } else {
+          setPasswordError('サインアップに失敗しました')
+        }
+      }
     }
   }
 
@@ -92,7 +78,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       sx={{
         borderRadius: '10px',
         padding: '60px 40px 60px 40px',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#fafafa',
         boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
         width: '100%',
         maxWidth: '800px',
@@ -111,9 +97,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             marginBottom: '32px'
           }}
         >
-          ログイン
+          サインアップ
         </Typography>
-
 
         {/* Form */}
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
@@ -133,6 +118,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               </Typography>
               <Box sx={{ flexGrow: 1 }}>
                 <InputField
+                  isSignup
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -157,6 +143,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               </Typography>
               <Box sx={{ flexGrow: 1 }}>
                 <InputField
+                  isSignup
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -164,36 +151,36 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                   helperText={passwordError}
                 />
               </Box>
-              
-            </Stack>
-        <Box sx={{ display: 'flex',  justifyContent: 'flex-start', marginTop: '16px' }}>
-  <Button
-    variant="outlined"
-    startIcon={<GoogleIcon />}
-    onClick={signInWithGoogle}
-    sx={{
-      textTransform: 'none',
-      fontWeight: 500,
-      fontFamily: "'Noto Sans', sans-serif",
-    }}
-  >
-    Googleでログイン
-  </Button>
-</Box>
-            {/* Navigation Links */}
-            <Stack spacing={1} sx={{ marginTop: '24px' }}>
-              <LinkText onClick={onCreateAccount}>
-                ＞新規アカウント登録はこちらから
-              </LinkText>
-              <LinkText onClick={onForgotPassword}>
-                ＞パスワードを忘れた方はこちら
-              </LinkText>
             </Stack>
 
+            {/* Terms Agreement */}
+            <Box sx={{ marginTop: '20px' }}>
+              <Typography
+                sx={{
+                  fontFamily: "'Noto Sans', sans-serif",
+                  fontSize: '14px',
+                  fontWeight: 400,
+                  color: '#000000',
+                  lineHeight: 1.5
+                }}
+              >
+                ConoHa会員規約、ConoHaドメイン登録規約、<br />
+                ConoHaチャージ利用規約及び個人情報の取り扱いについてに同意の上、<br />
+                「次へ」ボタンを押してください。
+              </Typography>
+            </Box>
+
+            {/* Navigation Link */}
+            <Box sx={{ marginTop: '12px' }}>
+              <LinkText onClick={onExistingAccount}>
+                ＞すでにアカウントがある方はこちらから
+              </LinkText>
+            </Box>
+
             {/* Submit Button */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
               <ActionButton type="submit" disabled={!isFormValid}>
-                ログイン
+                次へ
               </ActionButton>
             </Box>
           </Stack>

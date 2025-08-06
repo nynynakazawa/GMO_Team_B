@@ -3,7 +3,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Game } from "../types/gameServerSetup";
+import { Game } from "../../../types/gameServerSetup";
 
 const GameCardContainer = styled(Box)<{
   selected: boolean;

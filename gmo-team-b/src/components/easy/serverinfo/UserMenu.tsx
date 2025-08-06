@@ -8,7 +8,7 @@ import {
   Link
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import { logout } from './firebaseAuth';
+import { logout } from './../../auth/firebaseAuth'; 
 
 interface UserMenuProps {
   isOpen: boolean;

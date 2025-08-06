@@ -3,9 +3,8 @@
 import React, { useState } from "react";
 import { Box, Container, Typography, IconButton, Stack } from "@mui/material";
 import { Person } from "@mui/icons-material";
-import UserMenu from "./UserMenu";
+import UserMenu from "../easy/serverinfo/UserMenu";
 import Link from "next/link";
-
 export const Header: React.FC = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [easyMode, setEasyMode] = useState(true);

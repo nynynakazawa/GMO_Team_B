@@ -5,7 +5,7 @@ import { Box, Typography, TextField, Stack, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { GameCard } from "./GameCard";
-import { Game } from "../types/gameServerSetup";
+import { Game } from "../../../types/gameServerSetup";
 
 const SectionContainer = styled(Box)(() => ({
   marginBottom: 40,
