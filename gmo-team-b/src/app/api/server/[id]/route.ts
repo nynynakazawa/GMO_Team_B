@@ -1,13 +1,15 @@
 // app/api/server/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getServerInfo, ParsedServerInfo } from "../../serverinfo/getServerInfo";
+import { getConoHaTokenAndEndpoint } from "@/pages/api/vps/conohaAuth";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const token = process.env.CONOHA_TOKEN;
+    const tokenAndEndpoint = await getConoHaTokenAndEndpoint();
+    const token = tokenAndEndpoint.token;
     
     if (!token) {
       console.warn('CONOHA_TOKEN not found, returning mock data');

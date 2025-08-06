@@ -25,6 +25,7 @@ import ServerNameEditor from "../../../components/easy/serverinfo/ServerNameEdit
 import BillingCards from "../../../components/easy/serverinfo/BillingCards";
 import { Header } from "../../../components/easy/Header";
 import type { ParsedServerInfo } from "@/app/api/serverinfo/getServerInfo";
+import { getConoHaTokenAndEndpoint } from "@/pages/api/vps/conohaAuth";
 
 interface ServerAction {
   label: string;
