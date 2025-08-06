@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 const ProgressContainer = styled(Box)(({ theme }) => ({
   border: `2px solid ${theme.palette.grey[400]}`,
@@ -74,15 +77,18 @@ const ActionButton = styled(Button)<{ active: boolean }>(
   })
 );
 
-const GameSelectionImage = styled("img")<{
+const IconContainer = styled(Box)<{
   active: boolean;
   completed: boolean;
 }>(({ active, completed }) => ({
   width: 122,
   height: 110,
   borderRadius: 10,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: active || completed ? "rgba(25, 184, 215, 0.1)" : "rgba(0, 0, 0, 0.05)",
   opacity: active || completed ? 1 : 0.5,
-  filter: active || completed ? "none" : "grayscale(100%)",
   transition: "all 0.3s ease",
 }));
 
@@ -181,19 +187,19 @@ const defaultSteps: Step[] = [
   {
     id: 2,
     title: "Step2",
-    subtitle: "期間を設定",
-    image: "/images/set-term.jpg",
+    subtitle: "期間を選択",
+    image: "/images/server-card.png",
   },
   {
     id: 3,
     title: "Step3",
-    subtitle: "プランを選択",
-    image: "/images/select-plan.jpg",
+    subtitle: "プランを設定",
+    image: "/images/set-term.jpg",
   },
   {
     id: 4,
     title: "Step4",
-    subtitle: "完了!!",
+    subtitle: "サーバー作成",
     image: "/images/conoha_image1.png",
   },
 ];
@@ -281,6 +287,7 @@ export const EasyProgressStepper: React.FC<ProgressStepperProps> = ({
 
     if (step.image) {
       if (step.id === 4) {
+        // サーバー作成の画像は変更しない
         return (
           <CharacterMascot
             src={step.image}
@@ -290,22 +297,40 @@ export const EasyProgressStepper: React.FC<ProgressStepperProps> = ({
           />
         );
       } else if (step.id === 3) {
+        // プラン設定はMUIアイコン
         return (
-          <PlanCard
-            src={step.image}
-            alt={step.subtitle}
-            active={active}
-            completed={completed}
-          />
+          <IconContainer active={active} completed={completed}>
+            <SettingsIcon 
+              sx={{ 
+                fontSize: 60, 
+                color: active || completed ? '#19b8d7' : '#666' 
+              }} 
+            />
+          </IconContainer>
         );
-      } else {
+      } else if (step.id === 1) {
+        // ゲーム選択はMUIアイコン
         return (
-          <GameSelectionImage
-            src={step.image}
-            alt={step.subtitle}
-            active={active}
-            completed={completed}
-          />
+          <IconContainer active={active} completed={completed}>
+            <SportsEsportsIcon 
+              sx={{ 
+                fontSize: 60, 
+                color: active || completed ? '#19b8d7' : '#666' 
+              }} 
+            />
+          </IconContainer>
+        );
+      } else if (step.id === 2) {
+        // 期間選択はMUIアイコン
+        return (
+          <IconContainer active={active} completed={completed}>
+            <ScheduleIcon 
+              sx={{ 
+                fontSize: 60, 
+                color: active || completed ? '#19b8d7' : '#666' 
+              }} 
+            />
+          </IconContainer>
         );
       }
     }

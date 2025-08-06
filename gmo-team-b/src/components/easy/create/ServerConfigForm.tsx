@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Typography, TextField, Button, Stack } from "@mui/material";
+import { Box, Typography, TextField, Button, Stack, CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const SectionContainer = styled(Box)(() => ({
@@ -52,6 +52,10 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
     fontFamily: '"Noto Sans", sans-serif',
     padding: "16px",
   },
+  "& .MuiInputBase-input::placeholder": {
+    color: theme.palette.grey[400],
+    opacity: 1,
+  },
 }));
 
 const CreateButton = styled(Button)(({ theme }) => ({
@@ -74,31 +78,65 @@ const CreateButton = styled(Button)(({ theme }) => ({
 
 interface ServerConfigFormProps {
   serverName: string;
+  password: string;
   onServerNameChange: (name: string) => void;
+  onPasswordChange: (password: string) => void;
   onCreateServer: () => void;
+  loading?: boolean;
 }
 
 export const ServerConfigForm: React.FC<ServerConfigFormProps> = ({
   serverName,
+  password,
   onServerNameChange,
+  onPasswordChange,
   onCreateServer,
+  loading = false,
 }) => {
   return (
     <SectionContainer>
-      <SectionTitle>サーバー名を設定</SectionTitle>
+      <SectionTitle>サーバー設定</SectionTitle>
 
       <FormContainer spacing={3}>
         <InputRow direction="row">
           <InputLabel>サーバー名：</InputLabel>
           <StyledTextField
             value={serverName}
-            onChange={(e) => onServerNameChange(e.target.value)}
-            placeholder="サーバー名を入力してください"
+            onChange={(e) => {
+              // 英数字のみを許可
+              const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+              onServerNameChange(value);
+            }}
+            placeholder="英数字で設定"
             variant="outlined"
+            inputProps={{
+              maxLength: 20
+            }}
           />
         </InputRow>
 
-        <CreateButton onClick={onCreateServer}>作成</CreateButton>
+        <InputRow direction="row">
+          <InputLabel>パスワード：</InputLabel>
+          <StyledTextField
+            type="password"
+            value={password}
+            onChange={(e) => onPasswordChange(e.target.value)}
+            placeholder="パスワードを入力してください 大小英数字記号を含める必要があります"
+            variant="outlined"
+            inputProps={{
+              minLength: 8,
+              maxLength: 50
+            }}
+          />
+        </InputRow>
+
+        <CreateButton 
+          onClick={onCreateServer} 
+          disabled={loading || !serverName || !password}
+          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+        >
+          {loading ? '作成中...' : '作成'}
+        </CreateButton>
       </FormContainer>
     </SectionContainer>
   );
