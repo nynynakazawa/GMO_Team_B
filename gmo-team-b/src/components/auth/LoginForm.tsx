@@ -121,7 +121,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           localStorage.setItem('user_email', user.email || '');
           localStorage.setItem('user_password', password);
           if (server){
-            router.push("/easy/dashboard")
+            router.push("/easy/serverinfo")
           }else{
             router.push("easy/create")
           }
