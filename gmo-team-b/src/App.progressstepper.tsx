@@ -6,7 +6,7 @@ import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { Box, Typography, Button, Stack, Switch, FormControlLabel, Slider } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { ProgressStepper } from './components/ProgressStepper';
+import { ProgressStepper } from './components/easy/ProgressStepper';
 import theme from './theme/theme';
 
 const createEmotionCache = () => {

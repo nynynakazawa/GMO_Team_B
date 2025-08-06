@@ -35,12 +35,11 @@ import {
   Person,
 } from '@mui/icons-material';
 import { serverInfoMockData, ServerAction, ServerSetting } from '../../../data/serverInfoMockData';
-import ServerSettingsTab from '../../../components/ServerSettingsTab';
-import ServerNameEditor from '../../../components/ServerNameEditor';
-import UserMenu from '../../../components/UserMenu';
-import BillingCards from '../../../components/BillingCards';
-import { usePathname } from 'next/navigation';
-import { menuLabels } from "../../../data/menuLabels"
+import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
+import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
+import UserMenu from '../../../components/easy/serverinfo/UserMenu';
+import BillingCards from '../../../components/easy/serverinfo/BillingCards';
+import { Header } from "../../../components/easy/Header";
 
 
 interface TabPanelProps {
@@ -68,7 +67,7 @@ function TabPanel(props: TabPanelProps) {
 export default function ServerInfoPage() {
   const [tabValue, setTabValue] = useState(0);
   const [serverStatus, setServerStatus] = useState(true);
-  const [selectedPlan, setSelectedPlan] = useState('8GB/6Core');
+  const [selectedPlan, setSelectedPlan] = useState("8GB/6Core");
   const [autoBackup, setAutoBackup] = useState(false);
   const [deleteLock, setDeleteLock] = useState(false);
   const [serverName, setServerName] = useState(serverInfoMockData.serverName);
@@ -80,15 +79,21 @@ export default function ServerInfoPage() {
     setTabValue(newValue);
   };
 
-  const handleServerStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleServerStatusChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setServerStatus(event.target.checked);
   };
 
-  const handleAutoBackupChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAutoBackupChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setAutoBackup(event.target.checked);
   };
 
-  const handleDeleteLockChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDeleteLockChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setDeleteLock(event.target.checked);
   };
 
@@ -114,7 +119,9 @@ export default function ServerInfoPage() {
     setIsEditingServerName(false);
   };
 
-  const handleServerNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleServerNameChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setServerName(event.target.value);
   };
 
@@ -127,56 +134,30 @@ export default function ServerInfoPage() {
   };
 
 
-const pathname = usePathname();
-const getPageTitle = () => {
-  if (pathname === '/easy/serverinfo') return menuLabels.myServer;
-  if (pathname === '/account') return menuLabels.accountSettings;
-  if (pathname === '/create') return menuLabels.createServer;
-  return '';
-};
+// const pathname = usePathname();
+// const getPageTitle = () => {
+//   if (pathname === '/easy/serverinfo') return menuLabels.myServer;
+//   if (pathname === '/account') return menuLabels.accountSettings;
+//   if (pathname === '/create') return menuLabels.createServer;
+//   return '';
+// };
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       {/* Header */}
-      <Box sx={{ bgcolor: 'white', borderBottom: 1, borderColor: 'divider', p: 2, position: 'relative' }}>
-        <Container maxWidth="xl">
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Box>
-              <Typography variant="h5" sx={{ color: '#19B8D7', fontWeight: 'bold' }}>
-                ConoHa for GAME
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                by GMO
-              </Typography>
-              
-
-             {/* getPageTitle 関数と以下プログラムをヘッダーに入れてください */}
-              {getPageTitle() && (
-                <Typography variant="subtitle2" sx={{ color: '#888', ml: 1 }}>
-                  / {getPageTitle()}
-                </Typography>
-              )}
-               {/* ここまで */}
-
-
-            </Box>
-            <Box sx={{ position: 'relative' }}>
-              <IconButton 
-                sx={{ bgcolor: '#e3f2fd', color: '#19B8D7' }}
-                onClick={handleUserMenuToggle}
-              >
-                <Person />
-              </IconButton>
-              <UserMenu
-                isOpen={isUserMenuOpen}
-                easyMode={easyMode}
-                onEasyModeChange={handleEasyModeChange}
-              />
-            </Box>
-          </Box>
+      <Box
+        sx={{
+          bgcolor: "white",
+          borderBottom: 1,
+          borderColor: "divider",
+          position: "relative",
+        }}
+      >
+        <Container maxWidth="xl" disableGutters>
+          <Header />
 
           {/* Server Info Bar */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-            <IconButton size="small" sx={{ color: 'text.secondary' }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+            <IconButton size="small" sx={{ color: "text.secondary" }}>
               <KeyboardArrowRight />
             </IconButton>
             <ServerNameEditor
@@ -188,16 +169,16 @@ const getPageTitle = () => {
               onCancel={handleServerNameCancel}
               onChange={handleServerNameChange}
             />
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
               <Switch
                 checked={serverStatus}
                 onChange={handleServerStatusChange}
                 sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': {
-                    color: '#19B8D7',
+                  "& .MuiSwitch-switchBase.Mui-checked": {
+                    color: "#19B8D7",
                   },
-                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    backgroundColor: '#19B8D7',
+                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                    backgroundColor: "#19B8D7",
                   },
                 }}
               />
@@ -205,58 +186,60 @@ const getPageTitle = () => {
           </Box>
 
           {/* Action Buttons */}
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            {serverInfoMockData.actions.map((action: ServerAction, index: number) => {
-              const IconComponent = action.icon;
-              return (
-                <Button
-                  key={index}
-                  variant="outlined"
-                  startIcon={<IconComponent />}
-                  sx={{
-                    borderRadius: '50px',
-                    textTransform: 'none',
-                    borderColor: '#19B8D7',
-                    color: '#19B8D7',
-                    '&:hover': {
-                      borderColor: '#15a0c0',
-                      backgroundColor: '#e3f2fd',
-                    },
-                  }}
-                >
-                  {action.label}
-                </Button>
-              );
-            })}
+          <Box mb={2} sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+            {serverInfoMockData.actions.map(
+              (action: ServerAction, index: number) => {
+                const IconComponent = action.icon;
+                return (
+                  <Button
+                    key={index}
+                    variant="outlined"
+                    startIcon={<IconComponent />}
+                    sx={{
+                      borderRadius: "50px",
+                      textTransform: "none",
+                      borderColor: "#19B8D7",
+                      color: "#19B8D7",
+                      "&:hover": {
+                        borderColor: "#15a0c0",
+                        backgroundColor: "#e3f2fd",
+                      },
+                    }}
+                  >
+                    {action.label}
+                  </Button>
+                );
+              }
+            )}
           </Box>
         </Container>
       </Box>
 
       {/* Main Content */}
       <Container maxWidth="xl" sx={{ py: 3 }}>
-        <Paper sx={{ width: '100%' }}>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Paper sx={{ width: "100%" }}>
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
               value={tabValue}
               onChange={handleTabChange}
               sx={{
                 minHeight: 40,
-                alignItems: 'center',
-                '& .MuiTab-root': {
-                  textTransform: 'none',
-                  fontWeight: 'medium',
+                alignItems: "center",
+                "& .MuiTab-root": {
+                  textTransform: "none",
+                  fontWeight: "medium",
                   minHeight: 40,
-                  fontSize: '1rem',
+                  fontSize: "1rem",
                   px: 2,
-                  display: 'flex',
-                  alignItems: 'center',
+                  display: "flex",
+                  alignItems: "center",
                   lineHeight: 1.5,
                 },
-                '& .Mui-selected': {
-                  color: '#19B8D7',
+                "& .Mui-selected": {
+                  color: "#19B8D7",
                 },
-                '& .MuiTabs-indicator': {
-                  backgroundColor: '#19B8D7',
+                "& .MuiTabs-indicator": {
+                  backgroundColor: "#19B8D7",
                   height: 3,
                 },
               }}
@@ -278,24 +261,50 @@ const getPageTitle = () => {
 
           {/* Plan Change Tab */}
           <TabPanel value={tabValue} index={1}>
-            <Box sx={{ maxWidth: 600, mx: 'auto' }}>
-              <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
+            <Box sx={{ maxWidth: 600, mx: "auto" }}>
+              <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
                 プランを変更しますか?
               </Typography>
-              <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', color: 'text.secondary', display: 'inline' }}>
-                ストレージ容量は変更されません。<br />これまでのリソースグラフのデータは削除されます。
+              <Typography
+                variant="body2"
+                sx={{
+                  mb: 3,
+                  textAlign: "center",
+                  color: "text.secondary",
+                  display: "inline",
+                }}
+              >
+                ストレージ容量は変更されません。
+                <br />
+                これまでのリソースグラフのデータは削除されます。
               </Typography>
               <Card sx={{ mb: 3 }}>
                 <CardContent>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                  <Box
+                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
                         変更前プラン
                       </Typography>
-                      <Typography variant="body2">メモリ 4GB/CPU 4Core</Typography>
+                      <Typography variant="body2">
+                        メモリ 4GB/CPU 4Core
+                      </Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
                         変更後プラン
                       </Typography>
                       <FormControl size="small" sx={{ minWidth: 200 }}>
@@ -303,37 +312,67 @@ const getPageTitle = () => {
                           value={selectedPlan}
                           onChange={handlePlanChange}
                           displayEmpty
-                          sx={{ '& .MuiSelect-icon': { color: '#19B8D7' }, fontSize: '1rem' }}
+                          sx={{
+                            "& .MuiSelect-icon": { color: "#19B8D7" },
+                            fontSize: "1rem",
+                          }}
                           MenuProps={{
                             PaperProps: {
-                              sx: { fontSize: '1rem' }
-                            }
+                              sx: { fontSize: "1rem" },
+                            },
                           }}
                         >
-                          <MenuItem value="8GB/6Core" sx={{ fontSize: '1rem' }}>メモリ 8GB/CPU 6Core</MenuItem>
-                          <MenuItem value="16GB/8Core" sx={{ fontSize: '1rem' }}>メモリ 16GB/CPU 8Core</MenuItem>
-                          <MenuItem value="32GB/12Core" sx={{ fontSize: '1rem' }}>メモリ 32GB/CPU 12Core</MenuItem>
+                          <MenuItem value="8GB/6Core" sx={{ fontSize: "1rem" }}>
+                            メモリ 8GB/CPU 6Core
+                          </MenuItem>
+                          <MenuItem
+                            value="16GB/8Core"
+                            sx={{ fontSize: "1rem" }}
+                          >
+                            メモリ 16GB/CPU 8Core
+                          </MenuItem>
+                          <MenuItem
+                            value="32GB/12Core"
+                            sx={{ fontSize: "1rem" }}
+                          >
+                            メモリ 32GB/CPU 12Core
+                          </MenuItem>
                         </Select>
                       </FormControl>
                     </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
                         プラン変更後の料金
                       </Typography>
-                      <Typography variant="body2">8,082 円/月 (14.6 円/時間)</Typography>
+                      <Typography variant="body2">
+                        8,082 円/月 (14.6 円/時間)
+                      </Typography>
                     </Box>
                   </Box>
                 </CardContent>
               </Card>
 
-              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 2,
+                  mb: 2,
+                }}
+              >
                 <Button
                   variant="outlined"
                   sx={{
-                    borderRadius: '50px',
-                    textTransform: 'none',
-                    borderColor: 'text.secondary',
-                    color: 'text.secondary',
+                    borderRadius: "50px",
+                    textTransform: "none",
+                    borderColor: "text.secondary",
+                    color: "text.secondary",
                   }}
                 >
                   いいえ
@@ -341,19 +380,34 @@ const getPageTitle = () => {
                 <Button
                   variant="contained"
                   sx={{
-                    borderRadius: '50px',
-                    textTransform: 'none',
-                    bgcolor: '#19B8D7',
-                    '&:hover': { bgcolor: '#15a0c0' },
+                    borderRadius: "50px",
+                    textTransform: "none",
+                    bgcolor: "#19B8D7",
+                    "&:hover": { bgcolor: "#15a0c0" },
                   }}
                 >
                   はい
                 </Button>
               </Box>
 
-              <Typography variant="caption" sx={{ textAlign: 'center', display: 'block', color: 'text.secondary' }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  textAlign: "center",
+                  display: "block",
+                  color: "text.secondary",
+                }}
+              >
                 ※表示料金にはサービス維持調整費が含まれています。
-                <span style={{ color: '#19B8D7', cursor: 'pointer', textDecoration: 'underline', fontSize: 'inherit', marginLeft: 4 }}>
+                <span
+                  style={{
+                    color: "#19B8D7",
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                    fontSize: "inherit",
+                    marginLeft: 4,
+                  }}
+                >
                   詳しくはこちら
                 </span>
               </Typography>
@@ -365,13 +419,13 @@ const getPageTitle = () => {
         <BillingCards />
 
         {/* Help Link */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
           <Button
             startIcon={<HelpOutline />}
             sx={{
-              color: '#19B8D7',
-              textTransform: 'none',
-              '&:hover': { backgroundColor: 'transparent' },
+              color: "#19B8D7",
+              textTransform: "none",
+              "&:hover": { backgroundColor: "transparent" },
             }}
           >
             この画面のサポート &gt;
