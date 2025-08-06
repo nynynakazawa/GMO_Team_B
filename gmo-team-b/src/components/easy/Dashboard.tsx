@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import { SidebarNavigation } from './SidebarNavigation';
 import { HeaderTabs } from './HeaderTabs';
 import { ProgressStepper } from './ProgressStepper';
-import { ServicesList } from '../ServicesList';
+import { ServicesList } from './ServicesList';
 import { BillingSection } from './serverinfo/BillingSection';
 import { DashboardProps } from '../../types/dashboard';
 
