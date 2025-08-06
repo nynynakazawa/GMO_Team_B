@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { GameServerSetup } from "../../../components/GameServerSetup";
+import React, { useState } from "react";
+import { GameServerSetup } from "../../../components/easy/create/GameServerSetup";
 import { mockRootProps } from "../../../data/gameServerSetupMockData";
 import { Plan } from "../../../types/gameServerSetup";
 
