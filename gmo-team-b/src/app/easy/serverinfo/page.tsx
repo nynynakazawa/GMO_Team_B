@@ -36,11 +36,9 @@ import { serverInfoMockData } from "../../../data/serverInfoMockData";
 import ServerSettingsTab from "../../../components/easy/serverinfo/ServerSettingsTab";
 import ServerNameEditor from "../../../components/easy/serverinfo/ServerNameEditor";
 import BillingCards from "../../../components/easy/serverinfo/BillingCards";
-import UserMenu from '../../../components/easy/UserMenu';
 import { Header } from "../../../components/easy/Header";
-import type { ParsedServerInfo } from "@/app/api/serverinfo/getServerInfo";
+import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
 import type {
-  ServerSummary,
   ServerListResponse,
   EnhancedServerSummary,
 } from "../../../types/serverTypes";
