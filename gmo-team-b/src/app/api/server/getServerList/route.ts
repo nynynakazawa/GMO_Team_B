@@ -20,6 +20,7 @@ export async function GET(_req: NextRequest) {
         {
           id: "be135a87-c7ee-4f43-8072-8531716cad09",
           name: "game-2025-08-04-13-54",
+          nameTag: "game-2025-08-04-13-54", // Include nameTag in mock data
           links: [
             { rel: "self", href: "https://compute.c3j1.conoha.io/v2.1/servers/be135a87-c7ee-4f43-8072-8531716cad09" }
           ]
@@ -27,6 +28,7 @@ export async function GET(_req: NextRequest) {
         {
           id: "af246b98-d8ff-5g54-9183-9642827dbe1a",
           name: "minecraft-server-01",
+          nameTag: "minecraft-server-01",
           links: [
             { rel: "self", href: "https://compute.c3j1.conoha.io/v2.1/servers/af246b98-d8ff-5g54-9183-9642827dbe1a" }
           ]
@@ -66,6 +68,7 @@ export async function GET(_req: NextRequest) {
       {
         id: "be135a87-c7ee-4f43-8072-8531716cad09",
         name: "game-2025-08-04-13-54",
+        nameTag: "game-2025-08-04-13-54",
         links: [
           { rel: "self", href: "https://compute.c3j1.conoha.io/v2.1/servers/be135a87-c7ee-4f43-8072-8531716cad09" }
         ]

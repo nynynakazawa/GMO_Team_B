@@ -23,6 +23,14 @@ import {
   ListItemText,
   ListItemButton,
 } from "@mui/material";
+import {
+  RestartAlt,
+  PowerSettingsNew,
+  OpenInNew,
+  CloudUpload,
+  CloudDownload,
+  Delete,
+} from "@mui/icons-material";
 import { KeyboardArrowRight, HelpOutline, Refresh } from "@mui/icons-material";
 import { serverInfoMockData } from "../../../data/serverInfoMockData";
 import ServerSettingsTab from "../../../components/easy/serverinfo/ServerSettingsTab";
@@ -33,6 +41,7 @@ import type { ParsedServerInfo } from "@/app/api/serverinfo/getServerInfo";
 import type {
   ServerSummary,
   ServerListResponse,
+  EnhancedServerSummary,
 } from "../../../types/serverTypes";
 
 interface ServerAction {
@@ -41,9 +50,30 @@ interface ServerAction {
 }
 
 const serverActions: ServerAction[] = [
-  { label: "起動", icon: KeyboardArrowRight },
-  { label: "再起動", icon: KeyboardArrowRight },
-  { label: "シャットダウン", icon: KeyboardArrowRight },
+  {
+    label: "再起動",
+    icon: RestartAlt,
+  },
+  {
+    label: "強制終了",
+    icon: PowerSettingsNew,
+  },
+  {
+    label: "管理画面",
+    icon: OpenInNew,
+  },
+  {
+    label: "保存",
+    icon: CloudUpload,
+  },
+  {
+    label: "復元",
+    icon: CloudDownload,
+  },
+  {
+    label: "削除",
+    icon: Delete,
+  },
 ];
 
 interface TabPanelProps {
@@ -79,12 +109,26 @@ export default function ServerInfoPage() {
   const [isEditingServerName, setIsEditingServerName] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [serverList, setServerList] = useState<ServerSummary[]>([]);
+  const [serverList, setServerList] = useState<EnhancedServerSummary[]>([]);
   const [selectedServerId, setSelectedServerId] = useState<string | null>(null);
   const [serverListLoading, setServerListLoading] = useState(false);
   const [isServerListOpen, setIsServerListOpen] = useState(false);
 
-  // Load server list
+  // Load nameTag for a server
+  const loadServerNameTag = async (serverId: string): Promise<string> => {
+    try {
+      const res = await fetch(`/api/server/${serverId}`);
+      if (res.ok) {
+        const info = (await res.json()) as ParsedServerInfo;
+        return info.nameTag;
+      }
+    } catch (err) {
+      console.warn(`Failed to load nameTag for server ${serverId}:`, err);
+    }
+    return ""; // Return empty string if failed
+  };
+
+  // Load server list with nameTags
   const loadServerList = async () => {
     try {
       setServerListLoading(true);
@@ -102,12 +146,24 @@ export default function ServerInfoPage() {
       console.log("Server list response:", json);
 
       // Safely access the servers array with proper null checks
-      const list = json?.servers || [];
-      setServerList(list);
+      const basicList = json?.servers || [];
 
-      if (Array.isArray(list) && list.length > 0) {
-        setSelectedServerId(list[0].id);
-        await loadServerInfo(list[0].id);
+      if (Array.isArray(basicList) && basicList.length > 0) {
+        // Enhance server list with nameTags
+        const enhancedList: EnhancedServerSummary[] = await Promise.all(
+          basicList.map(async (server) => {
+            const nameTag = await loadServerNameTag(server.id);
+            return {
+              ...server,
+              nameTag,
+              displayName: nameTag || server.name, // Use nameTag if available, fallback to name
+            };
+          })
+        );
+
+        setServerList(enhancedList);
+        setSelectedServerId(enhancedList[0].id);
+        await loadServerInfo(enhancedList[0].id);
       } else {
         console.warn("No servers found in the response");
         setError("No servers found");
@@ -121,10 +177,12 @@ export default function ServerInfoPage() {
       );
 
       // Fallback to mock data
-      const mockList: ServerSummary[] = [
+      const mockList: EnhancedServerSummary[] = [
         {
           id: "be135a87-c7ee-4f43-8072-8531716cad09",
           name: "game-2025-08-04-13-54",
+          nameTag: "game-2025-08-04-13-54",
+          displayName: "game-2025-08-04-13-54",
           links: [],
         },
       ];
@@ -289,7 +347,14 @@ export default function ServerInfoPage() {
 
           {/* Server Info Bar */}
           <Box
-            sx={{ display: "flex", alignItems: "center", gap: 2, pt: 2, pr: 2, pl:2 }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              pt: 2,
+              pl: 2,
+              pr: 2,
+            }}
           >
             <IconButton
               size="small"
@@ -327,9 +392,9 @@ export default function ServerInfoPage() {
               />
             </Box>
           </Box>
-          {/* Server Selection */}
+
           {isServerListOpen && serverList.length > 1 && (
-            <Box sx={{ pb: 2, pr:2, pl:2 }}>
+            <Box sx={{ pb: 2, pl: 2, pr: 2 }}>
               <Paper sx={{ maxHeight: 200, overflow: "auto" }}>
                 <List>
                   {serverList.map((server) => (
@@ -340,7 +405,7 @@ export default function ServerInfoPage() {
                         disabled={serverListLoading}
                       >
                         <ListItemText
-                          primary={server.name}
+                          primary={server.displayName}
                           // secondary={server.id}
                         />
                       </ListItemButton>
@@ -352,7 +417,11 @@ export default function ServerInfoPage() {
           )}
 
           {/* Action Buttons */}
-          <Box mt={2} mb={2} sx={{ display: "flex", gap: 2, flexWrap: "wrap", px: 2 }}>
+          <Box
+            mt={2}
+            mb={2}
+            sx={{ display: "flex", gap: 2, flexWrap: "wrap", px: 2 }}
+          >
             {serverActions.map((action: ServerAction, index: number) => {
               const IconComponent = action.icon;
               return (
