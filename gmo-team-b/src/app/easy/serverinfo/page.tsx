@@ -18,14 +18,19 @@ import {
   CardContent,
   CircularProgress,
   Alert,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemButton,
 } from "@mui/material";
-import { KeyboardArrowRight, HelpOutline } from "@mui/icons-material";
+import { KeyboardArrowRight, HelpOutline, Refresh } from "@mui/icons-material";
+import { serverInfoMockData } from "../../../data/serverInfoMockData";
 import ServerSettingsTab from "../../../components/easy/serverinfo/ServerSettingsTab";
 import ServerNameEditor from "../../../components/easy/serverinfo/ServerNameEditor";
 import BillingCards from "../../../components/easy/serverinfo/BillingCards";
 import { Header } from "../../../components/easy/Header";
 import type { ParsedServerInfo } from "@/app/api/serverinfo/getServerInfo";
-import { getConoHaTokenAndEndpoint } from "@/pages/api/vps/conohaAuth";
+import type { ServerSummary, ServerListResponse } from "../../../types/serverTypes";
 
 interface ServerAction {
   label: string;
@@ -33,7 +38,7 @@ interface ServerAction {
 }
 
 const serverActions: ServerAction[] = [
-  { label: "起動", icon: KeyboardArrowRight }, // ←アイコンは適当に
+  { label: "起動", icon: KeyboardArrowRight },
   { label: "再起動", icon: KeyboardArrowRight },
   { label: "シャットダウン", icon: KeyboardArrowRight },
 ];
@@ -71,54 +76,110 @@ export default function ServerInfoPage() {
   const [isEditingServerName, setIsEditingServerName] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [serverList, setServerList] = useState<ServerSummary[]>([]);
+  const [selectedServerId, setSelectedServerId] = useState<string | null>(null);
+  const [serverListLoading, setServerListLoading] = useState(false);
 
-  const serverId = "be135a87-c7ee-4f43-8072-8531716cad09";
+  // Load server list
+  const loadServerList = async () => {
+    try {
+      setServerListLoading(true);
+      setError(null);
+      
+      const res = await fetch("/api/server/getServerList");
+      
+      if (!res.ok) {
+        throw new Error(`Server list API call failed: ${res.status} ${res.statusText}`);
+      }
+      
+      const json = (await res.json()) as ServerListResponse;
+      console.log('Server list response:', json);
+      
+      // Safely access the servers array with proper null checks
+      const list = json?.servers || [];
+      setServerList(list);
+      
+      if (Array.isArray(list) && list.length > 0) {
+        setSelectedServerId(list[0].id);
+        await loadServerInfo(list[0].id);
+      } else {
+        console.warn('No servers found in the response');
+        setError('No servers found');
+      }
+    } catch (err) {
+      console.error("Failed to load server list", err);
+      setError(`Failed to load server list: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      
+      // Fallback to mock data
+      const mockList: ServerSummary[] = [
+        {
+          id: "be135a87-c7ee-4f43-8072-8531716cad09",
+          name: "game-2025-08-04-13-54",
+          links: []
+        }
+      ];
+      setServerList(mockList);
+      setSelectedServerId(mockList[0].id);
+      await loadServerInfo(mockList[0].id);
+    } finally {
+      setServerListLoading(false);
+    }
+  };
+
+  // Load individual server info
+  const loadServerInfo = async (serverId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const res = await fetch(`/api/server/${serverId}`);
+      
+      if (!res.ok) {
+        throw new Error(`Server info API call failed: ${res.status} ${res.statusText}`);
+      }
+      
+      const info = (await res.json()) as ParsedServerInfo;
+      setServerInfo(info);
+      setServerName(info.nameTag);
+    } catch (err) {
+      console.warn('Server info API call failed, using mock data:', err);
+      
+      // Fallback to mock data
+      const mockServerInfo: ParsedServerInfo = {
+        nameTag: serverInfoMockData.serverName,
+        ipAddress: serverInfoMockData.ipAddress,
+        subnetMask: "255.255.254.0",
+        gateway: "163.44.116.1",
+        macAddress: "fa:16:3e:f7:4e:47",
+        dnsServer1: "150.95.10.8",
+        dnsServer2: "150.95.10.9",
+        bandwidthIn: "100.0",
+        bandwidthOut: "100.0",
+        autoBackupEnabled: false,
+        bootStorage: "SSD 100GB",
+        securityGroup: "default",
+      };
+      
+      setServerInfo(mockServerInfo);
+      setServerName(mockServerInfo.nameTag);
+      setError('Using mock data - API unavailable');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchServerInfo = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Try to fetch from API first
-        const res = await fetch(`/api/server/${serverId}`);
-        
-        if (!res.ok) {
-          throw new Error(`API call failed: ${res.status} ${res.statusText}`);
-        }
-        
-        const info = (await res.json()) as ParsedServerInfo;
-        setServerInfo(info);
-        setServerName(info.nameTag);
-      } catch (err) {
-        console.warn('API call failed, using mock data:', err);
-        
-        // Fallback to mock data
-        const mockServerInfo: ParsedServerInfo = {
-          nameTag: "データを取得できませんでした",
-          ipAddress: "",
-          subnetMask: "",
-          gateway: "",
-          macAddress: "",
-          dnsServer1: "",
-          dnsServer2: "",
-          bandwidthIn: "",
-          bandwidthOut: "",
-          autoBackupEnabled: false,
-          bootStorage: "",
-          securityGroup: "",
-        };
-        
-        setServerInfo(mockServerInfo);
-        setServerName(mockServerInfo.nameTag);
-        setError('Using mock data - API unavailable');
-      } finally {
-        setLoading(false);
-      }
-    };
+    loadServerList();
+  }, []);
 
-    fetchServerInfo();
-  }, [serverId]);
+  const handleServerSelect = async (serverId: string) => {
+    setSelectedServerId(serverId);
+    await loadServerInfo(serverId);
+  };
+
+  const handleRefreshServerList = () => {
+    loadServerList();
+  };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -152,11 +213,10 @@ export default function ServerInfoPage() {
 
   const handleServerNameSave = () => {
     setIsEditingServerName(false);
-    // ここでサーバー名の保存処理を追加できます
   };
 
   const handleServerNameCancel = () => {
-    setServerName("");
+    setServerName(serverInfo?.nameTag || "");
     setIsEditingServerName(false);
   };
 
@@ -166,7 +226,7 @@ export default function ServerInfoPage() {
     setServerName(event.target.value);
   };
 
-  if (loading) {
+  if (loading && !serverInfo) {
     return (
       <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <CircularProgress size={60} sx={{ color: '#19B8D7' }} />
@@ -189,13 +249,53 @@ export default function ServerInfoPage() {
           <Header />
 
           {error && (
-            <Alert severity="warning" sx={{ m: 2 }}>
+            <Alert 
+              severity="warning" 
+              sx={{ m: 2 }}
+              action={
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={handleRefreshServerList}
+                  startIcon={<Refresh />}
+                >
+                  Retry
+                </Button>
+              }
+            >
               {error}
             </Alert>
           )}
 
+          {/* Server Selection */}
+          {serverList.length > 1 && (
+            <Box sx={{ p: 2 }}>
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                サーバーを選択:
+              </Typography>
+              <Paper sx={{ maxHeight: 200, overflow: 'auto' }}>
+                <List>
+                  {serverList.map((server) => (
+                    <ListItem key={server.id} disablePadding>
+                      <ListItemButton
+                        selected={selectedServerId === server.id}
+                        onClick={() => handleServerSelect(server.id)}
+                        disabled={serverListLoading}
+                      >
+                        <ListItemText
+                          primary={server.name}
+                          secondary={server.id}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
+            </Box>
+          )}
+
           {/* Server Info Bar */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2, p: 2 }}>
             <IconButton size="small" sx={{ color: "text.secondary" }}>
               <KeyboardArrowRight />
             </IconButton>
@@ -225,7 +325,7 @@ export default function ServerInfoPage() {
           </Box>
 
           {/* Action Buttons */}
-          <Box mb={2} sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          <Box mb={2} sx={{ display: "flex", gap: 2, flexWrap: "wrap", px: 2 }}>
             {serverActions.map((action: ServerAction, index: number) => {
               const IconComponent = action.icon;
               return (
@@ -472,4 +572,4 @@ export default function ServerInfoPage() {
       </Container>
     </Box>
   );
-} 
+}

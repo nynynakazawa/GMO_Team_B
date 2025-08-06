@@ -1,6 +1,6 @@
 // app/api/server/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getServerInfo, ParsedServerInfo } from "../../serverinfo/getServerInfo";
+import { getServerInfo, ParsedServerInfo } from "../getServerInfo";
 import { getConoHaTokenAndEndpoint } from "@/pages/api/vps/conohaAuth";
 
 export async function GET(
