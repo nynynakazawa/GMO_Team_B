@@ -3,8 +3,10 @@
 import React, { useState } from "react";
 import { Box, Container, Typography, IconButton, Stack } from "@mui/material";
 import { Person } from "@mui/icons-material";
-import UserMenu from "./UserMenu";
+import UserMenu from "../easy/serverinfo/UserMenu";
 import Link from "next/link";
+import { usePathname } from 'next/navigation';
+import { menuLabels } from "../../data/menuLabels";
 
 export const Header: React.FC = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -17,7 +19,13 @@ export const Header: React.FC = () => {
   const handleEasyModeChange = (checked: boolean) => {
     setEasyMode(checked);
   };
-
+  const pathname = usePathname();
+  const getPageTitle = () => {
+    if (pathname === '/nomal/serverinfo') return menuLabels.myServer;
+    if (pathname === '/account') return menuLabels.accountSettings;
+    if (pathname === '/nomal/create') return menuLabels.createServer;
+    return '';
+  };
   return (
     <Box
       sx={{
@@ -50,7 +58,14 @@ export const Header: React.FC = () => {
               <Typography variant="caption" sx={{ color: "text.secondary" }}>
                 by GMO
               </Typography>
+                {getPageTitle() && (
+                <Typography variant="subtitle2" sx={{ color: '#888', ml: 1 }}>
+                    {'　'}{getPageTitle()}
+                </Typography>
+              )}
             </Stack>
+ 
+            
           </Link>
           <Box sx={{ position: "relative" }}>
             <IconButton

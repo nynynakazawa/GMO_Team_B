@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { serverInfoMockData } from '../data/serverInfoMockData';
+import { serverInfoMockData } from '../../../data/serverInfoMockData';
 import ServerSettingsRow from './ServerSettingsRow';
 
 interface ServerSettingsTabProps {

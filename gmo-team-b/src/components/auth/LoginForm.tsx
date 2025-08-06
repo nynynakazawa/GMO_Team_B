@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react'
 import { Box,Button, Typography, Stack, Paper } from '@mui/material'
-import { InputField } from './InputField'
-import { ActionButton } from './ActionButton'
-import { LinkText } from './LinkText'
+import { InputField } from './ui/InputField'
+import { ActionButton } from './ui/ActionButton'
+import { LinkText } from './ui/LinkText'
 import GoogleIcon from "@mui/icons-material/Google"; 
 import { signInWithGoogle } from "./firebaseAuth"
-import { auth } from "../firebase/firebase";
+import { auth } from "../../firebase/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from 'next/navigation'
 

@@ -4,7 +4,7 @@ import React from 'react';
 import { Box, Stack, Divider } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { BillingCard } from './BillingCard';
-import { BillingInfo } from '../types/dashboard';
+import { BillingInfo } from '../../../types/dashboard';
 
 const BillingSectionContainer = styled(Box)(() => ({
   padding: '20px',

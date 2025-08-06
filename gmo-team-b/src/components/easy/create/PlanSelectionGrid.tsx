@@ -3,8 +3,8 @@
 import React from "react";
 import { Box, Typography, Stack, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { PlanCard } from "./PlanCard";
-import { Plan } from "../types/gameServerSetup";
+import { PlanCard } from "../PlanCard";
+import { Plan } from "../../../types/gameServerSetup";
 
 const SectionContainer = styled(Box)(() => ({
   marginBottom: 40,

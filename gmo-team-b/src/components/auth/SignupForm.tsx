@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react'
 import { Box, Typography, Stack, Paper } from '@mui/material'
-import { InputField } from './InputField'
-import { ActionButton } from './ActionButton'
-import { LinkText } from './LinkText'
+import { InputField } from './ui/InputField'
+import { ActionButton } from './ui/ActionButton'
+import { LinkText } from './ui/LinkText'
 
 import { signUpWithEmailAndPassword } from './firebaseAuth'
 

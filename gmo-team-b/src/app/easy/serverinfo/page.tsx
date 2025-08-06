@@ -35,11 +35,12 @@ import {
   Person,
 } from '@mui/icons-material';
 import { serverInfoMockData, ServerAction, ServerSetting } from '../../../data/serverInfoMockData';
-import ServerSettingsTab from '../../../components/ServerSettingsTab';
-import ServerNameEditor from '../../../components/ServerNameEditor';
-import UserMenu from '../../../components/UserMenu';
-import BillingCards from '../../../components/BillingCards';
-import { Header } from "@/components/Header";
+import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
+import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
+import UserMenu from '../../../components/easy/serverinfo/UserMenu';
+import BillingCards from '../../../components/easy/serverinfo/BillingCards';
+import { Header } from "../../../components/easy/Header";
+
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -132,6 +133,14 @@ export default function ServerInfoPage() {
     setEasyMode(checked);
   };
 
+
+// const pathname = usePathname();
+// const getPageTitle = () => {
+//   if (pathname === '/easy/serverinfo') return menuLabels.myServer;
+//   if (pathname === '/account') return menuLabels.accountSettings;
+//   if (pathname === '/create') return menuLabels.createServer;
+//   return '';
+// };
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       {/* Header */}

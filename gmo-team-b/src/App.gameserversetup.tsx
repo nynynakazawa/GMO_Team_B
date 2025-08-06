@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
-import { GameServerSetup } from './components/GameServerSetup';
+import { GameServerSetup } from './components/easy/create/GameServerSetup';
 import { mockRootProps } from './data/gameServerSetupMockData';
 import theme from './theme/theme';
 

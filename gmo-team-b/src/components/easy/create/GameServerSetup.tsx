@@ -3,13 +3,13 @@
 import React, { useState } from "react";
 import { Box, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Header } from "./Header";
+import { Header } from "../Header";
 import { EasyProgressStepper } from "./EasyProgressStepper";
 import { GameSelectionGrid } from "./GameSelectionGrid";
 import { PeriodSelector } from "./PeriodSelector";
 import { PlanSelectionGrid } from "./PlanSelectionGrid";
 import { ServerConfigForm } from "./ServerConfigForm";
-import { GameServerSetupProps } from "../types/gameServerSetup";
+import { GameServerSetupProps } from "../../../types/gameServerSetup";
 
 const MainContainer = styled(Box)(() => ({
   minHeight: "100vh",
