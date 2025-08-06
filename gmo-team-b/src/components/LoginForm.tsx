@@ -68,6 +68,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           // ログイン成功時の処理
           const user = userCredential.user;
           console.log("ログイン成功:", user);
+          console.log("ログインユーザーのメールアドレス:", user.email)
+          console.log("ログインユーザーのパスワード:", password)
+          localStorage.setItem('user_email', user.email || '');
+          localStorage.setItem('user_password', password);
           if (onLogin) {
             onLogin(email, password);
           }
