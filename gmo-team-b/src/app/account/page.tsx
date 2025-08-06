@@ -27,7 +27,6 @@ import {
 import { Person } from '@mui/icons-material';
 import UserMenu from '../../components/easy/serverinfo/UserMenu';
 import { Header } from "../../components/easy/Header";
-import { useEffect } from 'react';
 const tabLabels = ['お支払い', 'アカウント設定', '過去の請求'];
 
 export default function AccountPage() {
