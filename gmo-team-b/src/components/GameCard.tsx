@@ -32,12 +32,22 @@ const GameCardContainer = styled(Box)<{
   },
 }));
 
+const GameIconContainer = styled(Box)(() => ({
+  width: 60,
+  height: 60,
+  borderRadius: 8,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  marginBottom: 8,
+  backgroundColor: "rgba(0, 0, 0, 0.05)",
+}));
+
 const GameIcon = styled("img")(() => ({
   width: 60,
   height: 60,
   borderRadius: 8,
   objectFit: "cover",
-  marginBottom: 8,
 }));
 
 const GameName = styled(Typography)<{ selected: boolean }>(
@@ -64,13 +74,33 @@ export const GameCard: React.FC<GameCardProps> = ({
   selected,
   onClick,
 }) => {
+  const renderIcon = () => {
+    if (typeof game.icon === 'string') {
+      // 文字列の場合は画像として表示
+      return <GameIcon src={game.icon} alt={game.name} />;
+    } else {
+      // MUIアイコンコンポーネントの場合
+      const IconComponent = game.icon;
+      return (
+        <GameIconContainer>
+          <IconComponent 
+            sx={{ 
+              fontSize: 48, 
+              color: selected ? '#fff' : '#19b8d7' 
+            }} 
+          />
+        </GameIconContainer>
+      );
+    }
+  };
+
   return (
     <GameCardContainer
       selected={selected}
       onClick={() => onClick(game.id)}
       sx={{ position: "relative" }}
     >
-      <GameIcon src={game.icon} alt={game.name} />
+      {renderIcon()}
       <GameName selected={selected}>{game.name}</GameName>
     </GameCardContainer>
   );

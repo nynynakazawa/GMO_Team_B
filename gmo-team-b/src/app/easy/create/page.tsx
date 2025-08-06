@@ -61,6 +61,19 @@ export default function EasyCreatePage() {
 
   const handleGameSelect = (gameId: string) => {
     setSelectedGame(gameId);
+    
+    // 選択したゲーム名をサーバー名に自動設定
+    const selectedGameData = mockRootProps.games.find(g => g.id === gameId);
+    
+    if (selectedGameData) {
+      // ゲームデータから名前を取得
+      const gameName = selectedGameData.name;
+      setServerName(`${gameName} Server`);
+    } else {
+      // カスタムゲーム（gameIdが直接ゲーム名）の場合
+      setServerName(`${gameId} Server`);
+    }
+    
     setCurrentStep(2);
   };
 

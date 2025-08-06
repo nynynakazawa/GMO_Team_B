@@ -24,7 +24,7 @@ export interface GameServerSetupProps {
 export interface Game {
   id: string;
   name: string;
-  icon: string;
+  icon: string | React.ComponentType<any>;
   featured?: boolean;
 }
 
