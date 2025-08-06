@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -14,33 +14,28 @@ import {
   Select,
   MenuItem,
   FormControl,
-  Divider,
   Card,
   CardContent,
-  Tooltip,
-} from '@mui/material';
-import {
-  KeyboardArrowRight,
-  Refresh,
-  HelpOutline,
-  Edit,
-  Clear,
-  ContentCopy,
-  RestartAlt,
-  PowerSettingsNew,
-  OpenInNew,
-  CloudUpload,
-  CloudDownload,
-  Delete,
-  Person,
-} from '@mui/icons-material';
-import { serverInfoMockData, ServerAction, ServerSetting } from '../../../data/serverInfoMockData';
-import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
-import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
-import UserMenu from '../../../components/easy/serverinfo/UserMenu';
-import BillingCards from '../../../components/easy/serverinfo/BillingCards';
+  CircularProgress,
+  Alert,
+} from "@mui/material";
+import { KeyboardArrowRight, HelpOutline } from "@mui/icons-material";
+import ServerSettingsTab from "../../../components/easy/serverinfo/ServerSettingsTab";
+import ServerNameEditor from "../../../components/easy/serverinfo/ServerNameEditor";
+import BillingCards from "../../../components/easy/serverinfo/BillingCards";
 import { Header } from "../../../components/easy/Header";
+import type { ParsedServerInfo } from "@/app/api/serverinfo/getServerInfo";
 
+interface ServerAction {
+  label: string;
+  icon: React.ElementType;
+}
+
+const serverActions: ServerAction[] = [
+  { label: "起動", icon: KeyboardArrowRight }, // ←アイコンは適当に
+  { label: "再起動", icon: KeyboardArrowRight },
+  { label: "シャットダウン", icon: KeyboardArrowRight },
+];
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -70,10 +65,59 @@ export default function ServerInfoPage() {
   const [selectedPlan, setSelectedPlan] = useState("8GB/6Core");
   const [autoBackup, setAutoBackup] = useState(false);
   const [deleteLock, setDeleteLock] = useState(false);
-  const [serverName, setServerName] = useState(serverInfoMockData.serverName);
+  const [serverInfo, setServerInfo] = useState<ParsedServerInfo | null>(null);
+  const [serverName, setServerName] = useState("");
   const [isEditingServerName, setIsEditingServerName] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [easyMode, setEasyMode] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const serverId = "be135a87-c7ee-4f43-8072-8531716cad09";
+
+  useEffect(() => {
+    const fetchServerInfo = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Try to fetch from API first
+        const res = await fetch(`/api/server/${serverId}`);
+        
+        if (!res.ok) {
+          throw new Error(`API call failed: ${res.status} ${res.statusText}`);
+        }
+        
+        const info = (await res.json()) as ParsedServerInfo;
+        setServerInfo(info);
+        setServerName(info.nameTag);
+      } catch (err) {
+        console.warn('API call failed, using mock data:', err);
+        
+        // Fallback to mock data
+        const mockServerInfo: ParsedServerInfo = {
+          nameTag: "データを取得できませんでした",
+          ipAddress: "",
+          subnetMask: "",
+          gateway: "",
+          macAddress: "",
+          dnsServer1: "",
+          dnsServer2: "",
+          bandwidthIn: "",
+          bandwidthOut: "",
+          autoBackupEnabled: false,
+          bootStorage: "",
+          securityGroup: "",
+        };
+        
+        setServerInfo(mockServerInfo);
+        setServerName(mockServerInfo.nameTag);
+        setError('Using mock data - API unavailable');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServerInfo();
+  }, [serverId]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -101,10 +145,6 @@ export default function ServerInfoPage() {
     setSelectedPlan(event.target.value);
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
-
   const handleServerNameEdit = () => {
     setIsEditingServerName(true);
   };
@@ -115,7 +155,7 @@ export default function ServerInfoPage() {
   };
 
   const handleServerNameCancel = () => {
-    setServerName(serverInfoMockData.serverName);
+    setServerName("");
     setIsEditingServerName(false);
   };
 
@@ -125,13 +165,13 @@ export default function ServerInfoPage() {
     setServerName(event.target.value);
   };
 
-  const handleUserMenuToggle = () => {
-    setIsUserMenuOpen(!isUserMenuOpen);
-  };
-
-  const handleEasyModeChange = (checked: boolean) => {
-    setEasyMode(checked);
-  };
+  if (loading) {
+    return (
+      <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress size={60} sx={{ color: '#19B8D7' }} />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
@@ -147,6 +187,12 @@ export default function ServerInfoPage() {
         <Container maxWidth="xl" disableGutters>
           <Header />
 
+          {error && (
+            <Alert severity="warning" sx={{ m: 2 }}>
+              {error}
+            </Alert>
+          )}
+
           {/* Server Info Bar */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
             <IconButton size="small" sx={{ color: "text.secondary" }}>
@@ -154,7 +200,7 @@ export default function ServerInfoPage() {
             </IconButton>
             <ServerNameEditor
               serverName={serverName}
-              ipAddress={serverInfoMockData.ipAddress}
+              ipAddress={serverInfo?.ipAddress ?? "Loading..."}
               isEditing={isEditingServerName}
               onEdit={handleServerNameEdit}
               onSave={handleServerNameSave}
@@ -179,30 +225,28 @@ export default function ServerInfoPage() {
 
           {/* Action Buttons */}
           <Box mb={2} sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            {serverInfoMockData.actions.map(
-              (action: ServerAction, index: number) => {
-                const IconComponent = action.icon;
-                return (
-                  <Button
-                    key={index}
-                    variant="outlined"
-                    startIcon={<IconComponent />}
-                    sx={{
-                      borderRadius: "50px",
-                      textTransform: "none",
-                      borderColor: "#19B8D7",
-                      color: "#19B8D7",
-                      "&:hover": {
-                        borderColor: "#15a0c0",
-                        backgroundColor: "#e3f2fd",
-                      },
-                    }}
-                  >
-                    {action.label}
-                  </Button>
-                );
-              }
-            )}
+            {serverActions.map((action: ServerAction, index: number) => {
+              const IconComponent = action.icon;
+              return (
+                <Button
+                  key={index}
+                  variant="outlined"
+                  startIcon={<IconComponent />}
+                  sx={{
+                    borderRadius: "50px",
+                    textTransform: "none",
+                    borderColor: "#19B8D7",
+                    color: "#19B8D7",
+                    "&:hover": {
+                      borderColor: "#15a0c0",
+                      backgroundColor: "#e3f2fd",
+                    },
+                  }}
+                >
+                  {action.label}
+                </Button>
+              );
+            })}
           </Box>
         </Container>
       </Box>
@@ -248,6 +292,7 @@ export default function ServerInfoPage() {
               deleteLock={deleteLock}
               onAutoBackupChange={handleAutoBackupChange}
               onDeleteLockChange={handleDeleteLockChange}
+              serverInfo={serverInfo}
             />
           </TabPanel>
 
