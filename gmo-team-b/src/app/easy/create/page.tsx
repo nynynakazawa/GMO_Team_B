@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { GameServerSetup } from "../../../components/GameServerSetup";
+import { GameServerSetup } from "../../../components/easy/create/GameServerSetup";
 import { mockRootProps } from "../../../data/gameServerSetupMockData";
 import { Plan } from "../../../types/gameServerSetup";
 
@@ -66,12 +66,13 @@ export default function EasyCreatePage() {
     const selectedGameData = mockRootProps.games.find(g => g.id === gameId);
     
     if (selectedGameData) {
-      // ゲームデータから名前を取得
-      const gameName = selectedGameData.name;
-      setServerName(`${gameName} Server`);
+      // ゲームデータから名前を取得し、空白を除去してハイフンに置き換え
+      const gameName = selectedGameData.name.replace(/\s+/g, '-');
+      setServerName(`${gameName}-Server`);
     } else {
-      // カスタムゲーム（gameIdが直接ゲーム名）の場合
-      setServerName(`${gameId} Server`);
+      // カスタムゲーム（gameIdが直接ゲーム名）の場合、空白を除去してハイフンに置き換え
+      const cleanGameId = gameId.replace(/\s+/g, '-');
+      setServerName(`${cleanGameId}-Server`);
     }
     
     setCurrentStep(2);

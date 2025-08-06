@@ -17,18 +17,19 @@ export type ConoHaAuthResponse = {
     };
   };
 };
-
 // ConoHa APIトークンとエンドポイントを取得する関数
-export async function getConoHaTokenAndEndpoint(): Promise<{ token: string, computeEndpoint: string, projectId: string }> {
+export async function getConoHaTokenAndEndpoint(): Promise<{
+  token: string;
+  computeEndpoint: string;
+  projectId: string;
+}> {
   const username = process.env.CONOHA_USERNAME;
   const password = process.env.CONOHA_PASSWORD;
   const tenantName = process.env.CONOHA_TENANT_NAME;
   const identityService = process.env.CONOHA_IDENTITY_SERVICE;
-
   if (!username || !password || !tenantName || !identityService) {
     throw new Error("ConoHa credentials not configured");
   }
-
   // ConoHa API v3の認証ペイロード
   const authPayload = {
     auth: {
@@ -39,26 +40,25 @@ export async function getConoHaTokenAndEndpoint(): Promise<{ token: string, comp
             name: username,
             password: password,
             domain: {
-              name: "default"
-            }
-          }
-        }
+              name: "default",
+            },
+          },
+        },
       },
       scope: {
         project: {
           name: tenantName,
           domain: {
-            name: "default"
-          }
-        }
-      }
-    }
+            name: "default",
+          },
+        },
+      },
+    },
   };
 
   console.log("=== ConoHa認証開始 ===");
   console.log("認証URL:", `${identityService}/auth/tokens`);
   console.log("認証ペイロード:", JSON.stringify(authPayload, null, 2));
-
   const response = await fetch(`${identityService}/auth/tokens`, {
     method: "POST",
     headers: {
@@ -68,22 +68,19 @@ export async function getConoHaTokenAndEndpoint(): Promise<{ token: string, comp
   });
 
   console.log("認証レスポンスステータス:", response.status, response.statusText);
-
   if (!response.ok) {
     const errorText = await response.text();
     console.error("認証失敗:", response.status, response.statusText, errorText);
     throw new Error(`ConoHa authentication failed: ${response.status} ${response.statusText} - ${errorText}`);
   }
-
   // ConoHa API v3では、トークンはX-Subject-Tokenヘッダーに含まれる
   const token = response.headers.get('X-Subject-Token');
-  console.log("取得されたトークン:", token ? `${token.substring(0, 20)}...` : "なし");
-  
+
+  console.log("取得されたトークン:", token);
   if (!token) {
     console.error("トークンが見つかりません");
     throw new Error('No token found in response headers');
   }
-
   const authData: ConoHaAuthResponse = await response.json();
   console.log("認証レスポンスデータ:", {
     projectId: authData.token.project.id,
@@ -91,14 +88,14 @@ export async function getConoHaTokenAndEndpoint(): Promise<{ token: string, comp
     expiresAt: authData.token.expires_at,
     catalogServices: authData.token.catalog.map(service => service.type)
   });
-
   // サービスカタログからCompute Serviceのエンドポイントを取得
-  const computeService = authData.token.catalog.find(service => service.type === 'compute');
+  const computeService = authData.token.catalog.find(
+    (service) => service.type === "compute"
+  );
   if (!computeService) {
     console.error("Compute service not found in catalog");
     throw new Error('Compute service not found in catalog');
   }
-
   const publicEndpoint = computeService.endpoints.find(endpoint => endpoint.interface === 'public');
   if (!publicEndpoint) {
     console.error("Public compute endpoint not found");
@@ -111,31 +108,28 @@ export async function getConoHaTokenAndEndpoint(): Promise<{ token: string, comp
   return {
     token,
     computeEndpoint: publicEndpoint.url,
-    projectId: authData.token.project.id
+    projectId: authData.token.project.id,
   };
 }
 
 // APIハンドラー - URL直打ちで実行可能
 import type { NextApiRequest, NextApiResponse } from "next";
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   if (req.method !== "GET") {
-    return res.status(405).json({ 
-      message: "Method Not Allowed. Use GET method to test authentication." 
+
+    return res.status(405).json({
+      message: "Method Not Allowed. Use GET method to test authentication."
     });
   }
-
   try {
     console.log("=== ConoHa認証API直接実行 ===");
     console.log("リクエスト時刻:", new Date().toISOString());
     console.log("リクエストメソッド:", req.method);
     console.log("リクエストURL:", req.url);
-
     const result = await getConoHaTokenAndEndpoint();
-
     console.log("=== 認証結果 ===");
     console.log("プロジェクトID:", result.projectId);
     console.log("Compute エンドポイント:", result.computeEndpoint);
@@ -158,6 +152,7 @@ export default async function handler(
   } catch (error) {
     console.error("=== ConoHa認証API実行エラー ===");
     console.error("エラー:", error);
+
 
     res.status(500).json({
       success: false,
