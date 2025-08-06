@@ -1,59 +1,74 @@
-// app/api/server/[id]/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { getServerInfo, ParsedServerInfo } from "../getServerInfo";
+import { NextResponse } from "next/server";
 import { getConoHaTokenAndEndpoint } from "@/pages/api/vps/conohaAuth";
 
+type Action = "os-start" | "os-stop" | "reboot" | "force_shutdown";
+
 export async function POST(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
+  _req: Request,
+  context: { params: { id: string; action: Action } }
 ) {
+  const { id, action } = context.params;
+
+  // 1) アクション妥当性チェック
+  if (!["os-start", "os-stop", "reboot", "force_shutdown"].includes(action)) {
+    return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
+  }
+
   try {
-    const tokenAndEndpoint = await getConoHaTokenAndEndpoint();
-    const token = tokenAndEndpoint.token;
-    
-    if (!token) {
-      console.warn('CONOHA_TOKEN not found, returning mock data');
-      
-      // Return mock data when token is not available
-      const mockData: ParsedServerInfo = {
-        nameTag: "game-2025-08-04-13-54",
-        ipAddress: "133.117.75.97",
-        subnetMask: "255.255.254.0",
-        gateway: "133.117.75.1",
-        macAddress: "fa:16:3e:f7:4e:47",
-        dnsServer1: "150.95.10.8",
-        dnsServer2: "150.95.10.9",
-        bandwidthIn: "100.0",
-        bandwidthOut: "100.0",
-        autoBackupEnabled: false,
-        bootStorage: "SSD 100GB",
-        securityGroup: "default",
-      };
-      
-      return NextResponse.json(mockData, { status: 200 });
+    // 2) 認証（トークン取得）
+    const { token, computeEndpoint } = await getConoHaTokenAndEndpoint();
+
+    // 3) ConoHa API へ転送
+    //    例: POST /servers/<id>/action { "reboot": { "type": "SOFT" } }
+
+    const body = (() => {
+      if (action === "os-start") {
+        return {
+          "os-start": null,
+        };
+      } else if (action === "os-stop") {
+        return {
+          "os-stop": null,
+        };
+      } else if (action === "reboot") {
+        return {
+          "reboot": {
+            "type": "SOFT",
+          },
+        };
+      } else if (action === "force_shutdown") {
+        return {
+          "os-stop": {
+            "force_shutdown": true,
+          },
+        };
+      }
+      return "";
+    })();
+
+    const res = await fetch(`${computeEndpoint}/servers/${id}/action`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-Auth-Token": token,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(
+        `ConoHa API error ${res.status} ${res.statusText}: ${txt}`
+      );
     }
-    
-    const info = await getServerInfo(token, params.id);
-    return NextResponse.json(info, { status: 200 });
-  } catch (error) {
-    console.error('Error fetching server info:', error);
-    
-    // Return mock data on error
-    const mockData: ParsedServerInfo = {
-      nameTag: "game-2025-08-04-13-54",
-      ipAddress: "133.117.75.97",
-      subnetMask: "255.255.254.0",
-      gateway: "133.117.75.1",
-      macAddress: "fa:16:3e:f7:4e:47",
-      dnsServer1: "150.95.10.8",
-      dnsServer2: "150.95.10.9",
-      bandwidthIn: "100.0",
-      bandwidthOut: "100.0",
-      autoBackupEnabled: false,
-      bootStorage: "SSD 100GB",
-      securityGroup: "default",
-    };
-    
-    return NextResponse.json(mockData, { status: 200 });
+
+    return NextResponse.json({ ok: true }, { status: 200 });
+  } catch (err) {
+    console.error("server action API error:", err);
+    return NextResponse.json(
+      { error: "Failed to execute action" },
+      { status: 500 }
+    );
   }
 }
