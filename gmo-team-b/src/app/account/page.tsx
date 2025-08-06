@@ -25,7 +25,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { Person } from '@mui/icons-material';
-import UserMenu from '../../components/easy/serverinfo/UserMenu';
+import UserMenu from '../../components/easy/UserMenu';
 import { Header } from "../../components/easy/Header";
 const tabLabels = ['お支払い', 'アカウント設定', '過去の請求'];
 

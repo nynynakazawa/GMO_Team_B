@@ -37,7 +37,7 @@ import {
 import { serverInfoMockData, ServerAction, ServerSetting } from '../../../data/serverInfoMockData';
 import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
 import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
-import UserMenu from '../../../components/easy/serverinfo/UserMenu';
+import UserMenu from '../../../components/easy/UserMenu';
 import BillingCards from '../../../components/easy/serverinfo/BillingCards';
 import { Header } from "../../../components/easy/Header";
 

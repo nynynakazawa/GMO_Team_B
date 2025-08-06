@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Box, Container, Typography, IconButton, Stack } from "@mui/material";
 import { Person } from "@mui/icons-material";
-import UserMenu from "../easy/serverinfo/UserMenu";
+import UserMenu from "./UserMenu";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import { menuLabels } from "../../data/menuLabels";
