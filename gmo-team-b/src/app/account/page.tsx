@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, {useRef, useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -24,7 +24,11 @@ import {
   Divider,
   IconButton,
 } from '@mui/material';
+import { storage } from '@/firebase/firebase'; // これでOK
+import Avatar from '@mui/material/Avatar';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Person } from '@mui/icons-material';
+import Image from 'next/image';
 import UserMenu from '../../components/easy/serverinfo/UserMenu';
 import { Header } from "../../components/easy/Header";
 const tabLabels = ['お支払い', 'アカウント設定', '過去の請求'];
@@ -42,6 +46,19 @@ export default function AccountPage() {
   const handleEasyModeChange = (checked: boolean) => setEasyMode(checked);
   const [savedEmail, setSavedEmail] = useState<string>('');
   const [savedPassword, setSavedPassword] = useState<string>('');
+  const [iconUrl, setIconUrl] = useState<string>('/images/conoha_image1.png'); 
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+
+  const handleIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    setUploading(true);
+    const url = URL.createObjectURL(file);
+    setIconUrl(url);
+    setUploading(false);
+  };
 
   // const savedEmail = localStorage.getItem("user_email");
   // const savedPassword = localStorage.getItem("user_password")
@@ -83,7 +100,7 @@ export default function AccountPage() {
           </Box>
         </Container>
       </Box> */}
-      <Header />
+      <Header iconUrl={iconUrl} />
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Paper sx={{ width: "100%", borderRadius: "10px", boxShadow: 3 }}>
           <Box sx={{ borderBottom: 1, borderColor: "divider", px: 3, pt: 3 }}>
@@ -491,6 +508,31 @@ export default function AccountPage() {
                 >
                   編集
                 </Button>
+                <Divider sx={{ my: 4 }} />
+ <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+<Image
+  src={iconUrl}
+  alt="アイコン"
+  width={80}
+  height={80}
+  style={{ borderRadius: '20px', border: '2px solid #19B8D7', objectFit: 'cover' }}
+/>
+      <Button
+        variant="contained"
+        component="label"
+        sx={{ bgcolor: "#19B8D7", color: "white", borderRadius: "10px", px: 4, fontWeight: "bold" }}
+        disabled={uploading}
+      >
+        {uploading ? "アップロード中..." : "画像を選択"}
+        <input
+          type="file"
+          accept="image/*"
+          hidden
+          ref={fileInputRef}
+          onChange={handleIconUpload}
+        />
+      </Button>
+    </Box>
               </Box>
             )}
             {/* 過去の請求タブ */}

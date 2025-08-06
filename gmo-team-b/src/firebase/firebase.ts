@@ -2,6 +2,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 import { getAnalytics } from 'firebase/analytics'
+import { getStorage } from 'firebase/storage';
 
 // Firebase構成情報（.envから読み込み）
 const firebaseConfig = {
@@ -17,6 +18,7 @@ const firebaseConfig = {
 // ✅ 複数回 initializeApp を防ぐために getApps() を確認
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
 
+
 // クライアント限定で Analytics 初期化（オプション）
 if (typeof window !== 'undefined') {
   try {
@@ -28,5 +30,6 @@ if (typeof window !== 'undefined') {
 
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
+const storage = getStorage(app);
 
-export { auth, provider }
+export { auth, provider, storage };

@@ -134,13 +134,7 @@ export default function ServerInfoPage() {
   };
 
 
-// const pathname = usePathname();
-// const getPageTitle = () => {
-//   if (pathname === '/easy/serverinfo') return menuLabels.myServer;
-//   if (pathname === '/account') return menuLabels.accountSettings;
-//   if (pathname === '/create') return menuLabels.createServer;
-//   return '';
-// };
+
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       {/* Header */}
