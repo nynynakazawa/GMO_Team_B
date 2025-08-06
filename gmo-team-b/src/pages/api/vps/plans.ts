@@ -18,12 +18,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     
     const { flavors } = await flavorsRes.json();
+    
+    console.log("取得されたフレーバー数:", flavors?.length || 0);
 
     // VPS専用フレーバーをフィルタリングしてプランを作成
     const vpsFlavors = flavors.filter((f: any) => {
       const name = f.name.toLowerCase();
-      return (name.includes('g2w') || name.includes('g2l')) && !name.includes('g2d');
+      const isVPSFlavor = (name.includes('g2w') || name.includes('g2l')) && !name.includes('g2d');
+      
+      if (!isVPSFlavor) return false;
+      
+      // RAM容量を抽出して64GB以下かチェック
+      const ramMatch = name.match(/m(\d+)/);
+      if (ramMatch) {
+        const ramGB = parseInt(ramMatch[1]);
+        return ramGB <= 64; // 64GB以下のみ表示
+      }
+      
+      return false; // RAM容量が抽出できない場合は除外
     });
+    
+    console.log("64GB以下のVPSフレーバー数:", vpsFlavors.length);
+    console.log("フィルタリングされたフレーバー:", vpsFlavors.map((f: any) => f.name));
 
     // フレーバー名からRAM容量を抽出する関数
     const extractRamFromName = (name: string): number => {
@@ -81,6 +97,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // RAM容量でソート
     uniquePlans.sort((a: any, b: any) => a.ramGB - b.ramGB);
+    
+    console.log("最終的なプラン数:", uniquePlans.length);
+    console.log("表示されるプラン:", uniquePlans.map((p: any) => `${p.ramGB}GB RAM / ${p.vcpus}Core`));
 
     res.status(200).json({ 
       plans: uniquePlans

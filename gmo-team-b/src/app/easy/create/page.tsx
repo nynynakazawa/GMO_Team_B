@@ -11,6 +11,7 @@ export default function EasyCreatePage() {
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [serverName, setServerName] = useState("");
+  const [password, setPassword] = useState("");
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,8 +78,12 @@ export default function EasyCreatePage() {
     setServerName(name);
   };
 
+  const handlePasswordChange = (password: string) => {
+    setPassword(password);
+  };
+
   const handleCreateServer = async () => {
-    if (!selectedGame || !selectedPeriod || !selectedPlan || !serverName) {
+    if (!selectedGame || !selectedPeriod || !selectedPlan || !serverName || !password) {
       setError('すべての項目を入力してください');
       return;
     }
@@ -103,6 +108,7 @@ export default function EasyCreatePage() {
         body: JSON.stringify({
           planId: selectedPlan,
           serverName,
+          password,
           game: selectedGame,
           period: selectedPeriod,
         }),
@@ -134,23 +140,25 @@ export default function EasyCreatePage() {
   // ローディング中はモックデータを使用
   const currentPlans = loading ? mockRootProps.plans : plans;
 
-  return (
-    <GameServerSetup
-      currentStep={currentStep}
-      selectedGame={selectedGame}
-      selectedPeriod={selectedPeriod}
-      selectedPlan={selectedPlan}
-      serverName={serverName}
-      games={mockRootProps.games}
-      plans={currentPlans}
-      periodOptions={mockRootProps.periodOptions}
-      onGameSelect={handleGameSelect}
-      onPeriodSelect={handlePeriodSelect}
-      onPlanSelect={handlePlanSelect}
-      onServerNameChange={handleServerNameChange}
-      onCreateServer={handleCreateServer}
-      loading={loading}
-      error={error}
-    />
-  );
+      return (
+      <GameServerSetup
+        currentStep={currentStep}
+        selectedGame={selectedGame}
+        selectedPeriod={selectedPeriod}
+        selectedPlan={selectedPlan}
+        serverName={serverName}
+        password={password}
+        games={mockRootProps.games}
+        plans={currentPlans}
+        periodOptions={mockRootProps.periodOptions}
+        onGameSelect={handleGameSelect}
+        onPeriodSelect={handlePeriodSelect}
+        onPlanSelect={handlePlanSelect}
+        onServerNameChange={handleServerNameChange}
+        onPasswordChange={handlePasswordChange}
+        onCreateServer={handleCreateServer}
+        loading={loading}
+        error={error}
+      />
+    );
 }

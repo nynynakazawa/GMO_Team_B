@@ -28,6 +28,7 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
   selectedPeriod,
   selectedPlan,
   serverName,
+  password,
   games,
   plans,
   periodOptions,
@@ -35,6 +36,7 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
   onPeriodSelect,
   onPlanSelect,
   onServerNameChange,
+  onPasswordChange,
   onCreateServer,
   loading = false,
   error = null,
@@ -69,7 +71,9 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
 
           <ServerConfigForm
             serverName={serverName}
+            password={password}
             onServerNameChange={onServerNameChange}
+            onPasswordChange={onPasswordChange}
             onCreateServer={onCreateServer}
           />
         </Stack>

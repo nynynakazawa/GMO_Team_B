@@ -4,15 +4,24 @@ import type { NextApiRequest, NextApiResponse } from "next";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { planId, serverName, game, period } = req.body as { 
+  const { planId, serverName, password, game, period } = req.body as { 
     planId: string; 
     serverName: string; 
+    password: string;
     game: string; 
     period: string 
   };
   
-  if (!planId || !serverName || !game || !period) {
-    return res.status(400).json({ message: "planId, serverName, game, period は必須です" });
+  if (!planId || !serverName || !password || !game || !period) {
+    return res.status(400).json({ message: "planId, serverName, password, game, period は必須です" });
+  }
+
+  // ConoHaパスワード要件チェック（英数字記号を含む8-70文字）
+  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,70}$/;
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({ 
+      message: "パスワードは英字、数字、記号を含む8-70文字で設定してください" 
+    });
   }
 
   // planIdからRAM容量を抽出（例: "plan-8gb" → 8）
@@ -75,7 +84,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return isLinuxVPS && ramMatch;
     });
     
-    console.log("適用可能なLinuxフレーバー:", suitableFlavors.map(f => ({
+    console.log("適用可能なLinuxフレーバー:", suitableFlavors.map((f: any) => ({
       name: f.name,
       id: f.id,
       vcpus: f.vcpus,
@@ -96,7 +105,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     // まず動作確認済みフレーバーを試す
     for (const flavorName of knownWorkingFlavors) {
-      const flavor = publicFlavors.find(f => f.name.toLowerCase() === flavorName);
+      const flavor = publicFlavors.find((f: any) => f.name.toLowerCase() === flavorName);
       if (flavor) {
         matchingFlavor = flavor;
         console.log(`動作確認済みフレーバーを使用: ${flavorName}`);
@@ -106,11 +115,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     // 見つからない場合は最小のフレーバーを選択
     if (!matchingFlavor) {
-      matchingFlavor = suitableFlavors.sort((a, b) => a.ram - b.ram)[0] || 
+      matchingFlavor = suitableFlavors.sort((a: any, b: any) => a.ram - b.ram)[0] || 
                       publicFlavors.filter((f: any) => {
                         const name = f.name.toLowerCase();
                         return name.includes('g2w') && !name.includes('g2d');
-                      }).sort((a, b) => a.ram - b.ram)[0];
+                      }).sort((a: any, b: any) => a.ram - b.ram)[0];
     }
     
     if (matchingFlavor) {
@@ -133,130 +142,201 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       throw new Error(`要求仕様 (RAM=${ramGB}GB) を満たすVPS専用フレーバーが見つかりません`);
     }
 
-    /*--- 既存のボリューム一覧を取得 ---*/
-    console.log("既存ボリューム取得開始");
-    const volumesRes = await fetch(`https://block-storage.c3j1.conoha.io/v3/${projectId}/volumes/detail`, {
+    /*--- イメージ一覧を取得 ---*/
+    console.log("イメージ一覧取得開始");
+    // ConoHaの正しいImage APIエンドポイントを使用
+    const imageApiEndpoint = "https://image-service.c3j1.conoha.io/v2/images";
+    console.log("Image APIエンドポイント:", `${imageApiEndpoint}?visibility=public&os_type=linux&limit=200`);
+    
+    const imagesRes = await fetch(`${imageApiEndpoint}?visibility=public&os_type=linux&limit=200`, {
+      headers: { 
+        "X-Auth-Token": token,
+        "Accept": "application/json"
+      }
+    });
+    
+    console.log("イメージAPI レスポンス:", imagesRes.status, imagesRes.statusText);
+    
+    let imagesData = null;
+    if (!imagesRes.ok) {
+      const errorText = await imagesRes.text();
+      console.error("Image APIからのイメージ取得に失敗:", errorText);
+      throw new Error(`イメージ一覧取得に失敗: ${imagesRes.status} ${imagesRes.statusText} - ${errorText}`);
+    } else {
+      try {
+        imagesData = await imagesRes.json();
+        console.log("イメージデータ取得成功");
+      } catch (error) {
+        console.error("イメージデータの解析に失敗:", error);
+        throw new Error("イメージデータの解析に失敗しました");
+      }
+    }
+    
+    let suitableImage = null;
+    
+    if (imagesData && imagesData.images) {
+      const { images } = imagesData;
+      console.log("取得されたイメージ数:", images?.length || 0);
+      
+      // 利用可能なイメージをログ出力（最初の5つ）
+      console.log("利用可能なイメージ（最初の5つ）:");
+      images.slice(0, 5).forEach((img: any, index: number) => {
+        console.log(`${index + 1}. ${img.name} (${img.id}): status=${img.status}, os_type=${img.os_type}`);
+      });
+      
+      if (images && images.length > 0) {
+        // ConoHaの公式イメージ名に基づいてUbuntu 22.04を優先的に選択
+        suitableImage = images.find((img: any) => {
+          const name = img.name?.toLowerCase() || '';
+          return name.includes('vmi-ubuntu-22.04') && img.status === 'active';
+        }) || images.find((img: any) => {
+          const name = img.name?.toLowerCase() || '';
+          return name.includes('vmi-ubuntu-20.04') && img.status === 'active';
+        }) || images.find((img: any) => {
+          const name = img.name?.toLowerCase() || '';
+          return name.includes('ubuntu') && img.status === 'active';
+        }) || images.find((img: any) => {
+          const name = img.name?.toLowerCase() || '';
+          return name.includes('centos') && img.status === 'active';
+        }) || images.find((img: any) => img.status === 'active'); // アクティブなイメージを選択
+        
+        if (suitableImage) {
+          console.log("選択されたイメージ:", {
+            id: suitableImage.id,
+            name: suitableImage.name,
+            status: suitableImage.status,
+            os_type: suitableImage.os_type,
+            min_disk: suitableImage.min_disk,
+            min_ram: suitableImage.min_ram
+          });
+        }
+      }
+    }
+    
+    // ブートボリュームには必ずイメージが必要
+    if (!suitableImage) {
+      throw new Error("ブートボリューム作成に必要なイメージが見つかりません。利用可能なアクティブなイメージが存在しない可能性があります。");
+    }
+
+    /*--- 新しいブートボリュームを作成 ---*/
+    let volume;
+    console.log("新しいブートボリュームを作成します");
+    
+    // ボリュームタイプ一覧を取得
+    console.log("ボリュームタイプ取得開始");
+    const volumeTypesRes = await fetch(`https://block-storage.c3j1.conoha.io/v3/${projectId}/types`, {
       headers: { "X-Auth-Token": token }
     });
     
-    if (!volumesRes.ok) {
-      const errorText = await volumesRes.text();
-      console.error("ボリューム一覧取得エラー:", errorText);
-      throw new Error(`ボリューム一覧取得に失敗: ${volumesRes.status} ${volumesRes.statusText} - ${errorText}`);
+    let volumeType = "c3j1-ds02-boot"; // ブート用ボリュームタイプ
+    
+    if (volumeTypesRes.ok) {
+      const { volume_types } = await volumeTypesRes.json();
+      console.log("利用可能ボリュームタイプ:", volume_types.map((vt: any) => ({
+        id: vt.id,
+        name: vt.name,
+        description: vt.description
+      })));
+      
+      // ブート用ボリュームタイプを選択（512MB専用を除く）
+      const bootType = volume_types.find((vt: any) => 
+        vt.name && vt.name.includes('boot') && !vt.name.includes('as01')
+      ) || volume_types.find((vt: any) => 
+        vt.name && vt.name.includes('ds02-boot')
+      );
+      
+      if (bootType) {
+        volumeType = bootType.name;
+        console.log("選択されたボリュームタイプ:", volumeType);
+      }
+    } else {
+      console.error("ボリュームタイプ取得失敗、デフォルトを使用");
     }
     
-    const { volumes } = await volumesRes.json();
-    console.log("取得されたボリューム数:", volumes?.length || 0);
+    // ブートボリュームを作成（必ずイメージ指定）
+    // ボリュームタイプに応じてサイズを調整
+    let volumeSize = 100; // デフォルト
+    if (volumeType.includes('as01')) {
+      volumeSize = 30; // 512MBプラン用
+    } else if (volumeType.includes('ds02') || volumeType.includes('ds03')) {
+      volumeSize = 100; // 通常のVPSプラン用
+    }
     
-    // 利用可能な空のボリュームを探す
-    const availableVolume = volumes.find((v: any) => 
-      v.status === "available" && 
-      (!v.attachments || v.attachments.length === 0) &&
-      v.size >= 30 // 最小30GB
-    );
+    console.log(`ボリュームタイプ ${volumeType} に対してサイズ ${volumeSize}GB を使用`);
     
-    console.log("既存ボリューム詳細:", volumes.map((v: any) => ({
-      id: v.id,
-      name: v.name,
-      status: v.status,
-      size: v.size,
-      volume_type: v.volume_type,
-      attachments: v.attachments?.length || 0
-    })));
+    const volumePayload = {
+      volume: {
+        size: volumeSize,
+        name: `${serverName}-boot-volume`,
+        description: `Boot volume for ${serverName}`,
+        volume_type: volumeType,
+        imageRef: suitableImage.id // 必須パラメータ
+      }
+    };
     
-    let volume;
-    
-    if (availableVolume) {
-      console.log("既存の利用可能ボリュームを使用:", { id: availableVolume.id, name: availableVolume.name, size: availableVolume.size });
-      volume = availableVolume;
-    } else {
-      console.log("利用可能ボリュームがないため、通常のボリュームを新規作成します");
+    console.log("イメージ指定でブートボリュームを作成:", {
+      imageId: suitableImage.id,
+      imageName: suitableImage.name,
+      volumeType: volumeType
+    });
       
-      // ボリュームタイプ一覧を取得
-      console.log("ボリュームタイプ取得開始");
-      const volumeTypesRes = await fetch(`https://block-storage.c3j1.conoha.io/v3/${projectId}/types`, {
+    console.log("ブートボリューム作成ペイロード:", JSON.stringify(volumePayload, null, 2));
+
+    const volumeRes = await fetch(`https://block-storage.c3j1.conoha.io/v3/${projectId}/volumes`, {
+      method: "POST",
+      headers: { 
+        "X-Auth-Token": token,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(volumePayload)
+    });
+
+    console.log("ブートボリューム作成レスポンス:", volumeRes.status, volumeRes.statusText);
+
+    if (!volumeRes.ok) {
+      const errorText = await volumeRes.text();
+      console.error("ブートボリューム作成エラー詳細:", errorText);
+      throw new Error(`ブートボリューム作成に失敗: ${volumeRes.status} ${volumeRes.statusText} - ${errorText}`);
+    }
+
+    volume = (await volumeRes.json()).volume;
+    console.log("ブートボリューム作成成功:", { id: volume.id, status: volume.status, name: volume.name, bootable: volume.bootable });
+
+    // ボリュームが利用可能になるまで待機
+    let volumeStatus = volume.status;
+    let attempts = 0;
+    const maxAttempts = 30; // 最大30回試行（約5分）
+
+    while (volumeStatus !== "available" && attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 10000)); // 10秒待機
+      
+      const statusRes = await fetch(`https://block-storage.c3j1.conoha.io/v3/${projectId}/volumes/${volume.id}`, {
         headers: { "X-Auth-Token": token }
       });
       
-      let volumeType = "c3j1-ds02"; // デフォルト
-      
-      if (volumeTypesRes.ok) {
-        const { volume_types } = await volumeTypesRes.json();
-        console.log("利用可能ボリュームタイプ:", volume_types.map((vt: any) => ({
-          id: vt.id,
-          name: vt.name,
-          description: vt.description
-        })));
-        
-        // 適切なボリュームタイプを選択
-        const availableType = volume_types.find((vt: any) => 
-          vt.name && (vt.name.includes('ds02') || vt.name.includes('standard'))
-        );
-        
-        if (availableType) {
-          volumeType = availableType.name;
-          console.log("選択されたボリュームタイプ:", volumeType);
-        }
-      } else {
-        console.error("ボリュームタイプ取得失敗、デフォルトを使用");
-      }
-      
-      // 通常のボリュームを作成
-      const volumePayload = {
-        volume: {
-          size: 100, // 100GB
-          name: `${serverName}-volume`,
-          description: `Volume for ${serverName}`,
-          volume_type: volumeType
-        }
-      };
-      
-      console.log("ボリューム作成ペイロード:", JSON.stringify(volumePayload, null, 2));
-
-      const volumeRes = await fetch(`https://block-storage.c3j1.conoha.io/v3/${projectId}/volumes`, {
-        method: "POST",
-        headers: { 
-          "X-Auth-Token": token,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(volumePayload)
-      });
-
-      console.log("ボリューム作成レスポンス:", volumeRes.status, volumeRes.statusText);
-
-      if (!volumeRes.ok) {
-        const errorText = await volumeRes.text();
-        console.error("ボリューム作成エラー詳細:", errorText);
-        throw new Error(`ボリューム作成に失敗: ${volumeRes.status} ${volumeRes.statusText} - ${errorText}`);
-      }
-
-      volume = (await volumeRes.json()).volume;
-      console.log("ボリューム作成成功:", { id: volume.id, status: volume.status, name: volume.name });
-
-      // ボリュームが利用可能になるまで待機
-      let volumeStatus = volume.status;
-      let attempts = 0;
-      const maxAttempts = 30; // 最大30回試行（約5分）
-
-      while (volumeStatus !== "available" && attempts < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 10000)); // 10秒待機
-        
-        const statusRes = await fetch(`https://block-storage.c3j1.conoha.io/v3/${projectId}/volumes/${volume.id}`, {
-          headers: { "X-Auth-Token": token }
+      if (statusRes.ok) {
+        const { volume: updatedVolume } = await statusRes.json();
+        volumeStatus = updatedVolume.status;
+        console.log(`ボリューム状態確認 (試行 ${attempts + 1}/${maxAttempts}):`, {
+          status: volumeStatus,
+          bootable: updatedVolume.bootable
         });
-        
-        if (statusRes.ok) {
-          const { volume: updatedVolume } = await statusRes.json();
-          volumeStatus = updatedVolume.status;
-        }
-        
-        attempts++;
       }
-
-      if (volumeStatus !== "available") {
-        throw new Error("ボリュームの作成がタイムアウトしました");
-      }
+      
+      attempts++;
     }
+
+    if (volumeStatus !== "available") {
+      throw new Error("ブートボリュームの作成がタイムアウトしました");
+    }
+
+    console.log("ブートボリューム作成完了:", {
+      id: volume.id,
+      status: volumeStatus,
+      name: volume.name,
+      size: volume.size,
+      bootable: volume.bootable
+    });
 
     /*--- サーバー作成 ---*/
     console.log("サーバー作成開始");
@@ -265,9 +345,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const serverPayload = {
       server: {
         flavorRef: matchingFlavor.id,
-        adminPass: "TempPassword123!",
+        adminPass: password, // ユーザーが指定したパスワードを使用
         block_device_mapping_v2: [{ 
-          uuid: volume.id
+          uuid: volume.id,
+          source_type: "volume",
+          destination_type: "volume",
+          boot_index: 0,
+          delete_on_termination: true
         }],
         metadata: { 
           instance_name_tag: serverName

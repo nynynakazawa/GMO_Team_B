@@ -7,6 +7,7 @@ export interface GameServerSetupProps {
   selectedPeriod: string | null;
   selectedPlan: string | null;
   serverName: string;
+  password: string;
   games: Game[];
   plans: Plan[];
   periodOptions: PeriodOption[];
@@ -14,6 +15,7 @@ export interface GameServerSetupProps {
   onPeriodSelect: (period: string) => void;
   onPlanSelect: (planId: string) => void;
   onServerNameChange: (name: string) => void;
+  onPasswordChange: (password: string) => void;
   onCreateServer: () => void | Promise<void>;
   loading?: boolean;
   error?: string | null;
