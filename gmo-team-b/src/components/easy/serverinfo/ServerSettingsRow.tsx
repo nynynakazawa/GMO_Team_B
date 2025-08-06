@@ -12,7 +12,7 @@ import {
   ContentCopy,
   HelpOutline,
 } from '@mui/icons-material';
-import { ServerSetting } from '../data/serverInfoMockData';
+import { ServerSetting } from '../../../data/serverInfoMockData';
 
 interface ServerSettingsRowProps {
   leftItem: ServerSetting;

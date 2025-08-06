@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { ServerCard } from './ServerCard';
-import { ServerInfo } from '../types/dashboard';
+import { ServerInfo } from '../../types/dashboard';
 import GamepadIcon from '@mui/icons-material/Gamepad';
 
 const ServicesContainer = styled(Box)(() => ({

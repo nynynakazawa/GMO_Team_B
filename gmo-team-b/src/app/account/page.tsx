@@ -25,9 +25,9 @@ import {
   IconButton,
 } from '@mui/material';
 import { Person } from '@mui/icons-material';
-import UserMenu from '../../components/UserMenu';
-import { Header } from "@/components/Header";
-
+import UserMenu from '../../components/easy/serverinfo/UserMenu';
+import { Header } from "../../components/easy/Header";
+import { useEffect } from 'react';
 const tabLabels = ['お支払い', 'アカウント設定', '過去の請求'];
 
 export default function AccountPage() {
@@ -41,7 +41,17 @@ export default function AccountPage() {
   const [easyMode, setEasyMode] = useState(true);
   const handleUserMenuToggle = () => setIsUserMenuOpen((prev) => !prev);
   const handleEasyModeChange = (checked: boolean) => setEasyMode(checked);
-
+const [userInfo, setUserInfo] = useState<any>(null);
+useEffect(() => {
+  async function fetchUserInfo() {
+    const res = await fetch('/api/conoha-user');
+    const data = await res.json();
+    console.log('APIレスポンス:', data); // ←ここを追加
+    setUserInfo(data);
+  }
+  fetchUserInfo();
+}, []);
+  
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       {/* ヘッダー部分 */}

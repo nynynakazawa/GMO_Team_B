@@ -3,8 +3,8 @@
 import React from "react";
 import { Box, Typography, Stack, Chip } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Plan } from "../types/gameServerSetup";
-import { formatPrice, formatDiscount } from "../data/stringFormatters";
+import { Plan } from "../../types/gameServerSetup";
+import { formatPrice, formatDiscount } from "../../data/stringFormatters";
 
 const PlanCardContainer = styled(Box, {
   shouldForwardProp: (prop) => prop !== "selected" && prop !== "featured",
