@@ -83,18 +83,19 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
   }}
   onClick={handleUserMenuToggle}
 >
-  <Image
-    src={iconUrl}
-    alt="アイコン"
-    width={60}
-    height={60}
-    style={{
-      width: '60px',
-      height: '60px',
-      borderRadius: '50%',
-      objectFit: 'cover',
-    }}
-  />
+<Image
+  src={iconUrl || '/images/conoha_image1.png'}
+  alt="アイコン"
+  width={60}
+  height={60}
+  style={{
+    width: '60px',
+    height: '60px',
+    borderRadius: '50%',
+    objectFit: 'cover',
+  }}
+/>
+
 </IconButton>
             <UserMenu
               isOpen={isUserMenuOpen}
