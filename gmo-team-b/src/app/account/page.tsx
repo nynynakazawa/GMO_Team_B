@@ -26,6 +26,7 @@ import {
 } from '@mui/material';
 import { Person } from '@mui/icons-material';
 import UserMenu from '../../components/UserMenu';
+import { useEffect } from 'react';
 
 const tabLabels = ['お支払い', 'アカウント設定', '過去の請求'];
 
@@ -40,7 +41,17 @@ export default function AccountPage() {
   const [easyMode, setEasyMode] = useState(true);
   const handleUserMenuToggle = () => setIsUserMenuOpen((prev) => !prev);
   const handleEasyModeChange = (checked: boolean) => setEasyMode(checked);
-
+const [userInfo, setUserInfo] = useState<any>(null);
+useEffect(() => {
+  async function fetchUserInfo() {
+    const res = await fetch('/api/conoha-user');
+    const data = await res.json();
+    console.log('APIレスポンス:', data); // ←ここを追加
+    setUserInfo(data);
+  }
+  fetchUserInfo();
+}, []);
+  
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
       {/* ヘッダー部分 */}
@@ -181,27 +192,27 @@ export default function AccountPage() {
               </Box>
             )}
             {/* アカウント設定タブ */}
-            {tab === 1 && (
-              <Box>
-                <Typography variant="h6" sx={{ color: '#19B8D7', mb: 2 }}>ログイン情報</Typography>
-                <TableContainer component={Paper} sx={{ borderRadius: '10px', mb: 3 }}>
-                  <Table size="small">
-                    <TableBody>
-                      <TableRow>
-                        <TableCell sx={{ color: '#19B8D7', fontWeight: 'bold' }}>アカウントID</TableCell>
-                        <TableCell>C17040839</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell sx={{ color: '#19B8D7', fontWeight: 'bold' }}>メールアドレス</TableCell>
-                        <TableCell>Intern2025-TeamB@internet.gmo</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell sx={{ color: '#19B8D7', fontWeight: 'bold' }}>パスワード</TableCell>
-                        <TableCell>************ <Button size="small" sx={{ ml: 2, color: '#19B8D7', borderRadius: '10px' }}>編集</Button></TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+ {tab === 1 && (
+    <Box>
+      <Typography variant="h6" sx={{ color: '#19B8D7', mb: 2 }}>ログイン情報</Typography>
+      <TableContainer component={Paper} sx={{ borderRadius: '10px', mb: 3 }}>
+        <Table size="small">
+          <TableBody>
+            <TableRow>
+              <TableCell sx={{ color: '#19B8D7', fontWeight: 'bold' }}>アカウントID</TableCell>
+              <TableCell>{userInfo ? userInfo.name : '-'}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ color: '#19B8D7', fontWeight: 'bold' }}>メールアドレス</TableCell>
+              <TableCell>{userInfo ? userInfo.email : '-'}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ color: '#19B8D7', fontWeight: 'bold' }}>パスワード</TableCell>
+              <TableCell>************ <Button size="small" sx={{ ml: 2, color: '#19B8D7', borderRadius: '10px' }}>編集</Button></TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
                 <Divider sx={{ my: 4 }} />
                 <Typography variant="h6" sx={{ color: '#19B8D7', mb: 2 }}>お客様情報</Typography>
                 <TableContainer component={Paper} sx={{ borderRadius: '10px', mb: 3 }}>
