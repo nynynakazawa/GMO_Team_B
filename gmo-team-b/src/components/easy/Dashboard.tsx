@@ -3,7 +3,7 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { SidebarNavigation } from './SidebarNavigation';
+import { SidebarNavigation } from '../nomal/SidebarNavigation';
 import { HeaderTabs } from './HeaderTabs';
 import { ProgressStepper } from './ProgressStepper';
 import { ServicesList } from './ServicesList';
