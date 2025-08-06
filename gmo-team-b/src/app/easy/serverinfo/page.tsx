@@ -35,10 +35,10 @@ import {
   Person,
 } from '@mui/icons-material';
 import { serverInfoMockData, ServerAction, ServerSetting } from '../../../data/serverInfoMockData';
-import ServerSettingsTab from '../../../components/ServerSettingsTab';
-import ServerNameEditor from '../../../components/ServerNameEditor';
-import UserMenu from '../../../components/UserMenu';
-import BillingCards from '../../../components/BillingCards';
+import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
+import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
+import UserMenu from '../../../components/easy/serverinfo/UserMenu';
+import BillingCards from '../../../components/easy/serverinfo/BillingCards';
 
 interface TabPanelProps {
   children?: React.ReactNode;

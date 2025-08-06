@@ -5,7 +5,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-import { type ServerInfo } from '../types/dashboard';
+import { type ServerInfo } from '../../types/dashboard';
 
 const ServerCardContainer = styled(Box)(({ theme }) => ({
   display: 'flex',

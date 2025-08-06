@@ -6,9 +6,9 @@ import { styled } from '@mui/material/styles';
 import { SidebarNavigation } from './SidebarNavigation';
 import { HeaderTabs } from './HeaderTabs';
 import { ProgressStepper } from './ProgressStepper';
-import { ServicesList } from './ServicesList';
-import { BillingSection } from './BillingSection';
-import { DashboardProps } from '../types/dashboard';
+import { ServicesList } from '../ServicesList';
+import { BillingSection } from './serverinfo/BillingSection';
+import { DashboardProps } from '../../types/dashboard';
 
 const DashboardContainer = styled(Box)(() => ({
   display: 'flex',

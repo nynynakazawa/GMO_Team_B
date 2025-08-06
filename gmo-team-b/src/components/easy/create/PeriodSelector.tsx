@@ -11,7 +11,7 @@ import {
   Button,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import DropdownArrowIcon from "./icons/DropdownArrowIcon";
+import DropdownArrowIcon from "../../icons/DropdownArrowIcon";
 import { PeriodOption } from "../types/PeriodServerSetup";
 
 const SectionContainer = styled(Box)(() => ({
