@@ -1,5 +1,5 @@
-"use client";
-import React, { useState } from 'react';
+"use client"
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -27,7 +27,6 @@ import {
 import { Person } from '@mui/icons-material';
 import UserMenu from '../../components/easy/serverinfo/UserMenu';
 import { Header } from "../../components/easy/Header";
-import { useEffect } from 'react';
 const tabLabels = ['お支払い', 'アカウント設定', '過去の請求'];
 
 export default function AccountPage() {
@@ -41,17 +40,27 @@ export default function AccountPage() {
   const [easyMode, setEasyMode] = useState(true);
   const handleUserMenuToggle = () => setIsUserMenuOpen((prev) => !prev);
   const handleEasyModeChange = (checked: boolean) => setEasyMode(checked);
-const [userInfo, setUserInfo] = useState<any>(null);
-useEffect(() => {
-  async function fetchUserInfo() {
-    const res = await fetch('/api/conoha-user');
-    const data = await res.json();
-    console.log('APIレスポンス:', data); // ←ここを追加
-    setUserInfo(data);
-  }
-  fetchUserInfo();
-}, []);
-  
+  const [savedEmail, setSavedEmail] = useState<string>('');
+  const [savedPassword, setSavedPassword] = useState<string>('');
+
+  // const savedEmail = localStorage.getItem("user_email");
+  // const savedPassword = localStorage.getItem("user_password")
+  // const maskedPassword = savedPassword
+  // ? '*'.repeat(savedPassword.length)
+  // : '';
+
+    useEffect(() => {
+    const email = localStorage.getItem("user_email") ?? '';
+    const password = localStorage.getItem("user_password") ?? '';
+    setSavedEmail(email);
+    setSavedPassword(password);
+  }, []);
+
+    const maskedPassword = savedPassword
+    ? '*'.repeat(savedPassword.length)
+    : '';
+
+
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       {/* ヘッダー部分 */}
@@ -307,12 +316,11 @@ useEffect(() => {
                   <Table size="small">
                     <TableBody>
                       <TableRow>
-                        <TableCell
+                        {/* <TableCell
                           sx={{ color: "#19B8D7", fontWeight: "bold" }}
                         >
                           アカウントID
-                        </TableCell>
-                        <TableCell>C17040839</TableCell>
+                        </TableCell> */}
                       </TableRow>
                       <TableRow>
                         <TableCell
@@ -320,7 +328,7 @@ useEffect(() => {
                         >
                           メールアドレス
                         </TableCell>
-                        <TableCell>Intern2025-TeamB@internet.gmo</TableCell>
+                        <TableCell>{savedEmail}</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell
@@ -329,7 +337,7 @@ useEffect(() => {
                           パスワード
                         </TableCell>
                         <TableCell>
-                          ************{" "}
+                          {maskedPassword}
                           <Button
                             size="small"
                             sx={{
