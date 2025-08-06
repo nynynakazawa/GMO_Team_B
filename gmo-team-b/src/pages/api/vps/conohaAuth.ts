@@ -85,10 +85,7 @@ export async function getConoHaTokenAndEndpoint(): Promise<{
     expiresAt: authData.token.expires_at,
     catalogServices: authData.token.catalog.map(service => service.type)
   });
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
   // サービスカタログからCompute Serviceのエンドポイントを取得
   const computeService = authData.token.catalog.find(
     (service) => service.type === "compute"
@@ -102,67 +99,37 @@ export async function getConoHaTokenAndEndpoint(): Promise<{
     console.error("Public compute endpoint not found");
     throw new Error('Public compute endpoint not found');
   }
-<<<<<<< HEAD
-
   console.log("Compute エンドポイント:", publicEndpoint.url);
   console.log("=== ConoHa認証完了 ===");
-
-=======
-  console.log("Compute エンドポイント:", publicEndpoint.url);
-  console.log("=== ConoHa認証完了 ===");
->>>>>>> origin/main
   return {
     token,
     computeEndpoint: publicEndpoint.url,
     projectId: authData.token.project.id,
   };
 }
-<<<<<<< HEAD
 
 // APIハンドラー - URL直打ちで実行可能
 import type { NextApiRequest, NextApiResponse } from "next";
-
-=======
-// APIハンドラー - URL直打ちで実行可能
-import type { NextApiRequest, NextApiResponse } from "next";
->>>>>>> origin/main
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   if (req.method !== "GET") {
-<<<<<<< HEAD
-    return res.status(405).json({ 
-      message: "Method Not Allowed. Use GET method to test authentication." 
-    });
-  }
-
-=======
     return res.status(405).json({
       message: "Method Not Allowed. Use GET method to test authentication."
     });
   }
->>>>>>> origin/main
   try {
     console.log("=== ConoHa認証API直接実行 ===");
     console.log("リクエスト時刻:", new Date().toISOString());
     console.log("リクエストメソッド:", req.method);
     console.log("リクエストURL:", req.url);
-<<<<<<< HEAD
-
     const result = await getConoHaTokenAndEndpoint();
-
-=======
-    const result = await getConoHaTokenAndEndpoint();
->>>>>>> origin/main
     console.log("=== 認証結果 ===");
     console.log("プロジェクトID:", result.projectId);
     console.log("Compute エンドポイント:", result.computeEndpoint);
     console.log("トークン（最初の20文字）:", result.token.substring(0, 20) + "...");
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
     // セキュリティのため、トークンは最初の20文字のみ返す
     const responseData = {
       success: true,
@@ -170,19 +137,6 @@ export default async function handler(
       data: {
         projectId: result.projectId,
         computeEndpoint: result.computeEndpoint,
-<<<<<<< HEAD
-        tokenPreview: result.token.substring(0, 20) + "...",
-        timestamp: new Date().toISOString()
-      }
-    };
-
-    res.status(200).json(responseData);
-
-  } catch (error) {
-    console.error("=== ConoHa認証API実行エラー ===");
-    console.error("エラー:", error);
-
-=======
         token: result.token,
         timestamp: new Date().toISOString()
       }
@@ -191,7 +145,6 @@ export default async function handler(
   } catch (error) {
     console.error("=== ConoHa認証API実行エラー ===");
     console.error("エラー:", error);
->>>>>>> origin/main
     res.status(500).json({
       success: false,
       message: "ConoHa認証に失敗しました",
