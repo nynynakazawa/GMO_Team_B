@@ -30,7 +30,7 @@ const StatusIndicator = styled(Box)(({ theme }) => ({
   justifyContent: 'center'
 }));
 
-const StatusDot = styled(Box)(({ theme }) => ({
+const StatusDot = styled(Box)(() => ({
   width: 8,
   height: 8,
   borderRadius: '50%',

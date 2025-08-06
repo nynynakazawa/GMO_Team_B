@@ -5,8 +5,10 @@ import {
   Switch,
   Divider,
   Paper,
+  Link
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import { logout } from './firebaseAuth';
 
 interface UserMenuProps {
   isOpen: boolean;
@@ -21,6 +23,15 @@ export default function UserMenu({
 }: UserMenuProps) {
   const router = useRouter();
   if (!isOpen) return null;
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/');
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
+  };
 
   return (
     <Paper
@@ -48,11 +59,13 @@ export default function UserMenu({
     >
       <Box sx={{ py: 1 }}>
         {/* Myサーバー */}
-        <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={() => router.push('/easy/serverinfo')}>
+        <Link href="/easy/serverinfo">
+        <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }}>
           <Typography variant="body2" sx={{ color: 'text.primary', textAlign: 'center' }}>
             Myサーバー
           </Typography>
         </Box>
+        </Link>
         
         <Divider sx={{ my: 0 }} />
         
@@ -88,16 +101,18 @@ export default function UserMenu({
         <Divider sx={{ my: 0 }} />
         
         {/* アカウント設定 */}
-        <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={() => router.push('/account')}>
+        <Link href="/account">
+        <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }}>
           <Typography variant="body2" sx={{ color: 'text.primary', textAlign: 'center' }}>
             アカウント設定
           </Typography>
         </Box>
+        </Link>
         
         <Divider sx={{ my: 0 }} />
         
         {/* ログアウト */}
-        <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }}>
+        <Box sx={{ px: 3, py: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={handleLogout}>
           <Typography variant="body2" sx={{ color: 'text.primary', textAlign: 'center' }}>
             ログアウト
           </Typography>

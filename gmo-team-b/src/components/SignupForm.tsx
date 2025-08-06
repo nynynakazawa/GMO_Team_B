@@ -6,13 +6,14 @@ import { InputField } from './InputField'
 import { ActionButton } from './ActionButton'
 import { LinkText } from './LinkText'
 
+import { signUpWithEmailAndPassword } from './firebaseAuth'
+
 interface SignupFormProps {
-  onLogin?: (email: string, password: string) => void
+  onLogin: (email: string, password: string) => void
   onExistingAccount?: () => void
 }
 
 export const SignupForm: React.FC<SignupFormProps> = ({
-  onLogin,
   onExistingAccount
 }) => {
   const [email, setEmail] = useState('')
@@ -29,7 +30,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
     return password.length >= 6
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     // Reset errors
@@ -54,8 +55,18 @@ export const SignupForm: React.FC<SignupFormProps> = ({
       isValid = false
     }
 
-    if (isValid && onLogin) {
-      onLogin(email, password)
+    if (isValid) {
+      try {
+        await signUpWithEmailAndPassword(email, password)
+        // サインアップ成功後の処理（例: ダッシュボードへリダイレクト）
+      } catch (error) {
+        // エラー処理
+        if (error.code === 'auth/email-already-in-use') {
+          setEmailError('このメールアドレスは既に使用されています')
+        } else {
+          setPasswordError('サインアップに失敗しました')
+        }
+      }
     }
   }
 
