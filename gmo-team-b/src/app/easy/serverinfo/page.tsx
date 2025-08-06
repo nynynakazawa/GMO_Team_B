@@ -37,9 +37,8 @@ import ServerSettingsTab from "../../../components/easy/serverinfo/ServerSetting
 import ServerNameEditor from "../../../components/easy/serverinfo/ServerNameEditor";
 import BillingCards from "../../../components/easy/serverinfo/BillingCards";
 import { Header } from "../../../components/easy/Header";
-import type { ParsedServerInfo } from "@/app/api/serverinfo/getServerInfo";
+import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
 import type {
-  ServerSummary,
   ServerListResponse,
   EnhancedServerSummary,
 } from "../../../types/serverTypes";
