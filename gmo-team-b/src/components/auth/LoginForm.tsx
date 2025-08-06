@@ -9,14 +9,55 @@ import GoogleIcon from "@mui/icons-material/Google";
 import { signInWithGoogle } from "./firebaseAuth"
 import { auth } from "../../firebase/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { useRouter } from 'next/navigation'
 
 
+//サーバー一覧の型定義
+export type Server = {
+  id: string;
+  name: string;
+  links: { rel: string; href: string }[];
+};
+
+export type ServersResponse = {
+  servers: Server[];
+};
 
 interface LoginFormProps {
   onLogin?: (email: string, password: string) => void
   onForgotPassword?: () => void
   onCreateAccount?: () => void
 }
+
+//サーバー一覧の取得
+export async function getConohaServers(): Promise<Server[]> {
+  const token = process.env.NEXT_PUBLIC_API_TOKEN;
+  if (!token) {
+    throw new Error('環境変数 `token` が未設定です（.env.local を確認してください）');
+  }
+
+  const res = await fetch('/api/conoha/v2.1/servers', {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'X-Auth-Token': token,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`ConoHa servers fetch failed: ${res.status} ${res.statusText}`);
+  }
+
+  const json: ServersResponse = await res.json();
+  return json.servers;
+}
+
+//サーバー一覧からサーバーの有無
+export async function judgeServer(){
+  const servers = await getConohaServers();
+    return servers.some(server => server.id != null && server.id !== '');
+}
+
 
 export const LoginForm: React.FC<LoginFormProps> = ({
   onLogin,
@@ -27,6 +68,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [password, setPassword] = useState('')
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  const router = useRouter();
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -37,7 +79,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     return password.length >= 6
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     // Reset errors
@@ -62,6 +104,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       isValid = false
     }
 
+    //トークン情報をconsole.logに表示
+    const server_log = await getConohaServers();
+    //サーバーの有無
+    const server = await judgeServer()
+
     if (isValid) {
       signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
@@ -70,8 +117,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           console.log("ログイン成功:", user);
           console.log("ログインユーザーのメールアドレス:", user.email)
           console.log("ログインユーザーのパスワード:", password)
+          console.log("トークン:", server_log)
           localStorage.setItem('user_email', user.email || '');
           localStorage.setItem('user_password', password);
+          if (server){
+            router.push("/easy/dashboard")
+          }else{
+            router.push("easy/create")
+          }
           if (onLogin) {
             onLogin(email, password);
           }

@@ -167,7 +167,7 @@ export async function getConoHaTokenAndEndpoint(): Promise<{ token: string, comp
   }
   // ConoHa API v3では、トークンはX-Subject-Tokenヘッダーに含まれる
   const token = response.headers.get('X-Subject-Token');
-  console.log("取得されたトークン:", token ? `${token.substring(0, 20)}...` : "なし");
+  console.log("取得されたトークン:", token);
   if (!token) {
     console.error("トークンが見つかりません");
     throw new Error('No token found in response headers');
@@ -226,7 +226,7 @@ export default async function handler(
       data: {
         projectId: result.projectId,
         computeEndpoint: result.computeEndpoint,
-        tokenPreview: result.token.substring(0, 20) + "...",
+        token: result.token,
         timestamp: new Date().toISOString()
       }
     };
