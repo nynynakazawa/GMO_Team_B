@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ThemeRegistry from '../components/ThemeRegistry/ThemeRegistry';
+import { AuthProvider } from '../contexts/AuthContext';
+import { PageTransition } from '../components/PageTransition';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +18,13 @@ export default function RootLayout({children,}: Readonly<{
   return (
     <html lang="en">
       <ThemeRegistry>
-        <body className={inter.className}>{children}</body>
+        <body className={inter.className}>
+          <AuthProvider>
+            <PageTransition>
+              {children}
+            </PageTransition>
+          </AuthProvider>
+        </body>
       </ThemeRegistry>
     </html>
   );

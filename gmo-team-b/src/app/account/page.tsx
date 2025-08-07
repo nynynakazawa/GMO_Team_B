@@ -1,5 +1,6 @@
-"use client";
-import React, { useState } from 'react';
+"use client"
+import React, {useRef, useEffect, useState } from 'react';
+import { AuthGuard } from '../../components/auth/AuthGuard';
 import {
   Box,
   Container,
@@ -14,44 +15,189 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Switch,
   TextField,
   Radio,
   RadioGroup,
   FormControlLabel,
   FormControl,
-  FormLabel,
   Divider,
-  IconButton,
 } from '@mui/material';
-import { Person } from '@mui/icons-material';
-import UserMenu from '../../components/easy/serverinfo/UserMenu';
+
+import Image from 'next/image';
 import { Header } from "../../components/easy/Header";
-import { useEffect } from 'react';
+import { db } from '../../firebase/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+
 const tabLabels = ['お支払い', 'アカウント設定', '過去の請求'];
 
-export default function AccountPage() {
+function AccountPageContent() {
   const [tab, setTab] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('Charge');
-  const [twoFactor, setTwoFactor] = useState(false);
-  const [newsLetter, setNewsLetter] = useState(true);
-  const [lineNotify, setLineNotify] = useState(true);
-  // UserMenu用の状態
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [easyMode, setEasyMode] = useState(true);
-  const handleUserMenuToggle = () => setIsUserMenuOpen((prev) => !prev);
-  const handleEasyModeChange = (checked: boolean) => setEasyMode(checked);
-const [userInfo, setUserInfo] = useState<any>(null);
-useEffect(() => {
-  async function fetchUserInfo() {
-    const res = await fetch('/api/conoha-user');
-    const data = await res.json();
-    console.log('APIレスポンス:', data); // ←ここを追加
-    setUserInfo(data);
-  }
-  fetchUserInfo();
-}, []);
-  
+  const [savedEmail, setSavedEmail] = useState<string>('');
+  const [savedPassword, setSavedPassword] = useState<string>('');
+  const [iconUrl, setIconUrl] = useState<string>('/images/conohaIcon.png'); 
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+
+  const handleIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    setUploading(true);
+    const url = URL.createObjectURL(file);
+    setIconUrl(url);
+    setUploading(false);
+  };
+
+  // お客様情報編集用の状態
+  const [isEditingCustomerInfo, setIsEditingCustomerInfo] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState({
+    name: 'Intern teamb',
+    birthDate: '1992-01-01',
+    country: '日本',
+    prefecture: '東京都',
+    city: '渋谷区',
+    address: '桜丘町',
+    phone: '090-0000-0000'
+  });
+
+  // クレジットカード情報用の状態
+  const [isEditingCreditCard, setIsEditingCreditCard] = useState(false);
+  const [creditCardInfo, setCreditCardInfo] = useState({
+    name: '',
+    type: '',
+    number: '',
+    expiry: ''
+  });
+
+  useEffect(() => {
+    const email = localStorage.getItem("user_email") ?? '';
+    const password = localStorage.getItem("user_password") ?? '';
+    setSavedEmail(email);
+    setSavedPassword(password);
+    
+    // Firebaseからお客様情報を取得
+    loadCustomerInfo();
+    // Firebaseからクレジットカード情報を取得
+    loadCreditCardInfo();
+  }, []);
+
+    const maskedPassword = savedPassword
+    ? '*'.repeat(savedPassword.length)
+    : '';
+
+  // Firebaseからお客様情報を取得
+  const loadCustomerInfo = async () => {
+    try {
+      const userEmail = localStorage.getItem("user_email");
+      if (!userEmail) return;
+
+      const customerDoc = doc(db, 'customers', userEmail);
+      const customerSnap = await getDoc(customerDoc);
+
+      if (customerSnap.exists()) {
+        const data = customerSnap.data();
+        setCustomerInfo({
+          name: data.name || 'Intern teamb',
+          birthDate: data.birthDate || '1992-01-01',
+          country: data.country || '日本',
+          prefecture: data.prefecture || '東京都',
+          city: data.city || '渋谷区',
+          address: data.address || '桜丘町',
+          phone: data.phone || '090-0000-0000'
+        });
+      }
+    } catch (error) {
+      console.error('お客様情報の取得に失敗しました:', error);
+    }
+  };
+
+  const handleCustomerInfoChange = (field: string, value: string) => {
+    setCustomerInfo(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveCustomerInfo = async () => {
+    try {
+      const userEmail = localStorage.getItem("user_email");
+      if (!userEmail) {
+        console.error('ユーザーEmailが見つかりません');
+        return;
+      }
+
+      const customerDoc = doc(db, 'customers', userEmail);
+      await setDoc(customerDoc, customerInfo, { merge: true });
+      
+      console.log('お客様情報を保存しました');
+      setIsEditingCustomerInfo(false);
+    } catch (error) {
+      console.error('お客様情報の保存に失敗しました:', error);
+    }
+  };
+
+  const handleCancelCustomerInfo = () => {
+    // Firebaseから最新のデータを再取得
+    loadCustomerInfo();
+    setIsEditingCustomerInfo(false);
+  };
+
+  // Firebaseからクレジットカード情報を取得
+  const loadCreditCardInfo = async () => {
+    try {
+      const userEmail = localStorage.getItem("user_email");
+      if (!userEmail) return;
+
+      const creditCardDoc = doc(db, 'creditCards', userEmail);
+      const creditCardSnap = await getDoc(creditCardDoc);
+
+      if (creditCardSnap.exists()) {
+        const data = creditCardSnap.data();
+        setCreditCardInfo({
+          name: data.name || '',
+          type: data.type || '',
+          number: data.number || '',
+          expiry: data.expiry || ''
+        });
+      }
+    } catch (error) {
+      console.error('クレジットカード情報の取得に失敗しました:', error);
+    }
+  };
+
+  const handleCreditCardInfoChange = (field: string, value: string) => {
+    setCreditCardInfo(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveCreditCardInfo = async () => {
+    try {
+      const userEmail = localStorage.getItem("user_email");
+      if (!userEmail) {
+        console.error('ユーザーEmailが見つかりません');
+        return;
+      }
+
+      const creditCardDoc = doc(db, 'creditCards', userEmail);
+      await setDoc(creditCardDoc, creditCardInfo, { merge: true });
+      
+      console.log('クレジットカード情報を保存しました');
+      setIsEditingCreditCard(false);
+    } catch (error) {
+      console.error('クレジットカード情報の保存に失敗しました:', error);
+    }
+  };
+
+  const handleCancelCreditCardInfo = () => {
+    // Firebaseから最新のデータを再取得
+    loadCreditCardInfo();
+    setIsEditingCreditCard(false);
+  };
+
+
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       {/* ヘッダー部分 */}
@@ -74,7 +220,7 @@ useEffect(() => {
           </Box>
         </Container>
       </Box> */}
-      <Header />
+      <Header iconUrl={iconUrl} />
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Paper sx={{ width: "100%", borderRadius: "10px", boxShadow: 3 }}>
           <Box sx={{ borderBottom: 1, borderColor: "divider", px: 3, pt: 3 }}>
@@ -163,19 +309,52 @@ useEffect(() => {
                   クレジットカード情報
                 </Typography>
                 <Box sx={{ mb: 3 }}>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      bgcolor: "#19B8D7",
-                      color: "white",
-                      borderRadius: "10px",
-                      px: 4,
-                      fontWeight: "bold",
-                      mb: 2,
-                    }}
-                  >
-                    クレジットカード登録
-                  </Button>
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 2 }}>
+                    {!isEditingCreditCard ? (
+                      <Button
+                        variant="contained"
+                        onClick={() => setIsEditingCreditCard(true)}
+                        sx={{
+                          bgcolor: "#19B8D7",
+                          color: "white",
+                          borderRadius: "10px",
+                          px: 4,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        クレジットカード登録
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="contained"
+                          onClick={handleSaveCreditCardInfo}
+                          sx={{
+                            bgcolor: "#19B8D7",
+                            color: "white",
+                            borderRadius: "10px",
+                            px: 4,
+                            fontWeight: "bold",
+                          }}
+                        >
+                          保存
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          onClick={handleCancelCreditCardInfo}
+                          sx={{
+                            borderColor: "#19B8D7",
+                            color: "#19B8D7",
+                            borderRadius: "10px",
+                            px: 4,
+                            fontWeight: "bold",
+                          }}
+                        >
+                          キャンセル
+                        </Button>
+                      </>
+                    )}
+                  </Box>
                   <TableContainer
                     component={Paper}
                     sx={{ borderRadius: "10px" }}
@@ -207,10 +386,54 @@ useEffect(() => {
                       </TableHead>
                       <TableBody>
                         <TableRow>
-                          <TableCell>-</TableCell>
-                          <TableCell>-</TableCell>
-                          <TableCell>-</TableCell>
-                          <TableCell>-</TableCell>
+                          <TableCell>
+                            {isEditingCreditCard ? (
+                              <TextField
+                                fullWidth
+                                value={creditCardInfo.name}
+                                onChange={(e) => handleCreditCardInfoChange('name', e.target.value)}
+                                placeholder="カード名義"
+                              />
+                            ) : (
+                              creditCardInfo.name || '-'
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {isEditingCreditCard ? (
+                              <TextField
+                                fullWidth
+                                value={creditCardInfo.type}
+                                onChange={(e) => handleCreditCardInfoChange('type', e.target.value)}
+                                placeholder="VISA/MasterCard等"
+                              />
+                            ) : (
+                              creditCardInfo.type || '-'
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {isEditingCreditCard ? (
+                              <TextField
+                                fullWidth
+                                value={creditCardInfo.number}
+                                onChange={(e) => handleCreditCardInfoChange('number', e.target.value)}
+                                placeholder="1234-5678-9012-3456"
+                              />
+                            ) : (
+                              creditCardInfo.number || '-'
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {isEditingCreditCard ? (
+                              <TextField
+                                fullWidth
+                                value={creditCardInfo.expiry}
+                                onChange={(e) => handleCreditCardInfoChange('expiry', e.target.value)}
+                                placeholder="MM/YY"
+                              />
+                            ) : (
+                              creditCardInfo.expiry || '-'
+                            )}
+                          </TableCell>
                         </TableRow>
                       </TableBody>
                     </Table>
@@ -307,12 +530,6 @@ useEffect(() => {
                   <Table size="small">
                     <TableBody>
                       <TableRow>
-                        <TableCell
-                          sx={{ color: "#19B8D7", fontWeight: "bold" }}
-                        >
-                          アカウントID
-                        </TableCell>
-                        <TableCell>C17040839</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell
@@ -320,7 +537,7 @@ useEffect(() => {
                         >
                           メールアドレス
                         </TableCell>
-                        <TableCell>Intern2025-TeamB@internet.gmo</TableCell>
+                        <TableCell>{savedEmail}</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell
@@ -329,17 +546,7 @@ useEffect(() => {
                           パスワード
                         </TableCell>
                         <TableCell>
-                          ************{" "}
-                          <Button
-                            size="small"
-                            sx={{
-                              ml: 2,
-                              color: "#19B8D7",
-                              borderRadius: "10px",
-                            }}
-                          >
-                            編集
-                          </Button>
+                          {maskedPassword}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -361,7 +568,17 @@ useEffect(() => {
                         >
                           氏名
                         </TableCell>
-                        <TableCell>Intern teamb</TableCell>
+                        <TableCell>
+                          {isEditingCustomerInfo ? (
+                            <TextField
+                              fullWidth
+                              value={customerInfo.name}
+                              onChange={(e) => handleCustomerInfoChange('name', e.target.value)}
+                            />
+                          ) : (
+                            customerInfo.name
+                          )}
+                        </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell
@@ -369,7 +586,18 @@ useEffect(() => {
                         >
                           生年月日
                         </TableCell>
-                        <TableCell>1992-01-01</TableCell>
+                        <TableCell>
+                          {isEditingCustomerInfo ? (
+                            <TextField
+                              fullWidth
+                              type="date"
+                              value={customerInfo.birthDate}
+                              onChange={(e) => handleCustomerInfoChange('birthDate', e.target.value)}
+                            />
+                          ) : (
+                            customerInfo.birthDate
+                          )}
+                        </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell
@@ -377,7 +605,17 @@ useEffect(() => {
                         >
                           国
                         </TableCell>
-                        <TableCell>日本</TableCell>
+                        <TableCell>
+                          {isEditingCustomerInfo ? (
+                            <TextField
+                              fullWidth
+                              value={customerInfo.country}
+                              onChange={(e) => handleCustomerInfoChange('country', e.target.value)}
+                            />
+                          ) : (
+                            customerInfo.country
+                          )}
+                        </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell
@@ -385,7 +623,17 @@ useEffect(() => {
                         >
                           都道府県
                         </TableCell>
-                        <TableCell>東京都</TableCell>
+                        <TableCell>
+                          {isEditingCustomerInfo ? (
+                            <TextField
+                              fullWidth
+                              value={customerInfo.prefecture}
+                              onChange={(e) => handleCustomerInfoChange('prefecture', e.target.value)}
+                            />
+                          ) : (
+                            customerInfo.prefecture
+                          )}
+                        </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell
@@ -393,7 +641,17 @@ useEffect(() => {
                         >
                           市・区
                         </TableCell>
-                        <TableCell>渋谷区</TableCell>
+                        <TableCell>
+                          {isEditingCustomerInfo ? (
+                            <TextField
+                              fullWidth
+                              value={customerInfo.city}
+                              onChange={(e) => handleCustomerInfoChange('city', e.target.value)}
+                            />
+                          ) : (
+                            customerInfo.city
+                          )}
+                        </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell
@@ -401,7 +659,17 @@ useEffect(() => {
                         >
                           町村番号
                         </TableCell>
-                        <TableCell>桜丘町</TableCell>
+                        <TableCell>
+                          {isEditingCustomerInfo ? (
+                            <TextField
+                              fullWidth
+                              value={customerInfo.address}
+                              onChange={(e) => handleCustomerInfoChange('address', e.target.value)}
+                            />
+                          ) : (
+                            customerInfo.address
+                          )}
+                        </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell
@@ -409,23 +677,67 @@ useEffect(() => {
                         >
                           電話番号
                         </TableCell>
-                        <TableCell>090-0000-0000</TableCell>
+                        <TableCell>
+                          {isEditingCustomerInfo ? (
+                            <TextField
+                              fullWidth
+                              value={customerInfo.phone}
+                              onChange={(e) => handleCustomerInfoChange('phone', e.target.value)}
+                            />
+                          ) : (
+                            customerInfo.phone
+                          )}
+                        </TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <Button
-                  variant="contained"
-                  sx={{
-                    bgcolor: "#19B8D7",
-                    color: "white",
-                    borderRadius: "10px",
-                    px: 4,
-                    fontWeight: "bold",
-                  }}
-                >
-                  編集
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  {!isEditingCustomerInfo ? (
+                    <Button
+                      variant="contained"
+                      onClick={() => setIsEditingCustomerInfo(true)}
+                      sx={{
+                        bgcolor: "#19B8D7",
+                        color: "white",
+                        borderRadius: "10px",
+                        px: 4,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      編集
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="contained"
+                        onClick={handleSaveCustomerInfo}
+                        sx={{
+                          bgcolor: "#19B8D7",
+                          color: "white",
+                          borderRadius: "10px",
+                          px: 4,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        保存
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        onClick={handleCancelCustomerInfo}
+                        sx={{
+                          borderColor: "#19B8D7",
+                          color: "#19B8D7",
+                          borderRadius: "10px",
+                          px: 4,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        キャンセル
+                      </Button>
+                    </>
+                  )}
+                </Box>
                 <Divider sx={{ my: 4 }} />
                 <Typography variant="h6" sx={{ color: "#19B8D7", mb: 2 }}>
                   ConoHaアカウント契約情報
@@ -483,6 +795,31 @@ useEffect(() => {
                 >
                   編集
                 </Button>
+                <Divider sx={{ my: 4 }} />
+ <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+<Image
+  src={iconUrl}
+  alt="アイコン"
+  width={80}
+  height={80}
+  style={{ borderRadius: '20px', border: '2px solid #19B8D7', objectFit: 'cover' }}
+/>
+      <Button
+        variant="contained"
+        component="label"
+        sx={{ bgcolor: "#19B8D7", color: "white", borderRadius: "10px", px: 4, fontWeight: "bold" }}
+        disabled={uploading}
+      >
+        {uploading ? "アップロード中..." : "画像を選択"}
+        <input
+          type="file"
+          accept="image/*"
+          hidden
+          ref={fileInputRef}
+          onChange={handleIconUpload}
+        />
+      </Button>
+    </Box>
               </Box>
             )}
             {/* 過去の請求タブ */}
@@ -570,5 +907,13 @@ useEffect(() => {
         </Paper>
       </Container>
     </Box>
+  );
+}
+
+export default function AccountPage() {
+  return (
+    <AuthGuard>
+      <AccountPageContent />
+    </AuthGuard>
   );
 } 

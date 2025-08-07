@@ -24,6 +24,7 @@ export interface ServerSetting {
 export interface ServerInfoData {
   serverName: string;
   ipAddress: string;
+  serverId: string;
   actions: ServerAction[];
   serverSettings: ServerSetting[];
 }
@@ -31,6 +32,7 @@ export interface ServerInfoData {
 export const serverInfoMockData: ServerInfoData = {
   serverName: 'game-2025-08-04-13-54',
   ipAddress: '133.117.75.97',
+  serverId: 'test-server-id-12345',
   actions: [
     {
       label: '再起動',

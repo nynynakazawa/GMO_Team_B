@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Box, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Header } from "../Header";
@@ -28,6 +28,7 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
   selectedPeriod,
   selectedPlan,
   serverName,
+  password,
   games,
   plans,
   periodOptions,
@@ -35,7 +36,11 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
   onPeriodSelect,
   onPlanSelect,
   onServerNameChange,
+  onPasswordChange,
   onCreateServer,
+  loading = false,
+  error = null,
+  validationErrors,
 }) => {
   return (
     <MainContainer>
@@ -49,24 +54,33 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
             games={games}
             selectedGame={selectedGame}
             onGameSelect={onGameSelect}
+            hasError={validationErrors?.game || false}
           />
 
           <PeriodSelector
             periodOptions={periodOptions}
             selectedPeriod={selectedPeriod}
             onPeriodSelect={onPeriodSelect}
+            hasError={validationErrors?.period || false}
           />
 
           <PlanSelectionGrid
             plans={plans}
             selectedPlan={selectedPlan}
             onPlanSelect={onPlanSelect}
+            loading={loading}
+            error={error}
+            hasError={validationErrors?.plan || false}
+            selectedPeriod={selectedPeriod}
           />
 
           <ServerConfigForm
             serverName={serverName}
+            password={password}
             onServerNameChange={onServerNameChange}
+            onPasswordChange={onPasswordChange}
             onCreateServer={onCreateServer}
+            validationErrors={validationErrors}
           />
         </Stack>
       </ContentContainer>

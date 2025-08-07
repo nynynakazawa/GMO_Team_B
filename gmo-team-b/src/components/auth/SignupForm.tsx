@@ -8,6 +8,12 @@ import { LinkText } from './ui/LinkText'
 
 import { signUpWithEmailAndPassword } from './firebaseAuth'
 
+// カスタムエラー型の定義
+type FirebaseAuthError = {
+  code: string;
+  message: string;
+}
+
 interface SignupFormProps {
   onLogin: (email: string, password: string) => void
   onExistingAccount?: () => void
@@ -59,10 +65,15 @@ export const SignupForm: React.FC<SignupFormProps> = ({
       try {
         await signUpWithEmailAndPassword(email, password)
         // サインアップ成功後の処理（例: ダッシュボードへリダイレクト）
-      } catch (error) {
+      } catch (error: AuthError | any) {
         // エラー処理
-        if (error.code === 'auth/email-already-in-use') {
-          setEmailError('このメールアドレスは既に使用されています')
+        if (error && typeof error === 'object' && 'code' in error) {
+          const authError = error as FirebaseAuthError;
+          if (authError.code === 'auth/email-already-in-use') {
+            setEmailError('このメールアドレスは既に使用されています')
+          } else {
+            setPasswordError('サインアップに失敗しました')
+          }
         } else {
           setPasswordError('サインアップに失敗しました')
         }

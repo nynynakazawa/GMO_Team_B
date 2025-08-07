@@ -116,12 +116,14 @@ interface PlanCardProps {
   plan: Plan;
   selected: boolean;
   onClick: (planId: string) => void;
+  selectedPeriod?: string | null;
 }
 
 export const PlanCard: React.FC<PlanCardProps> = ({
   plan,
   selected,
   onClick,
+  selectedPeriod,
 }) => {
   return (
     <PlanCardContainer
@@ -132,16 +134,19 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       <PlanCapacity selected={selected}>{plan.capacity}</PlanCapacity>
 
       <PlanPrice selected={selected}>
-        {formatPrice(plan.monthlyPrice)}
+        {selectedPeriod === "hourly" 
+          ? `${plan.monthlyPrice} 円/時間`
+          : formatPrice(plan.monthlyPrice)
+        }
       </PlanPrice>
 
       <Stack direction={"row"}>
-        {plan.originalPrice > plan.monthlyPrice && (
+        {selectedPeriod !== "hourly" && plan.originalPrice > plan.monthlyPrice && (
           <OriginalPrice selected={selected}>
             {formatPrice(plan.originalPrice)}
           </OriginalPrice>
         )}
-        {plan.discount > 0 && (
+        {selectedPeriod !== "hourly" && plan.discount > 0 && (
           <DiscountChip
             selected={selected}
             label={formatDiscount(plan.discount)}
