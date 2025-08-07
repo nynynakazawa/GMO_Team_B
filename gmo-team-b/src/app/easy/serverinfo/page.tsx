@@ -5,18 +5,12 @@ import { AuthGuard } from "../../../components/auth/AuthGuard";
 import {
   Box,
   Container,
-  Typography,
   Tabs,
   Tab,
   Paper,
   Switch,
   IconButton,
   Button,
-  Select,
-  MenuItem,
-  FormControl,
-  Card,
-  CardContent,
   CircularProgress,
   Alert,
   List,
@@ -33,16 +27,12 @@ import {
 import {
   RestartAlt,
   PowerSettingsNew,
-  OpenInNew,
   CloudUpload,
   CloudDownload,
   Delete,
 } from "@mui/icons-material";
 import { KeyboardArrowRight, HelpOutline, Refresh } from "@mui/icons-material";
 import { serverInfoMockData } from "../../../data/serverInfoMockData";
-import ServerSettingsTab from "../../../components/easy/serverinfo/ServerSettingsTab";
-import ServerNameEditor from "../../../components/easy/serverinfo/ServerNameEditor";
-import BillingCards from "../../../components/easy/serverinfo/BillingCards";
 import { Header } from "../../../components/easy/Header";
 import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
 import type {
@@ -219,20 +209,6 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
   ) => {
     if (reason === "clickaway") return;
     setSnackbarOpen(false);
-  };
-
-  // Load nameTag for a server
-  const loadServerNameTag = async (serverId: string): Promise<string> => {
-    try {
-      const res = await fetch(`/api/server/${serverId}`);
-      if (res.ok) {
-        const info = (await res.json()) as ParsedServerInfo;
-        return info.nameTag;
-      }
-    } catch (err) {
-      console.warn(`Failed to load nameTag for server ${serverId}:`, err);
-    }
-    return ""; // Return empty string if failed
   };
 
   // Load server list with detailed info using batch API
@@ -441,12 +417,6 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-  };
-
-  const handleServerStatusChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setServerStatus(event.target.checked);
   };
 
   const handleAutoBackupChange = (
