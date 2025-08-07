@@ -39,6 +39,7 @@ interface PlanSelectionGridProps {
   loading?: boolean;
   error?: string | null;
   hasError?: boolean;
+  selectedPeriod?: string | null;
 }
 
 export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
@@ -48,6 +49,7 @@ export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
   loading = false,
   error = null,
   hasError = false,
+  selectedPeriod = null,
 }) => {
   if (selectedPlan) {
     const selectedPlanData = plans.find(plan => plan.id === selectedPlan);
@@ -157,6 +159,7 @@ export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
             plan={plan}
             selected={selectedPlan === plan.id}
             onClick={onPlanSelect}
+            selectedPeriod={selectedPeriod}
           />
         ))}
       </PlansContainer>

@@ -71,6 +71,7 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
             loading={loading}
             error={error}
             hasError={validationErrors?.plan || false}
+            selectedPeriod={selectedPeriod}
           />
 
           <ServerConfigForm
