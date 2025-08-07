@@ -109,7 +109,6 @@ function TabPanel(props: TabPanelProps) {
 function ServerInfo() {
   const [tabValue, setTabValue] = useState(0);
   const [serverStatus, setServerStatus] = useState(true);
-  const [selectedPlan, setSelectedPlan] = useState("8GB/6Core");
   const [autoBackup, setAutoBackup] = useState(false);
   const [deleteLock, setDeleteLock] = useState(false);
   const [serverInfo, setServerInfo] = useState<ParsedServerInfo | null>(null);
@@ -349,6 +348,49 @@ function ServerInfo() {
 
   useEffect(() => {
     loadServerList();
+    
+    // flavorsResの結果を取得してコンソールに表示
+    const fetchFlavorsRes = async () => {
+      try {
+        console.log("=== flavorsRes取得開始 ===");
+        const response = await fetch('/api/vps/plans');
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("flavorsRes取得エラー:", errorData.message || 'flavorsResの取得に失敗しました');
+          return;
+        }
+        
+        const data = await response.json();
+        console.log("=== flavorsResの結果 ===");
+        console.log("flavorsRes全体:", data);
+        
+        // 元のflavorsResの構造を再現
+        console.log("=== 元のflavorsRes構造 ===");
+        if (data.plans && Array.isArray(data.plans)) {
+          data.plans.forEach((plan: any, index: number) => {
+            console.log(`flavor ${index + 1}:`, {
+              id: plan.id,
+              name: plan.flavorName, // 元のフレーバー名
+              vcpus: plan.vcpus,
+              ram: plan.ramGB * 1024, // MBに変換
+              disk: plan.disk,
+              flavorType: plan.flavorType,
+              // 元のflavorsResに含まれる可能性のある他のプロパティ
+              originalFlavorName: plan.flavorName,
+              extractedRamGB: plan.ramGB,
+              extractedCpuCores: plan.vcpus
+            });
+          });
+        }
+        
+        console.log("=== flavorsRes取得完了 ===");
+      } catch (err) {
+        console.error("flavorsRes取得中にエラーが発生しました:", err);
+      }
+    };
+
+    fetchFlavorsRes();
   }, []);
 
   const handleServerSelect = async (serverId: string) => {
@@ -380,10 +422,6 @@ function ServerInfo() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setDeleteLock(event.target.checked);
-  };
-
-  const handlePlanChange = (event: any) => {
-    setSelectedPlan(event.target.value);
   };
 
   const handleServerNameEdit = () => {
@@ -623,7 +661,6 @@ function ServerInfo() {
               }}
             >
               <Tab label="サーバー設定" />
-              <Tab label="プラン変更" />
             </Tabs>
           </Box>
 
@@ -637,161 +674,6 @@ function ServerInfo() {
               serverInfo={serverInfo}
               onNameTagChange={handleNameTagChange}
             />
-          </TabPanel>
-
-          {/* Plan Change Tab */}
-          <TabPanel value={tabValue} index={1}>
-            <Box sx={{ maxWidth: 600, mx: "auto" }}>
-              <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-                プランを変更しますか?
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  mb: 3,
-                  textAlign: "center",
-                  color: "text.secondary",
-                  display: "inline",
-                }}
-              >
-                ストレージ容量は変更されません。
-                <br />
-                これまでのリソースグラフのデータは削除されます。
-              </Typography>
-              <Card sx={{ mb: 3 }}>
-                <CardContent>
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                        変更前プラン
-                      </Typography>
-                      <Typography variant="body2">
-                        メモリ 4GB/CPU 4Core
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                        変更後プラン
-                      </Typography>
-                      <FormControl size="small" sx={{ minWidth: 200 }}>
-                        <Select
-                          value={selectedPlan}
-                          onChange={handlePlanChange}
-                          displayEmpty
-                          sx={{
-                            "& .MuiSelect-icon": { color: "#19B8D7" },
-                            fontSize: "1rem",
-                          }}
-                          MenuProps={{
-                            PaperProps: {
-                              sx: { fontSize: "1rem" },
-                            },
-                          }}
-                        >
-                          <MenuItem value="8GB/6Core" sx={{ fontSize: "1rem" }}>
-                            メモリ 8GB/CPU 6Core
-                          </MenuItem>
-                          <MenuItem
-                            value="16GB/8Core"
-                            sx={{ fontSize: "1rem" }}
-                          >
-                            メモリ 16GB/CPU 8Core
-                          </MenuItem>
-                          <MenuItem
-                            value="32GB/12Core"
-                            sx={{ fontSize: "1rem" }}
-                          >
-                            メモリ 32GB/CPU 12Core
-                          </MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                        プラン変更後の料金
-                      </Typography>
-                      <Typography variant="body2">
-                        8,082 円/月 (14.6 円/時間)
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: 2,
-                  mb: 2,
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  sx={{
-                    borderRadius: "50px",
-                    textTransform: "none",
-                    borderColor: "text.secondary",
-                    color: "text.secondary",
-                  }}
-                >
-                  いいえ
-                </Button>
-                <Button
-                  variant="contained"
-                  sx={{
-                    borderRadius: "50px",
-                    textTransform: "none",
-                    bgcolor: "#19B8D7",
-                    "&:hover": { bgcolor: "#15a0c0" },
-                  }}
-                >
-                  はい
-                </Button>
-              </Box>
-
-              <Typography
-                variant="caption"
-                sx={{
-                  textAlign: "center",
-                  display: "block",
-                  color: "text.secondary",
-                }}
-              >
-                ※表示料金にはサービス維持調整費が含まれています。
-                <span
-                  style={{
-                    color: "#19B8D7",
-                    cursor: "pointer",
-                    textDecoration: "underline",
-                    fontSize: "inherit",
-                    marginLeft: 4,
-                  }}
-                >
-                  詳しくはこちら
-                </span>
-              </Typography>
-            </Box>
           </TabPanel>
         </Paper>
 

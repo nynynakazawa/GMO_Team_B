@@ -277,6 +277,8 @@ export default function EasyCreatePage() {
       
       // 成功時の処理: 3秒後にサーバー情報ページに自動遷移
       setTimeout(() => {
+        alert(`${serverName} の作成が完了しました！\nサーバーID: ${result.serverId}\n管理者パスワード: ${result.adminPass}`);
+      }, 1000);
         router.push('/easy/serverinfo');
       }, 3000);
       
