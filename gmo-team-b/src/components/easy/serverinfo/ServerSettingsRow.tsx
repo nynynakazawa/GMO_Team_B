@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -33,6 +33,7 @@ interface ServerSettingsRowProps {
   };
   isLastRow?: boolean;
   customBorderWidth?: string;
+  onNameTagChange?: (newValue: string) => void;
 }
 
 export default function ServerSettingsRow({
@@ -48,13 +49,19 @@ export default function ServerSettingsRow({
   rightSwitch,
   isLastRow = false,
   customBorderWidth,
+  onNameTagChange,
 }: ServerSettingsRowProps) {
+ const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(leftItem.value as string);
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
 
   const borderWidth = customBorderWidth || (isLastRow ? 'none' : '1px solid #e0e0e0');
-
+  useEffect(() => {
+    setEditValue(leftItem.value as string);
+  }, [leftItem.value]);
   return (
     <Box sx={{ 
       display: 'flex', 
@@ -80,50 +87,47 @@ export default function ServerSettingsRow({
           )}
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 0.8, justifyContent: 'flex-end' }}>
-          {leftSwitch ? (
-            <>
-              <Typography variant="body2" sx={{ color: leftSwitch.checked ? '#19B8D7' : 'text.secondary' }}>
-                {leftSwitch.checked ? '有効' : '無効'}
-              </Typography>
-              <Switch
-                checked={leftSwitch.checked}
-                onChange={leftSwitch.onChange}
-                size="small"
-                sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': {
-                    color: '#19B8D7',
-                  },
-                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    backgroundColor: '#19B8D7',
-                  },
+          {leftItem.label === 'ネームタグ' ? (
+            isEditing ? (
+              <input
+                type="text"
+                value={editValue}
+                autoFocus
+                onChange={e => setEditValue(e.target.value)}
+                onBlur={() => {
+                  setIsEditing(false);
+                  if (onNameTagChange) onNameTagChange(editValue);
+                }}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    setIsEditing(false);
+                    if (onNameTagChange) onNameTagChange(editValue);
+                  }
+                }}
+                style={{
+                  fontSize: '14px',
+                  padding: '4px 6px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  minWidth: '120px',
                 }}
               />
-            </>
+            ) : (
+              <>
+                <Typography variant="body2">{editValue}</Typography>
+                <IconButton
+                  size="small"
+                  sx={{ color: '#19B8D7' }}
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Edit fontSize="small" />
+                </IconButton>
+              </>
+            )
           ) : (
-            <>
-              <Typography variant="body2">
-                {leftValue !== undefined ? leftValue : leftItem.value}
-              </Typography>
-              {leftIcon || (
-                leftItem.label === 'IPアドレス' ? (
-                  <IconButton
-                    size="small"
-                    sx={{ color: '#19B8D7' }}
-                    onClick={() => copyToClipboard(leftItem.value as string)}
-                  >
-                    <ContentCopy fontSize="small" />
-                  </IconButton>
-                ) : leftItem.label === 'ネームタグ' ? (
-                  <IconButton size="small" sx={{ color: '#19B8D7' }}>
-                    <Edit fontSize="small" />
-                  </IconButton>
-                ) : (
-                  <IconButton size="small" sx={{ color: '#19B8D7' }}>
-                    <Clear fontSize="small" />
-                  </IconButton>
-                )
-              )}
-            </>
+            <Typography variant="body2">
+              {leftValue !== undefined ? leftValue : leftItem.value}
+            </Typography>
           )}
         </Box>
       </Box>
@@ -188,4 +192,4 @@ export default function ServerSettingsRow({
       </Box>
     </Box>
   );
-} 
+}

@@ -21,6 +21,7 @@ interface ServerSettingsTabProps {
     bootStorage: string;
     securityGroup: string;
   } | null;
+  onNameTagChange: (newValue: string) => void; 
 }
 
 export default function ServerSettingsTab({
@@ -29,9 +30,10 @@ export default function ServerSettingsTab({
   onAutoBackupChange,
   onDeleteLockChange,
   serverInfo,
+   onNameTagChange, 
 }: ServerSettingsTabProps) {
   // Create dynamic server settings based on serverInfo or fallback to mock data
-  const dynamicSettings = serverInfo ? [
+ const dynamicSettings = serverInfo ? [
     { ...serverInfoMockData.serverSettings[0], value: serverInfo.nameTag },
     { ...serverInfoMockData.serverSettings[1] },
     { ...serverInfoMockData.serverSettings[2], value: serverInfo.bootStorage },
@@ -54,6 +56,7 @@ export default function ServerSettingsTab({
         leftItem={dynamicSettings[0]}
         rightItem={dynamicSettings[1]}
         customBorderWidth="5px solid #e0e0e0"
+        onNameTagChange={onNameTagChange}
       />
 
       {/* 2行目: ブートストレージ、追加ストレージ */}

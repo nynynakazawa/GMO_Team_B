@@ -48,6 +48,8 @@ interface ServerAction {
   icon: React.ElementType;
 }
 
+
+
 const serverActions: ServerAction[] = [
   {
     label: "再起動",
@@ -112,7 +114,19 @@ export default function ServerInfoPage() {
   const [selectedServerId, setSelectedServerId] = useState<string | null>(null);
   const [serverListLoading, setServerListLoading] = useState(false);
   const [isServerListOpen, setIsServerListOpen] = useState(false);
-
+  const [serverSettings, setServerSettings] = useState(serverInfoMockData.serverSettings);
+  //アカウント情報→ネームタグ編集用関数
+  
+  const handleNameTagChange = (newValue: string) => {
+    setServerSettings(prev =>
+      prev.map(setting =>
+        setting.label === 'ネームタグ'
+          ? { ...setting, value: newValue }
+          : setting
+      )
+    );
+    setServerName(newValue); // サーバー名も同期したい場合
+  };
   // Load nameTag for a server
   const loadServerNameTag = async (serverId: string): Promise<string> => {
     try {
@@ -288,28 +302,9 @@ export default function ServerInfoPage() {
     setServerName(serverInfo?.nameTag || "");
     setIsEditingServerName(false);
   };
-
-  const handleServerNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleServerNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setServerName(event.target.value);
   };
-
-  if (loading && !serverInfo) {
-    return (
-      <Box
-        sx={{
-          minHeight: "100vh",
-          bgcolor: "#f5f5f5",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <CircularProgress size={60} sx={{ color: "#19B8D7" }} />
-      </Box>
-    );
-  }
 
 
 // const pathname = usePathname();
@@ -497,6 +492,7 @@ export default function ServerInfoPage() {
               onAutoBackupChange={handleAutoBackupChange}
               onDeleteLockChange={handleDeleteLockChange}
               serverInfo={serverInfo}
+              onNameTagChange={handleNameTagChange}
             />
           </TabPanel>
 
