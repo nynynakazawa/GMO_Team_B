@@ -46,7 +46,7 @@ import {
   Delete,
   Person,
 } from '@mui/icons-material';
-import { serverInfoMockData, ServerAction, ServerSetting } from '../../../data/serverInfoMockData';
+import { serverInfoMockData } from '../../../data/serverInfoMockData';
 import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
 import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
 import UserMenu from '../../../components/easy/UserMenu';
