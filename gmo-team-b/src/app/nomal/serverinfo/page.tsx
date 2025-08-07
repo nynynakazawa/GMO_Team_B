@@ -405,6 +405,7 @@ export default function ServerInfoPage() {
     setServerName(event.target.value);
   };
 
+
   if (loading && !serverInfo) {
     return (
       <Box
@@ -420,7 +421,26 @@ export default function ServerInfoPage() {
       </Box>
     );
   }
+  const handleUserMenuToggle = () => {
+    setIsUserMenuOpen(!isUserMenuOpen);
+  };
 
+  const handleEasyModeChange = (checked: boolean) => {
+    setEasyMode(checked);
+  };
+const [serverSettings, setServerSettings] = useState(serverInfoMockData.serverSettings);
+
+
+const handleNameTagChange = (newValue: string) => {
+  setServerSettings(prev =>
+    prev.map(setting =>
+      setting.label === 'ネームタグ'
+        ? { ...setting, value: newValue }
+        : setting
+    )
+  );
+  setServerName(newValue); // サーバー名も同期したい場合
+};
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       {/* Header */}
@@ -631,7 +651,7 @@ export default function ServerInfoPage() {
               deleteLock={deleteLock}
               onAutoBackupChange={handleAutoBackupChange}
               onDeleteLockChange={handleDeleteLockChange}
-              serverInfo={serverInfo}
+              onNameTagChange={handleNameTagChange} 
             />
           </TabPanel>
 
