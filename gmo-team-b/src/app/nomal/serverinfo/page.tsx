@@ -405,7 +405,21 @@ export default function ServerInfoPage() {
   };
 
 
-  if (loading && !serverInfo) {
+ 
+const [serverSettings, setServerSettings] = useState(serverInfoMockData.serverSettings);
+
+
+const handleNameTagChange = (newValue: string) => {
+  setServerSettings(prev =>
+    prev.map(setting =>
+      setting.label === 'ネームタグ'
+        ? { ...setting, value: newValue }
+        : setting
+    )
+  );
+  setServerName(newValue); // サーバー名も同期したい場合
+};
+ if (loading && !serverInfo) {
     return (
       <Box
         sx={{
@@ -420,26 +434,13 @@ export default function ServerInfoPage() {
       </Box>
     );
   }
-  const handleUserMenuToggle = () => {
-    setIsUserMenuOpen(!isUserMenuOpen);
-  };
+  // const handleUserMenuToggle = () => {
+  //   setIsUserMenuOpen(!isUserMenuOpen);
+  // };
 
-  const handleEasyModeChange = (checked: boolean) => {
-    setEasyMode(checked);
-  };
-const [serverSettings, setServerSettings] = useState(serverInfoMockData.serverSettings);
-
-
-const handleNameTagChange = (newValue: string) => {
-  setServerSettings(prev =>
-    prev.map(setting =>
-      setting.label === 'ネームタグ'
-        ? { ...setting, value: newValue }
-        : setting
-    )
-  );
-  setServerName(newValue); // サーバー名も同期したい場合
-};
+  // const handleEasyModeChange = (checked: boolean) => {
+  //   setEasyMode(checked);
+  // };
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       {/* Header */}
@@ -650,6 +651,7 @@ const handleNameTagChange = (newValue: string) => {
               onAutoBackupChange={handleAutoBackupChange}
               onDeleteLockChange={handleDeleteLockChange}
               onNameTagChange={handleNameTagChange} 
+
             />
           </TabPanel>
 
