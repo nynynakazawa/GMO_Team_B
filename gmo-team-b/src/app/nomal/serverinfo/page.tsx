@@ -40,17 +40,21 @@ import {
   CloudDownload,
   Delete,
 } from '@mui/icons-material';
-import { serverInfoMockData } from '../../../data/serverInfoMockData';
-import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
-import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
-import BillingCards from '../../../components/easy/serverinfo/BillingCards';
-import ConsoleTab from '../../../components/easy/serverinfo/ConsoleTab';
-import { Header } from "../../../components/easy/Header";
+
+import { serverInfoMockData, ServerSetting } from '@/data/serverInfoMockData';
+import ServerSettingsTab from '@/components/easy/serverinfo/ServerSettingsTab';
+import ServerNameEditor from '@/components/easy/serverinfo/ServerNameEditor';
+import UserMenu from '@/components/easy/UserMenu';
+import BillingCards from '@/components/easy/serverinfo/BillingCards';
+import ConsoleTab from '@/components/easy/serverinfo/ConsoleTab';
+import ResourceTab from '@/components/easy/serverinfo/ResourceTab';
+import { Header } from "@/components/easy/Header";
+
 import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
 import type {
   ServerListResponse,
   EnhancedServerSummary,
-} from "../../../types/serverTypes";
+} from "@/types/serverTypes";
 
 interface ServerAction {
   label: string;
@@ -630,6 +634,7 @@ export default function ServerInfoPage() {
               <Tab label="サーバー設定" />
               <Tab label="プラン変更" />
               <Tab label="コンソール" />
+              <Tab label="リソース" />
             </Tabs>
           </Box>
 
@@ -805,6 +810,11 @@ export default function ServerInfoPage() {
               serverId={selectedServerId || ""}
               serverInfo={serverInfo}
             />
+          </TabPanel>
+
+          {/* Resource Tab */}
+          <TabPanel value={tabValue} index={3}>
+            <ResourceTab serverId={selectedServerId || ""} serverInfo={serverInfo} />
           </TabPanel>
         </Paper>
 
