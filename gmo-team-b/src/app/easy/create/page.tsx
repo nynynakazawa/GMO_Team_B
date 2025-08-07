@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { GameServerSetup } from "../../../components/easy/create/GameServerSetup";
+import { ServerCreationProgress } from "../../../components/easy/create/ServerCreationProgress";
 import { mockRootProps } from "../../../data/gameServerSetupMockData";
 import { Plan } from "../../../types/gameServerSetup";
 
@@ -15,6 +16,14 @@ export default function EasyCreatePage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // 進捗管理用の状態
+  const [showProgress, setShowProgress] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [currentStatus, setCurrentStatus] = useState('');
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [progressError, setProgressError] = useState<string | null>(null);
 
   // APIからプランを取得
   useEffect(() => {
@@ -102,10 +111,47 @@ export default function EasyCreatePage() {
       return;
     }
 
+    // パスワード要件チェック
+    const passwordRequirements = {
+      hasLowercase: /[a-z]/.test(password),
+      hasUppercase: /[A-Z]/.test(password),
+      hasNumber: /[0-9]/.test(password),
+      hasSymbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+      hasValidLength: password.length >= 8 && password.length <= 70
+    };
+
+    const missingRequirements = [];
+    if (!passwordRequirements.hasLowercase) missingRequirements.push('小文字');
+    if (!passwordRequirements.hasUppercase) missingRequirements.push('大文字');
+    if (!passwordRequirements.hasNumber) missingRequirements.push('数字');
+    if (!passwordRequirements.hasSymbol) missingRequirements.push('記号');
+    if (!passwordRequirements.hasValidLength) missingRequirements.push('8-70文字');
+
+    if (missingRequirements.length > 0) {
+      const message = `パスワードが要件を満たしていません。\n\n必要な要素:\n• 大文字 (A-Z)\n• 小文字 (a-z)\n• 数字 (0-9)\n• 記号 (!@#$%^&*など)\n• 8-70文字\n\n不足している要素: ${missingRequirements.join(', ')}`;
+      alert(message);
+      return;
+    }
+
     setLoading(true);
     setError(null);
+    
+    // 進捗表示を開始
+    console.log('進捗表示を開始');
+    setShowProgress(true);
+    setProgress(0);
+    setCurrentStatus('initializing');
+    setIsCompleted(false);
+    setIsError(false);
+    setProgressError(null);
 
     try {
+      // 進捗更新: 初期化完了
+      setTimeout(() => {
+        setProgress(10);
+        setCurrentStatus('authenticating');
+      }, 500);
+      
       // 選択されたプランの詳細情報を取得
       const selectedPlanData = plans.find(plan => plan.id === selectedPlan);
       
@@ -145,6 +191,12 @@ export default function EasyCreatePage() {
 
       console.log("抽出されたプラン仕様:", { ramGB, cpuCores, ssdSize });
 
+      // 進捗更新: サーバー作成開始
+      setTimeout(() => {
+        setProgress(30);
+        setCurrentStatus('creating_server');
+      }, 1000);
+
       const response = await fetch('/api/vps/create', {
         method: 'POST',
         headers: {
@@ -162,6 +214,9 @@ export default function EasyCreatePage() {
         }),
       });
 
+      // 進捗更新: サーバー作成処理中
+      setProgress(70);
+      
       const result = await response.json();
 
       if (!response.ok) {
@@ -170,14 +225,27 @@ export default function EasyCreatePage() {
 
       console.log("VPSサーバー作成成功:", result);
       
+      // 進捗更新: 完了
+      setProgress(100);
+      setCurrentStatus('completed');
+      setIsCompleted(true);
+      
       // 成功時の処理
-      alert(`${serverName} の作成を開始しました！\nサーバーID: ${result.serverId}\n管理者パスワード: ${result.adminPass}`);
+      setTimeout(() => {
+        alert(`${serverName} の作成が完了しました！\nサーバーID: ${result.serverId}\n管理者パスワード: ${result.adminPass}`);
+      }, 1000);
       
       // 必要に応じてサーバー情報ページにリダイレクト
       // window.location.href = `/easy/serverinfo?serverId=${result.serverId}`;
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'サーバー作成中にエラーが発生しました';
+      
+      // 進捗表示でエラーを表示
+      setIsError(true);
+      setCurrentStatus('error');
+      setProgressError(errorMessage);
+      
       setError(errorMessage);
       console.error('VPSサーバー作成エラー:', err);
     } finally {
@@ -189,24 +257,35 @@ export default function EasyCreatePage() {
   const currentPlans = loading ? mockRootProps.plans : plans;
 
       return (
-      <GameServerSetup
-        currentStep={currentStep}
-        selectedGame={selectedGame}
-        selectedPeriod={selectedPeriod}
-        selectedPlan={selectedPlan}
-        serverName={serverName}
-        password={password}
-        games={mockRootProps.games}
-        plans={currentPlans}
-        periodOptions={mockRootProps.periodOptions}
-        onGameSelect={handleGameSelect}
-        onPeriodSelect={handlePeriodSelect}
-        onPlanSelect={handlePlanSelect}
-        onServerNameChange={handleServerNameChange}
-        onPasswordChange={handlePasswordChange}
-        onCreateServer={handleCreateServer}
-        loading={loading}
-        error={error}
-      />
+      <>
+        <GameServerSetup
+          currentStep={currentStep}
+          selectedGame={selectedGame}
+          selectedPeriod={selectedPeriod}
+          selectedPlan={selectedPlan}
+          serverName={serverName}
+          password={password}
+          games={mockRootProps.games}
+          plans={currentPlans}
+          periodOptions={mockRootProps.periodOptions}
+          onGameSelect={handleGameSelect}
+          onPeriodSelect={handlePeriodSelect}
+          onPlanSelect={handlePlanSelect}
+          onServerNameChange={handleServerNameChange}
+          onPasswordChange={handlePasswordChange}
+          onCreateServer={handleCreateServer}
+          loading={loading}
+          error={error}
+        />
+        
+        <ServerCreationProgress
+          isVisible={showProgress}
+          progress={progress}
+          currentStatus={currentStatus}
+          isCompleted={isCompleted}
+          isError={isError}
+          errorMessage={progressError || undefined}
+        />
+      </>
     );
 }
