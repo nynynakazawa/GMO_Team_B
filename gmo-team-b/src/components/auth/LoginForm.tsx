@@ -10,6 +10,7 @@ import { signInWithGoogle } from "./firebaseAuth"
 import { auth } from "../../firebase/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from 'next/navigation'
+import { useAuth } from '../../contexts/AuthContext';
 
 
 //サーバー一覧の型定義
@@ -69,6 +70,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -120,11 +122,19 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           console.log("トークン:", server_log)
           localStorage.setItem('user_email', user.email || '');
           localStorage.setItem('user_password', password);
-          if (server){
-            router.push("/easy/serverinfo")
-          }else{
-            router.push("easy/create")
+          
+          // リダイレクト先を確認
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectPath = urlParams.get('redirect');
+          
+          if (redirectPath) {
+            router.push(redirectPath);
+          } else if (server) {
+            router.push("/easy/serverinfo");
+          } else {
+            router.push("/easy/create");
           }
+          
           if (onLogin) {
             onLogin(email, password);
           }

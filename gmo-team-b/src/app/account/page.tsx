@@ -1,5 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react';
+import { AuthGuard } from '../../components/auth/AuthGuard';
 import {
   Box,
   Container,
@@ -29,7 +30,7 @@ import UserMenu from '../../components/easy/UserMenu';
 import { Header } from "../../components/easy/Header";
 const tabLabels = ['お支払い', 'アカウント設定', '過去の請求'];
 
-export default function AccountPage() {
+function AccountPageContent() {
   const [tab, setTab] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('Charge');
   const [twoFactor, setTwoFactor] = useState(false);
@@ -578,5 +579,13 @@ export default function AccountPage() {
         </Paper>
       </Container>
     </Box>
+  );
+}
+
+export default function AccountPage() {
+  return (
+    <AuthGuard>
+      <AccountPageContent />
+    </AuthGuard>
   );
 } 

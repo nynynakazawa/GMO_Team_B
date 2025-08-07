@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { GameServerSetup } from "../../../components/easy/create/GameServerSetup";
 import { ServerCreationProgress } from "../../../components/easy/create/ServerCreationProgress";
+import { AuthGuard } from "../../../components/auth/AuthGuard";
 import { mockRootProps } from "../../../data/gameServerSetupMockData";
 import { Plan } from "../../../types/gameServerSetup";
 
@@ -257,35 +258,37 @@ export default function EasyCreatePage() {
   const currentPlans = loading ? mockRootProps.plans : plans;
 
       return (
-      <>
-        <GameServerSetup
-          currentStep={currentStep}
-          selectedGame={selectedGame}
-          selectedPeriod={selectedPeriod}
-          selectedPlan={selectedPlan}
-          serverName={serverName}
-          password={password}
-          games={mockRootProps.games}
-          plans={currentPlans}
-          periodOptions={mockRootProps.periodOptions}
-          onGameSelect={handleGameSelect}
-          onPeriodSelect={handlePeriodSelect}
-          onPlanSelect={handlePlanSelect}
-          onServerNameChange={handleServerNameChange}
-          onPasswordChange={handlePasswordChange}
-          onCreateServer={handleCreateServer}
-          loading={loading}
-          error={error}
-        />
-        
-        <ServerCreationProgress
-          isVisible={showProgress}
-          progress={progress}
-          currentStatus={currentStatus}
-          isCompleted={isCompleted}
-          isError={isError}
-          errorMessage={progressError || undefined}
-        />
-      </>
+      <AuthGuard>
+        <>
+          <GameServerSetup
+            currentStep={currentStep}
+            selectedGame={selectedGame}
+            selectedPeriod={selectedPeriod}
+            selectedPlan={selectedPlan}
+            serverName={serverName}
+            password={password}
+            games={mockRootProps.games}
+            plans={currentPlans}
+            periodOptions={mockRootProps.periodOptions}
+            onGameSelect={handleGameSelect}
+            onPeriodSelect={handlePeriodSelect}
+            onPlanSelect={handlePlanSelect}
+            onServerNameChange={handleServerNameChange}
+            onPasswordChange={handlePasswordChange}
+            onCreateServer={handleCreateServer}
+            loading={loading}
+            error={error}
+          />
+          
+          <ServerCreationProgress
+            isVisible={showProgress}
+            progress={progress}
+            currentStatus={currentStatus}
+            isCompleted={isCompleted}
+            isError={isError}
+            errorMessage={progressError || undefined}
+          />
+        </>
+      </AuthGuard>
     );
 }
