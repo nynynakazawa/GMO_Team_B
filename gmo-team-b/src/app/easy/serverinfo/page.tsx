@@ -82,6 +82,7 @@ const serverActions: ServerAction[] = [
   {
     label: "削除",
     icon: Delete,
+    slug: "delete",
   },
 ];
 
@@ -134,13 +135,26 @@ function ServerInfo() {
     if (!selectedServerId) return;
 
     try {
-      const res = await fetch(`/api/server/${selectedServerId}/${slug}`, {
+      console.log(slug)
+      const path =
+        slug == "delete"
+          ? `/api/server/${selectedServerId}/deleteServer`
+          : `/api/server/${selectedServerId}/${slug}`;
+
+      const res = await fetch(path, {
         method: "POST",
       });
 
       if (!res.ok) {
         const { error } = await res.json();
         throw new Error(error ?? `${res.status} ${res.statusText}`);
+      }
+
+      // delete成功時にリスト再取得
+      if (slug === "delete") {
+        await loadServerList(); // 一覧リフレッシュ
+        setSnackbarMessage("サーバを削除しました");
+        return; // 以降の loadServerInfo は不要
       }
 
       // 成功したらステータス再取得
@@ -162,11 +176,11 @@ function ServerInfo() {
       setConfirmOpen(false);
       return;
     }
-    
+
     try {
       await handleServerAction(pendingAction.slug);
       setSnackbarMessage(`${pendingAction.label} が完了しました`);
-      if (pendingAction.slug === "os-start")  setServerStatus(true);
+      if (pendingAction.slug === "os-start") setServerStatus(true);
       if (pendingAction.slug === "os-stop") setServerStatus(false);
     } catch (_err) {
       setSnackbarMessage(`${pendingAction.label} に失敗しました`);
@@ -178,11 +192,10 @@ function ServerInfo() {
   };
 
   const requestStatusToggle = (next: boolean) => {
-      const slug = next ? "os-start" : "os-stop";
-      const label = next ? "起動" : "停止";
-      openConfirm(slug, label);
-    };
-
+    const slug = next ? "os-start" : "os-stop";
+    const label = next ? "起動" : "停止";
+    openConfirm(slug, label);
+  };
 
   const handleConfirmCancel = () => {
     setConfirmOpen(false);
