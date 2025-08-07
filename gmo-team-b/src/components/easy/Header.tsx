@@ -10,6 +10,7 @@ import {
   Stack,
   ClickAwayListener,
 } from "@mui/material";
+import { Person } from "@mui/icons-material";
 import UserMenu from "./UserMenu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

@@ -1,3 +1,5 @@
+import { GameType, PlanType } from '../data/enums';
+
 // Props types (data passed to components)
 export interface GameServerSetupProps {
   currentStep: number;

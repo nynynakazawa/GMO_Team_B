@@ -43,7 +43,7 @@ export async function GET() {
 
     const userData = await userRes.json();
     return NextResponse.json(userData.user);
-  } catch (err: unknown) {
-    return NextResponse.json({ error: 'サーバーエラー', detail: err.message }, { status: 500 });
+  } catch (e: any) {
+    return NextResponse.json({ error: 'サーバーエラー', detail: e.message }, { status: 500 });
   }
 }

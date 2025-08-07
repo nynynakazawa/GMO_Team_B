@@ -122,13 +122,6 @@ async function performAuthentication(): Promise<{
   if (!response.ok) {
     const errorText = await response.text();
     console.error("認証失敗:", response.status, response.statusText, errorText);
-    
-    // エラーが発生した場合はキャッシュをクリア
-    cachedToken = null;
-    cachedComputeEndpoint = null;
-    cachedProjectId = null;
-    tokenExpiryTime = null;
-    
     throw new Error(`ConoHa authentication failed: ${response.status} ${response.statusText} - ${errorText}`);
   }
   // ConoHa API v3では、トークンはX-Subject-Tokenヘッダーに含まれる
@@ -162,13 +155,6 @@ async function performAuthentication(): Promise<{
 
   console.log("Compute エンドポイント:", publicEndpoint.url);
   console.log("=== ConoHa認証完了 ===");
-
-  // トークンをキャッシュに保存
-  cachedToken = token;
-  cachedComputeEndpoint = publicEndpoint.url;
-  cachedProjectId = authData.token.project.id;
-  // トークンの有効期限を設定（ISO 8601文字列をミリ秒に変換）
-  tokenExpiryTime = new Date(authData.token.expires_at).getTime();
 
   return {
     token,
