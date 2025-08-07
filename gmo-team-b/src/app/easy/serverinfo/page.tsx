@@ -5,18 +5,12 @@ import { AuthGuard } from "../../../components/auth/AuthGuard";
 import {
   Box,
   Container,
-  Typography,
   Tabs,
   Tab,
   Paper,
   Switch,
   IconButton,
   Button,
-  Select,
-  MenuItem,
-  FormControl,
-  Card,
-  CardContent,
   CircularProgress,
   Alert,
   List,
@@ -33,18 +27,17 @@ import {
 import {
   RestartAlt,
   PowerSettingsNew,
-  OpenInNew,
   CloudUpload,
   CloudDownload,
   Delete,
 } from "@mui/icons-material";
 import { KeyboardArrowRight, HelpOutline, Refresh } from "@mui/icons-material";
 import { serverInfoMockData } from "../../../data/serverInfoMockData";
-import ServerSettingsTab from "../../../components/easy/serverinfo/ServerSettingsTab";
-import ServerNameEditor from "../../../components/easy/serverinfo/ServerNameEditor";
-import BillingCards from "../../../components/easy/serverinfo/BillingCards";
 import { Header } from "../../../components/easy/Header";
 import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
+import ServerNameEditor from "@/components/easy/serverinfo/ServerNameEditor";
+import ServerSettingsTab from "@/components/easy/serverinfo/ServerSettingsTab";
+import BillingCards from "@/components/easy/serverinfo/BillingCards";
 import type {
   ServerListResponse,
   EnhancedServerSummary,
@@ -55,8 +48,6 @@ interface ServerAction {
   icon: React.ElementType;
   slug?: string;
 }
-
-
 
 const serverActions: ServerAction[] = [
   {
@@ -109,7 +100,6 @@ function TabPanel(props: TabPanelProps) {
 function ServerInfo() {
   const [tabValue, setTabValue] = useState(0);
   const [serverStatus, setServerStatus] = useState(true);
-  const [selectedPlan, setSelectedPlan] = useState("8GB/6Core");
   const [autoBackup, setAutoBackup] = useState(false);
   const [deleteLock, setDeleteLock] = useState(false);
   const [serverInfo, setServerInfo] = useState<ParsedServerInfo | null>(null);
@@ -121,8 +111,10 @@ function ServerInfo() {
   const [selectedServerId, setSelectedServerId] = useState<string | null>(null);
   const [serverListLoading, setServerListLoading] = useState(false);
   const [isServerListOpen, setIsServerListOpen] = useState(false);
-  const [serverSettings, setServerSettings] = useState(serverInfoMockData.serverSettings);
-  
+  const [, setServerSettings] = useState(
+    serverInfoMockData.serverSettings
+  );
+
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{
     slug: ServerAction["slug"];
@@ -130,12 +122,12 @@ function ServerInfo() {
   } | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
+  const iconUrl = useState("/images/conohaIcon.png")
   const handleServerAction = async (slug: ServerAction["slug"]) => {
     if (!selectedServerId) return;
 
     try {
-      console.log(slug)
+      console.log(slug);
       const path =
         slug == "delete"
           ? `/api/server/${selectedServerId}/deleteServer`
@@ -164,12 +156,12 @@ function ServerInfo() {
       throw err; // ← 呼び出し元に失敗を知らせる
     }
   };
-//アカウント情報→ネームタグ編集用関数
-  
+  //アカウント情報→ネームタグ編集用関数
+
   const handleNameTagChange = (newValue: string) => {
-    setServerSettings(prev =>
-      prev.map(setting =>
-        setting.label === 'ネームタグ'
+    setServerSettings((prev) =>
+      prev.map((setting) =>
+        setting.label === "ネームタグ"
           ? { ...setting, value: newValue }
           : setting
       )
@@ -193,7 +185,7 @@ function ServerInfo() {
       setSnackbarMessage(`${pendingAction.label} が完了しました`);
       if (pendingAction.slug === "os-start") setServerStatus(true);
       if (pendingAction.slug === "os-stop") setServerStatus(false);
-    } catch (_err) {
+    } catch {
       setSnackbarMessage(`${pendingAction.label} に失敗しました`);
     } finally {
       setSnackbarOpen(true);
@@ -349,7 +341,53 @@ function ServerInfo() {
 
   useEffect(() => {
     loadServerList();
-  }, []);
+
+    // flavorsResの結果を取得してコンソールに表示
+    const fetchFlavorsRes = async () => {
+      try {
+        console.log("=== flavorsRes取得開始 ===");
+        const response = await fetch("/api/vps/plans");
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error(
+            "flavorsRes取得エラー:",
+            errorData.message || "flavorsResの取得に失敗しました"
+          );
+          return;
+        }
+
+        const data = await response.json();
+        console.log("=== flavorsResの結果 ===");
+        console.log("flavorsRes全体:", data);
+
+        // 元のflavorsResの構造を再現
+        console.log("=== 元のflavorsRes構造 ===");
+        if (data.plans && Array.isArray(data.plans)) {
+          data.plans.forEach((plan: any, index: number) => {
+            console.log(`flavor ${index + 1}:`, {
+              id: plan.id,
+              name: plan.flavorName, // 元のフレーバー名
+              vcpus: plan.vcpus,
+              ram: plan.ramGB * 1024, // MBに変換
+              disk: plan.disk,
+              flavorType: plan.flavorType,
+              // 元のflavorsResに含まれる可能性のある他のプロパティ
+              originalFlavorName: plan.flavorName,
+              extractedRamGB: plan.ramGB,
+              extractedCpuCores: plan.vcpus,
+            });
+          });
+        }
+
+        console.log("=== flavorsRes取得完了 ===");
+      } catch (err) {
+        console.error("flavorsRes取得中にエラーが発生しました:", err);
+      }
+    };
+
+    fetchFlavorsRes();
+  });
 
   const handleServerSelect = async (serverId: string) => {
     setSelectedServerId(serverId);
@@ -364,12 +402,6 @@ function ServerInfo() {
     setTabValue(newValue);
   };
 
-  const handleServerStatusChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setServerStatus(event.target.checked);
-  };
-
   const handleAutoBackupChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -380,10 +412,6 @@ function ServerInfo() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setDeleteLock(event.target.checked);
-  };
-
-  const handlePlanChange = (event: any) => {
-    setSelectedPlan(event.target.value);
   };
 
   const handleServerNameEdit = () => {
@@ -398,7 +426,9 @@ function ServerInfo() {
     setServerName(serverInfo?.nameTag || "");
     setIsEditingServerName(false);
   };
-  const handleServerNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleServerNameChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setServerName(event.target.value);
   };
 
@@ -438,7 +468,7 @@ function ServerInfo() {
         }}
       >
         <Container maxWidth="xl" disableGutters>
-          <Header />
+          <Header iconUrl={iconUrl}/>
 
           {error && (
             <Alert
@@ -542,6 +572,11 @@ function ServerInfo() {
                   key={index}
                   variant="outlined"
                   startIcon={<IconComponent />}
+                  disabled={
+                    (slug == "reboot" && !serverStatus) ||
+                    (slug == "force_shutdown" && !serverStatus) ||
+                    (slug == "delete" && deleteLock)
+                  }
                   onClick={() => {
                     if (slug) {
                       openConfirm(slug, label);
@@ -623,7 +658,6 @@ function ServerInfo() {
               }}
             >
               <Tab label="サーバー設定" />
-              <Tab label="プラン変更" />
             </Tabs>
           </Box>
 
@@ -637,161 +671,6 @@ function ServerInfo() {
               serverInfo={serverInfo}
               onNameTagChange={handleNameTagChange}
             />
-          </TabPanel>
-
-          {/* Plan Change Tab */}
-          <TabPanel value={tabValue} index={1}>
-            <Box sx={{ maxWidth: 600, mx: "auto" }}>
-              <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-                プランを変更しますか?
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  mb: 3,
-                  textAlign: "center",
-                  color: "text.secondary",
-                  display: "inline",
-                }}
-              >
-                ストレージ容量は変更されません。
-                <br />
-                これまでのリソースグラフのデータは削除されます。
-              </Typography>
-              <Card sx={{ mb: 3 }}>
-                <CardContent>
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                        変更前プラン
-                      </Typography>
-                      <Typography variant="body2">
-                        メモリ 4GB/CPU 4Core
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                        変更後プラン
-                      </Typography>
-                      <FormControl size="small" sx={{ minWidth: 200 }}>
-                        <Select
-                          value={selectedPlan}
-                          onChange={handlePlanChange}
-                          displayEmpty
-                          sx={{
-                            "& .MuiSelect-icon": { color: "#19B8D7" },
-                            fontSize: "1rem",
-                          }}
-                          MenuProps={{
-                            PaperProps: {
-                              sx: { fontSize: "1rem" },
-                            },
-                          }}
-                        >
-                          <MenuItem value="8GB/6Core" sx={{ fontSize: "1rem" }}>
-                            メモリ 8GB/CPU 6Core
-                          </MenuItem>
-                          <MenuItem
-                            value="16GB/8Core"
-                            sx={{ fontSize: "1rem" }}
-                          >
-                            メモリ 16GB/CPU 8Core
-                          </MenuItem>
-                          <MenuItem
-                            value="32GB/12Core"
-                            sx={{ fontSize: "1rem" }}
-                          >
-                            メモリ 32GB/CPU 12Core
-                          </MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                        プラン変更後の料金
-                      </Typography>
-                      <Typography variant="body2">
-                        8,082 円/月 (14.6 円/時間)
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: 2,
-                  mb: 2,
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  sx={{
-                    borderRadius: "50px",
-                    textTransform: "none",
-                    borderColor: "text.secondary",
-                    color: "text.secondary",
-                  }}
-                >
-                  いいえ
-                </Button>
-                <Button
-                  variant="contained"
-                  sx={{
-                    borderRadius: "50px",
-                    textTransform: "none",
-                    bgcolor: "#19B8D7",
-                    "&:hover": { bgcolor: "#15a0c0" },
-                  }}
-                >
-                  はい
-                </Button>
-              </Box>
-
-              <Typography
-                variant="caption"
-                sx={{
-                  textAlign: "center",
-                  display: "block",
-                  color: "text.secondary",
-                }}
-              >
-                ※表示料金にはサービス維持調整費が含まれています。
-                <span
-                  style={{
-                    color: "#19B8D7",
-                    cursor: "pointer",
-                    textDecoration: "underline",
-                    fontSize: "inherit",
-                    marginLeft: 4,
-                  }}
-                >
-                  詳しくはこちら
-                </span>
-              </Typography>
-            </Box>
           </TabPanel>
         </Paper>
 
@@ -823,5 +702,3 @@ export default function ServerInfoPage() {
     </AuthGuard>
   );
 }
-
-

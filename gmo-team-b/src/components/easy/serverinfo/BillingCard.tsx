@@ -68,7 +68,6 @@ interface BillingCardProps {
 }
 
 export const BillingCard: React.FC<BillingCardProps> = ({
-  type,
   title,
   subtitle,
   amount,

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -14,10 +14,8 @@ import {
   Select,
   MenuItem,
   FormControl,
-  Divider,
   Card,
   CardContent,
-  Tooltip,
   CircularProgress,
   Alert,
   List,
@@ -30,22 +28,19 @@ import {
   DialogContentText,
   DialogTitle,
   Snackbar,
-} from '@mui/material';
+} from "@mui/material";
 import {
   KeyboardArrowRight,
   Refresh,
   HelpOutline,
-  Edit,
-  Clear,
-  ContentCopy,
   RestartAlt,
   PowerSettingsNew,
   OpenInNew,
   CloudUpload,
   CloudDownload,
   Delete,
-  Person,
 } from '@mui/icons-material';
+
 import { serverInfoMockData, ServerSetting } from '@/data/serverInfoMockData';
 import ServerSettingsTab from '@/components/easy/serverinfo/ServerSettingsTab';
 import ServerNameEditor from '@/components/easy/serverinfo/ServerNameEditor';
@@ -54,12 +49,12 @@ import BillingCards from '@/components/easy/serverinfo/BillingCards';
 import ConsoleTab from '@/components/easy/serverinfo/ConsoleTab';
 import ResourceTab from '@/components/easy/serverinfo/ResourceTab';
 import { Header } from "@/components/easy/Header";
+
 import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
 import type {
   ServerListResponse,
   EnhancedServerSummary,
 } from "@/types/serverTypes";
-
 
 interface ServerAction {
   label: string;
@@ -141,12 +136,12 @@ export default function ServerInfoPage() {
   } | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
+  const iconUrl = "/images/conohaIcon.png"
   const handleServerAction = async (slug: ServerAction["slug"]) => {
     if (!selectedServerId) return;
 
     try {
-      console.log(slug)
+      console.log(slug);
       const path =
         slug == "delete"
           ? `/api/server/${selectedServerId}/deleteServer`
@@ -193,7 +188,7 @@ export default function ServerInfoPage() {
       setSnackbarMessage(`${pendingAction.label} が完了しました`);
       if (pendingAction.slug === "os-start") setServerStatus(true);
       if (pendingAction.slug === "os-stop") setServerStatus(false);
-    } catch (_err) {
+    } catch {
       setSnackbarMessage(`${pendingAction.label} に失敗しました`);
     } finally {
       setSnackbarOpen(true);
@@ -349,7 +344,7 @@ export default function ServerInfoPage() {
 
   useEffect(() => {
     loadServerList();
-  }, []);
+  });
 
   const handleServerSelect = async (serverId: string) => {
     setSelectedServerId(serverId);
@@ -362,12 +357,6 @@ export default function ServerInfoPage() {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-  };
-
-  const handleServerStatusChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setServerStatus(event.target.checked);
   };
 
   const handleAutoBackupChange = (
@@ -405,7 +394,20 @@ export default function ServerInfoPage() {
     setServerName(event.target.value);
   };
 
+  const [, setServerSettings] = useState(
+    serverInfoMockData.serverSettings
+  );
 
+  const handleNameTagChange = (newValue: string) => {
+    setServerSettings((prev) =>
+      prev.map((setting) =>
+        setting.label === "ネームタグ"
+          ? { ...setting, value: newValue }
+          : setting
+      )
+    );
+    setServerName(newValue); // サーバー名も同期したい場合
+  };
   if (loading && !serverInfo) {
     return (
       <Box
@@ -421,26 +423,13 @@ export default function ServerInfoPage() {
       </Box>
     );
   }
-  const handleUserMenuToggle = () => {
-    setIsUserMenuOpen(!isUserMenuOpen);
-  };
+  // const handleUserMenuToggle = () => {
+  //   setIsUserMenuOpen(!isUserMenuOpen);
+  // };
 
-  const handleEasyModeChange = (checked: boolean) => {
-    setEasyMode(checked);
-  };
-const [serverSettings, setServerSettings] = useState(serverInfoMockData.serverSettings);
-
-
-const handleNameTagChange = (newValue: string) => {
-  setServerSettings(prev =>
-    prev.map(setting =>
-      setting.label === 'ネームタグ'
-        ? { ...setting, value: newValue }
-        : setting
-    )
-  );
-  setServerName(newValue); // サーバー名も同期したい場合
-};
+  // const handleEasyModeChange = (checked: boolean) => {
+  //   setEasyMode(checked);
+  // };
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       {/* Header */}
@@ -453,7 +442,7 @@ const handleNameTagChange = (newValue: string) => {
         }}
       >
         <Container maxWidth="xl" disableGutters>
-          <Header />
+          <Header iconUrl={iconUrl}/>
 
           {error && (
             <Alert
@@ -557,6 +546,11 @@ const handleNameTagChange = (newValue: string) => {
                   key={index}
                   variant="outlined"
                   startIcon={<IconComponent />}
+                  disabled={
+                    (slug == "reboot" && !serverStatus) ||
+                    (slug == "force_shutdown" && !serverStatus) ||
+                    (slug == "delete" && deleteLock)
+                  }
                   onClick={() => {
                     if (slug) {
                       openConfirm(slug, label);
@@ -651,7 +645,7 @@ const handleNameTagChange = (newValue: string) => {
               deleteLock={deleteLock}
               onAutoBackupChange={handleAutoBackupChange}
               onDeleteLockChange={handleDeleteLockChange}
-              onNameTagChange={handleNameTagChange} 
+              onNameTagChange={handleNameTagChange}
             />
           </TabPanel>
 
@@ -812,7 +806,10 @@ const handleNameTagChange = (newValue: string) => {
 
           {/* Console Tab */}
           <TabPanel value={tabValue} index={2}>
-            <ConsoleTab serverId={selectedServerId || ""} serverInfo={serverInfo} />
+            <ConsoleTab
+              serverId={selectedServerId || ""}
+              serverInfo={serverInfo}
+            />
           </TabPanel>
 
           {/* Resource Tab */}
@@ -840,4 +837,4 @@ const handleNameTagChange = (newValue: string) => {
       </Container>
     </Box>
   );
-} 
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -17,7 +17,6 @@ import {
   Refresh,
   Fullscreen,
   FullscreenExit,
-  Settings,
 } from '@mui/icons-material';
 
 interface ConsoleTabProps {
@@ -47,44 +46,53 @@ export default function ConsoleTab({ serverId, serverInfo }: ConsoleTabProps) {
   const isServerAvailable = serverId && serverId.trim() !== '' && serverInfo;
   const isServerActive = serverInfo?.status === 'ACTIVE';
 
-  const connectToConsole = async () => {
-    if (!isServerAvailable) {
-      setError('サーバー情報が利用できません');
-      return;
+  const connectToConsole = useCallback(async () => {
+  if (!isServerAvailable) {
+    setError("サーバー情報が利用できません");
+    return;
+  }
+  if (!isServerActive) {
+    setError("サーバーが停止中です。コンソールに接続するにはサーバーを起動してください。");
+    return;
+  }
+
+  setIsConnecting(true);
+  setError("");
+
+  try {
+    const res = await fetch("/api/server/console", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ serverId }),
+    });
+
+    const data: ConsoleResponse = await res.json();
+
+    if (data.success && data.consoleUrl) {
+      setConsoleUrl(data.consoleUrl);
+      setIsConnected(true);
+    } else {
+      setError(data.error || "コンソール接続に失敗しました");
     }
+  } catch (err) {
+    setError("コンソール接続中にエラーが発生しました");
+    console.error("Console connection error:", err);
+  } finally {
+    setIsConnecting(false);
+  }
+  // 2. 依存配列に「関数内で読む値」を列挙
+}, [isServerAvailable, isServerActive, serverId]);
 
-    if (!isServerActive) {
-      setError('サーバーが停止中です。コンソールに接続するにはサーバーを起動してください。');
-      return;
-    }
+// 3. useEffect には connectToConsole を依存に入れる
+useEffect(() => {
+  setIsConnected(false);
+  setConsoleUrl("");
+  setError("");
 
-    setIsConnecting(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/server/console', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ serverId }),
-      });
-
-      const data: ConsoleResponse = await response.json();
-
-      if (data.success && data.consoleUrl) {
-        setConsoleUrl(data.consoleUrl);
-        setIsConnected(true);
-      } else {
-        setError(data.error || 'コンソール接続に失敗しました');
-      }
-    } catch (err) {
-      setError('コンソール接続中にエラーが発生しました');
-      console.error('Console connection error:', err);
-    } finally {
-      setIsConnecting(false);
-    }
-  };
+  if (isServerAvailable && isServerActive) {
+    connectToConsole();
+  }
+}, [serverId, serverInfo?.status, isServerAvailable, isServerActive, connectToConsole]);
 
   const disconnectConsole = () => {
     setIsConnected(false);
@@ -112,7 +120,7 @@ export default function ConsoleTab({ serverId, serverInfo }: ConsoleTabProps) {
     if (isServerAvailable && isServerActive) {
       connectToConsole();
     }
-  }, [serverId, serverInfo?.status]);
+  }, [serverId, serverInfo?.status, isServerAvailable, isServerActive, connectToConsole]);
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>

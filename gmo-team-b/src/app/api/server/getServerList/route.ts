@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getConoHaTokenAndEndpoint } from "@/pages/api/vps/conohaAuth";
 
 type ServerSummary = {
@@ -8,7 +8,7 @@ type ServerSummary = {
   links: { rel: string; href: string }[];
 };
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   try {
     console.log("=== /api/server/getServerList handler start ===");
     

@@ -41,7 +41,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // プラン選択からのパラメータを使用、なければplanIdから抽出
   let selectedRamGB = ramGB;
   let selectedCpuCores = cpuCores;
-  let selectedSsdSize = ssdSize || 100; // デフォルトは100GB
   
   // ramGBが送信されていない場合、planIdから抽出を試行
   if (!selectedRamGB) {
@@ -293,7 +292,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     /*--- 新しいブートボリュームを作成 ---*/
-    let volume;
     console.log("新しいブートボリュームを作成します");
     
     // ボリュームタイプ一覧を取得
@@ -371,7 +369,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       throw new Error(`ブートボリューム作成に失敗: ${volumeRes.status} ${volumeRes.statusText} - ${errorText}`);
     }
 
-    volume = (await volumeRes.json()).volume;
+    const volume = (await volumeRes.json()).volume;
     console.log("ブートボリューム作成成功:", { id: volume.id, status: volume.status, name: volume.name, bootable: volume.bootable });
 
     // ボリュームが利用可能になるまで待機

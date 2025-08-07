@@ -22,12 +22,8 @@ import {
   FormControl,
   Divider,
 } from '@mui/material';
-import { storage } from '@/firebase/firebase'; 
-import Avatar from '@mui/material/Avatar';
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Person } from '@mui/icons-material';
+
 import Image from 'next/image';
-import UserMenu from '../../components/easy/serverinfo/UserMenu';
 import { Header } from "../../components/easy/Header";
 import { db } from '../../firebase/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -39,7 +35,7 @@ function AccountPageContent() {
   const [paymentMethod, setPaymentMethod] = useState('Charge');
   const [savedEmail, setSavedEmail] = useState<string>('');
   const [savedPassword, setSavedPassword] = useState<string>('');
-  const [iconUrl, setIconUrl] = useState<string>('/images/conoha_image1.png'); 
+  const [iconUrl, setIconUrl] = useState<string>('/images/conohaIcon.png'); 
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 

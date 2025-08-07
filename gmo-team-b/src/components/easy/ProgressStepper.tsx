@@ -78,7 +78,7 @@ interface ProgressStepperProps {
   currentStep: number;
 }
 
-export const ProgressStepper: React.FC<ProgressStepperProps> = ({ currentStep }) => {
+export const ProgressStepper: React.FC<ProgressStepperProps> = () => {
   return (
     <ProgressContainer>
       <StepContainer>
