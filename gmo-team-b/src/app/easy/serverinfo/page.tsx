@@ -56,6 +56,8 @@ interface ServerAction {
   slug?: string;
 }
 
+
+
 const serverActions: ServerAction[] = [
   {
     label: "再起動",
@@ -119,6 +121,8 @@ function ServerInfo() {
   const [selectedServerId, setSelectedServerId] = useState<string | null>(null);
   const [serverListLoading, setServerListLoading] = useState(false);
   const [isServerListOpen, setIsServerListOpen] = useState(false);
+  const [serverSettings, setServerSettings] = useState(serverInfoMockData.serverSettings);
+  
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{
     slug: ServerAction["slug"];
@@ -160,7 +164,18 @@ function ServerInfo() {
       throw err; // ← 呼び出し元に失敗を知らせる
     }
   };
-
+//アカウント情報→ネームタグ編集用関数
+  
+  const handleNameTagChange = (newValue: string) => {
+    setServerSettings(prev =>
+      prev.map(setting =>
+        setting.label === 'ネームタグ'
+          ? { ...setting, value: newValue }
+          : setting
+      )
+    );
+    setServerName(newValue); // サーバー名も同期したい場合
+  };
   // open confirm dialog for a given action
   const openConfirm = (slug: ServerAction["slug"], label: string) => {
     setPendingAction({ slug, label });
@@ -383,10 +398,7 @@ function ServerInfo() {
     setServerName(serverInfo?.nameTag || "");
     setIsEditingServerName(false);
   };
-
-  const handleServerNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleServerNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setServerName(event.target.value);
   };
 
@@ -623,6 +635,7 @@ function ServerInfo() {
               onAutoBackupChange={handleAutoBackupChange}
               onDeleteLockChange={handleDeleteLockChange}
               serverInfo={serverInfo}
+              onNameTagChange={handleNameTagChange}
             />
           </TabPanel>
 
