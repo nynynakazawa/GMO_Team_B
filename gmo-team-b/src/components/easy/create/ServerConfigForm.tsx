@@ -83,6 +83,10 @@ interface ServerConfigFormProps {
   onPasswordChange: (password: string) => void;
   onCreateServer: () => void;
   loading?: boolean;
+  validationErrors?: {
+    serverName: boolean;
+    password: boolean;
+  };
 }
 
 export const ServerConfigForm: React.FC<ServerConfigFormProps> = ({
@@ -92,6 +96,7 @@ export const ServerConfigForm: React.FC<ServerConfigFormProps> = ({
   onPasswordChange,
   onCreateServer,
   loading = false,
+  validationErrors,
 }) => {
   return (
     <SectionContainer>
@@ -99,7 +104,9 @@ export const ServerConfigForm: React.FC<ServerConfigFormProps> = ({
 
       <FormContainer spacing={3}>
         <InputRow direction="row">
-          <InputLabel>サーバー名：</InputLabel>
+          <InputLabel sx={{ color: validationErrors?.serverName ? 'error.main' : 'text.primary' }}>
+            サーバー名：
+          </InputLabel>
           <StyledTextField
             value={serverName}
             onChange={(e) => {
@@ -112,11 +119,23 @@ export const ServerConfigForm: React.FC<ServerConfigFormProps> = ({
             inputProps={{
               maxLength: 20
             }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderColor: validationErrors?.serverName ? 'error.main' : undefined,
+              }
+            }}
           />
+          {validationErrors?.serverName && (
+            <Typography variant="body2" color="error.main" sx={{ fontSize: '14px', ml: 2 }}>
+              入力が必要です
+            </Typography>
+          )}
         </InputRow>
 
         <InputRow direction="row">
-          <InputLabel>パスワード：</InputLabel>
+          <InputLabel sx={{ color: validationErrors?.password ? 'error.main' : 'text.primary' }}>
+            パスワード：
+          </InputLabel>
           <StyledTextField
             type="password"
             value={password}
@@ -127,7 +146,17 @@ export const ServerConfigForm: React.FC<ServerConfigFormProps> = ({
               minLength: 8,
               maxLength: 50
             }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderColor: validationErrors?.password ? 'error.main' : undefined,
+              }
+            }}
           />
+          {validationErrors?.password && (
+            <Typography variant="body2" color="error.main" sx={{ fontSize: '14px', ml: 2 }}>
+              入力が必要です
+            </Typography>
+          )}
         </InputRow>
 
         <CreateButton 

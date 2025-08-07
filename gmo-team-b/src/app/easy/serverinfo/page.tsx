@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { AuthGuard } from "../../../components/auth/AuthGuard";
 import {
   Box,
   Container,
@@ -106,7 +107,7 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-export default function ServerInfoPage() {
+function ServerInfo() {
   const [tabValue, setTabValue] = useState(0);
   const [serverStatus, setServerStatus] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState("8GB/6Core");
@@ -789,3 +790,13 @@ export default function ServerInfoPage() {
     </Box>
   );
 }
+
+export default function ServerInfoPage() {
+  return (
+    <AuthGuard>
+      <ServerInfo />
+    </AuthGuard>
+  );
+}
+
+
