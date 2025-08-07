@@ -139,12 +139,9 @@ export default function ServerInfoPage() {
   } | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-<<<<<<< HEAD
   const [isLoadingServerList, setIsLoadingServerList] = useState(false);
   const iconUrl = "/images/conohaIcon.png"
-=======
-  const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
->>>>>>> main
+
   const handleServerAction = async (slug: ServerAction["slug"]) => {
     if (!selectedServerId) return;
 
