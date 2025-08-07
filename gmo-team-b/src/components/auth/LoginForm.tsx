@@ -10,7 +10,6 @@ import { signInWithGoogle } from "./firebaseAuth"
 import { auth } from "../../firebase/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from 'next/navigation'
-import { useAuth } from '../../contexts/AuthContext';
 
 
 //サーバー一覧の型定義
@@ -70,7 +69,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

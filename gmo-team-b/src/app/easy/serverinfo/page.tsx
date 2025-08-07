@@ -5,18 +5,12 @@ import { AuthGuard } from "../../../components/auth/AuthGuard";
 import {
   Box,
   Container,
-  Typography,
   Tabs,
   Tab,
   Paper,
   Switch,
   IconButton,
   Button,
-  Select,
-  MenuItem,
-  FormControl,
-  Card,
-  CardContent,
   CircularProgress,
   Alert,
   List,
@@ -33,18 +27,17 @@ import {
 import {
   RestartAlt,
   PowerSettingsNew,
-  OpenInNew,
   CloudUpload,
   CloudDownload,
   Delete,
 } from "@mui/icons-material";
 import { KeyboardArrowRight, HelpOutline, Refresh } from "@mui/icons-material";
 import { serverInfoMockData } from "../../../data/serverInfoMockData";
-import ServerSettingsTab from "../../../components/easy/serverinfo/ServerSettingsTab";
-import ServerNameEditor from "../../../components/easy/serverinfo/ServerNameEditor";
-import BillingCards from "../../../components/easy/serverinfo/BillingCards";
 import { Header } from "../../../components/easy/Header";
 import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
+import ServerNameEditor from "@/components/easy/serverinfo/ServerNameEditor";
+import ServerSettingsTab from "@/components/easy/serverinfo/ServerSettingsTab";
+import BillingCards from "@/components/easy/serverinfo/BillingCards";
 import type {
   ServerListResponse,
   EnhancedServerSummary,
@@ -118,7 +111,7 @@ function ServerInfo() {
   const [selectedServerId, setSelectedServerId] = useState<string | null>(null);
   const [serverListLoading, setServerListLoading] = useState(false);
   const [isServerListOpen, setIsServerListOpen] = useState(false);
-  const [serverSettings, setServerSettings] = useState(
+  const [, setServerSettings] = useState(
     serverInfoMockData.serverSettings
   );
 
@@ -129,7 +122,7 @@ function ServerInfo() {
   } | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
+  const iconUrl = useState("/images/conohaIcon.png")
   const handleServerAction = async (slug: ServerAction["slug"]) => {
     if (!selectedServerId) return;
 
@@ -192,7 +185,7 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
       setSnackbarMessage(`${pendingAction.label} が完了しました`);
       if (pendingAction.slug === "os-start") setServerStatus(true);
       if (pendingAction.slug === "os-stop") setServerStatus(false);
-    } catch (_err) {
+    } catch {
       setSnackbarMessage(`${pendingAction.label} に失敗しました`);
     } finally {
       setSnackbarOpen(true);
@@ -394,7 +387,7 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
     };
 
     fetchFlavorsRes();
-  }, []);
+  });
 
   const handleServerSelect = async (serverId: string) => {
     setSelectedServerId(serverId);
@@ -407,12 +400,6 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-  };
-
-  const handleServerStatusChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setServerStatus(event.target.checked);
   };
 
   const handleAutoBackupChange = (

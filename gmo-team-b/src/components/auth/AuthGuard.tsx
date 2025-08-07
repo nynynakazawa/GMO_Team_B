@@ -14,7 +14,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   children, 
   requireAuth = true 
 }) => {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { loading, isAuthenticated } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
