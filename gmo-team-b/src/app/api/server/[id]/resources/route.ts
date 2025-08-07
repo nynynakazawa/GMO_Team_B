@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConoHaTokenAndEndpoint, getCacheStatus } from '../../../../../pages/api/vps/conohaAuth';
+import { getConoHaTokenAndEndpoint } from '../../../../../pages/api/vps/conohaAuth';
 import { getServerInfo } from '../../getServerInfo';
 
 type ResourceType = 'cpu' | 'disk' | 'network';
@@ -81,17 +81,12 @@ export async function GET(
       );
     }
     
-    // キャッシュの状態を確認
-    const cacheStatus = getCacheStatus();
-    console.log(`Cache status:`, cacheStatus);
-    
-    // ConoHa APIからトークンとエンドポイントを取得（キャッシュ優先）
-    console.log(`Getting ConoHa token and endpoint (with cache)...`);
+    // ConoHa APIからトークンとエンドポイントを取得
+    console.log(`Getting ConoHa token and endpoint...`);
     const { token, computeEndpoint } = await getConoHaTokenAndEndpoint();
     console.log(`Token obtained: ${token.substring(0, 20)}...`);
     console.log(`Compute endpoint: ${computeEndpoint}`);
     console.log(`Token length: ${token.length} characters`);
-    console.log(`Using cached token: ${cacheStatus.hasCachedToken ? 'YES' : 'NO'}`);
     
     // サーバーの電源状態を確認
     console.log(`Getting server info for server ID: ${serverId}`);

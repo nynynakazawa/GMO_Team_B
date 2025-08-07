@@ -69,6 +69,7 @@ export default function ResourceTab({ serverId, serverInfo }: ResourceTabProps) 
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isRequestingRef = useRef<boolean>(false);
 
   // サーバーが利用可能かチェック
   const isServerAvailable = serverId && serverId.trim() !== '' && serverInfo;
@@ -89,24 +90,42 @@ export default function ResourceTab({ serverId, serverInfo }: ResourceTabProps) 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // データを取得
+  // データを取得（最適化版：1回のAPIコールで全リソースデータを取得）
   const fetchResourceData = async () => {
     if (!isServerAvailable || !isServerActive) {
       return;
     }
 
+    // 既にリクエスト中の場合は処理をスキップ
+    if (isRequestingRef.current) {
+      console.log('リクエスト中のため、新しいリクエストをスキップします');
+      return;
+    }
+
+    isRequestingRef.current = true;
     setError('');
 
     try {
       const currentTime = Math.floor(Date.now() / 1000);
       
-      // CPUデータを取得
-      const cpuResponse = await fetch(`/api/server/${serverId}/resources?type=cpu`);
+      console.log('=== リソースデータ一括取得開始 ===');
+      
+      // 全リソースタイプを一度に取得（認証も1回のみ）
+      const [cpuResponse, diskResponse, networkResponse] = await Promise.all([
+        fetch(`/api/server/${serverId}/resources?type=cpu`),
+        fetch(`/api/server/${serverId}/resources?type=disk`),
+        fetch(`/api/server/${serverId}/resources?type=network`)
+      ]);
+
+      let hasError = false;
+      let errorMessage = '';
+
+      // CPUデータの処理
       if (cpuResponse.ok) {
         const cpuResult = await cpuResponse.json();
         if (cpuResult.cpu && cpuResult.cpu.data && cpuResult.cpu.data.length > 0) {
           const latestCpuData = cpuResult.cpu.data[cpuResult.cpu.data.length - 1];
-          const [timestamp, value] = latestCpuData;
+          const [_, value] = latestCpuData;
           const newCpuData = {
             timestamp: currentTime,
             value: calculateCpuUsage(value, 4), // 4コアと仮定
@@ -114,82 +133,76 @@ export default function ResourceTab({ serverId, serverInfo }: ResourceTabProps) 
           
           setCpuData(prevData => {
             const newData = [...prevData, newCpuData];
-            // 最新の12データポイント（60秒間）を保持
-            return newData.slice(-12);
+            // 最新の20データポイント（20分間）を保持
+            return newData.slice(-20);
           });
         }
       } else {
         const errorData = await cpuResponse.json();
         if (errorData.error === 'サーバーの電源が切れています') {
-          setError('サーバーの電源が切れています。リソースデータを取得するにはサーバーを起動してください。');
-          return;
+          hasError = true;
+          errorMessage = 'サーバーの電源が切れています。リソースデータを取得するにはサーバーを起動してください。';
         }
       }
 
-      // ディスクデータを取得
-      const diskResponse = await fetch(`/api/server/${serverId}/resources?type=disk`);
-      if (diskResponse.ok) {
+      // ディスクデータの処理
+      if (!hasError && diskResponse.ok) {
         const diskResult = await diskResponse.json();
         if (diskResult.disk && diskResult.disk.data && diskResult.disk.data.length > 0) {
           const latestDiskData = diskResult.disk.data[diskResult.disk.data.length - 1];
-          const [timestamp, read, write] = latestDiskData;
+          const [_, read, write] = latestDiskData;
           
           if (read !== null) {
             setDiskReadData(prevData => {
               const newData = [...prevData, { timestamp: currentTime, value: read }];
-              return newData.slice(-12);
+              return newData.slice(-20);
             });
           }
           
           if (write !== null) {
             setDiskWriteData(prevData => {
               const newData = [...prevData, { timestamp: currentTime, value: write }];
-              return newData.slice(-12);
+              return newData.slice(-20);
             });
           }
         }
-      } else {
-        const errorData = await diskResponse.json();
-        if (errorData.error === 'サーバーの電源が切れています') {
-          setError('サーバーの電源が切れています。リソースデータを取得するにはサーバーを起動してください。');
-          return;
-        }
       }
 
-      // ネットワークデータを取得
-      const networkResponse = await fetch(`/api/server/${serverId}/resources?type=network`);
-      if (networkResponse.ok) {
+      // ネットワークデータの処理
+      if (!hasError && networkResponse.ok) {
         const networkResult = await networkResponse.json();
         if (networkResult.interface && networkResult.interface.data && networkResult.interface.data.length > 0) {
           const latestNetworkData = networkResult.interface.data[networkResult.interface.data.length - 1];
-          const [timestamp, rx, tx] = latestNetworkData;
+          const [_, rx, tx] = latestNetworkData;
           
           if (rx !== null) {
             setNetworkRxData(prevData => {
               const newData = [...prevData, { timestamp: currentTime, value: rx }];
-              return newData.slice(-12);
+              return newData.slice(-20);
             });
           }
           
           if (tx !== null) {
             setNetworkTxData(prevData => {
               const newData = [...prevData, { timestamp: currentTime, value: tx }];
-              return newData.slice(-12);
+              return newData.slice(-20);
             });
           }
         }
-      } else {
-        const errorData = await networkResponse.json();
-        if (errorData.error === 'サーバーの電源が切れています') {
-          setError('サーバーの電源が切れています。リソースデータを取得するにはサーバーを起動してください。');
-          return;
-        }
+      }
+
+      if (hasError) {
+        setError(errorMessage);
+        return;
       }
 
       setLastUpdate(new Date());
+      console.log('=== リソースデータ一括取得完了 ===');
     } catch (err) {
       console.error('Resource data fetch error:', err);
       setError('リソースデータの取得に失敗しました');
+    } finally {
+      isRequestingRef.current = false;
     }
   };
 
@@ -201,12 +214,12 @@ export default function ResourceTab({ serverId, serverInfo }: ResourceTabProps) 
         setLoading(false);
       });
       
-      // 30秒ごとに更新（エラーがない場合のみ）- レート制限を回避するため
+      // 120秒ごとに更新（エラーがない場合のみ）- 認証頻度を削減してパフォーマンスを向上
       intervalRef.current = setInterval(() => {
         if (!error) {
           fetchResourceData();
         }
-      }, 30000);
+      }, 120000); // 2分間隔に変更
     }
 
     return () => {
@@ -214,7 +227,7 @@ export default function ResourceTab({ serverId, serverInfo }: ResourceTabProps) 
         clearInterval(intervalRef.current);
       }
     };
-  }, [serverId, serverInfo, error]);
+  }, [serverId, isServerAvailable, isServerActive]);
 
   // 手動更新
   const handleRefresh = () => {
