@@ -19,10 +19,10 @@ export type ConoHaAuthResponse = {
 };
 
 // トークンキャッシュ用の変数
-let cachedToken: string | null = null;
-let cachedComputeEndpoint: string | null = null;
-let cachedProjectId: string | null = null;
-let tokenExpiryTime: number | null = null;
+const cachedToken: string | null = null;
+const cachedComputeEndpoint: string | null = null;
+const cachedProjectId: string | null = null;
+const tokenExpiryTime: number | null = null;
 
 // 同時実行制御用の変数
 let authenticationInProgress: Promise<{
