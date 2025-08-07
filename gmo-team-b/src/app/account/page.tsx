@@ -22,12 +22,8 @@ import {
   FormControl,
   Divider,
 } from '@mui/material';
-import { storage } from '@/firebase/firebase'; 
-import Avatar from '@mui/material/Avatar';
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Person } from '@mui/icons-material';
+
 import Image from 'next/image';
-import UserMenu from '../../components/easy/serverinfo/UserMenu';
 import { Header } from "../../components/easy/Header";
 import { db } from '../../firebase/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
