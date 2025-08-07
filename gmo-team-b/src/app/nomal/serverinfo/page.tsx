@@ -14,10 +14,8 @@ import {
   Select,
   MenuItem,
   FormControl,
-  Divider,
   Card,
   CardContent,
-  Tooltip,
   CircularProgress,
   Alert,
   List,
@@ -35,21 +33,16 @@ import {
   KeyboardArrowRight,
   Refresh,
   HelpOutline,
-  Edit,
-  Clear,
-  ContentCopy,
   RestartAlt,
   PowerSettingsNew,
   OpenInNew,
   CloudUpload,
   CloudDownload,
   Delete,
-  Person,
 } from '@mui/icons-material';
-import { serverInfoMockData,  ServerSetting } from '../../../data/serverInfoMockData';
+import { serverInfoMockData } from '../../../data/serverInfoMockData';
 import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
 import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
-import UserMenu from '../../../components/easy/UserMenu';
 import BillingCards from '../../../components/easy/serverinfo/BillingCards';
 import ConsoleTab from '../../../components/easy/serverinfo/ConsoleTab';
 import { Header } from "../../../components/easy/Header";
@@ -139,7 +132,7 @@ export default function ServerInfoPage() {
   } | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
+  const iconUrl = "/images/conohaIcon.png"
   const handleServerAction = async (slug: ServerAction["slug"]) => {
     if (!selectedServerId) return;
 
@@ -191,7 +184,7 @@ export default function ServerInfoPage() {
       setSnackbarMessage(`${pendingAction.label} が完了しました`);
       if (pendingAction.slug === "os-start") setServerStatus(true);
       if (pendingAction.slug === "os-stop") setServerStatus(false);
-    } catch (_err) {
+    } catch {
       setSnackbarMessage(`${pendingAction.label} に失敗しました`);
     } finally {
       setSnackbarOpen(true);
@@ -347,7 +340,7 @@ export default function ServerInfoPage() {
 
   useEffect(() => {
     loadServerList();
-  }, []);
+  });
 
   const handleServerSelect = async (serverId: string) => {
     setSelectedServerId(serverId);
@@ -360,12 +353,6 @@ export default function ServerInfoPage() {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-  };
-
-  const handleServerStatusChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setServerStatus(event.target.checked);
   };
 
   const handleAutoBackupChange = (
@@ -403,7 +390,7 @@ export default function ServerInfoPage() {
     setServerName(event.target.value);
   };
 
-  const [serverSettings, setServerSettings] = useState(
+  const [, setServerSettings] = useState(
     serverInfoMockData.serverSettings
   );
 

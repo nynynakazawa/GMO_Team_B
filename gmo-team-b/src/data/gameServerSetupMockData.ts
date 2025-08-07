@@ -1,7 +1,4 @@
 import { GameType, PlanType } from "./enums";
-import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
-import ExploreIcon from "@mui/icons-material/Explore";
-import FlightIcon from "@mui/icons-material/Flight";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import DiamondIcon from "@mui/icons-material/Diamond";
 import GpsFixedIcon from "@mui/icons-material/GpsFixed";

@@ -6,7 +6,7 @@ import { styled } from "@mui/material/styles";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 
-const ProgressContainer = styled(Paper)(({ theme }) => ({
+const ProgressContainer = styled(Paper)(({ }) => ({
   position: "fixed",
   top: "50%",
   left: "50%",
