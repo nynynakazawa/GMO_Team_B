@@ -8,7 +8,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#2BBBD8',
   color: '#ffffff',
   borderRadius: '10px',
-  fontSize: '40px',
+  fontSize: '32px',
   fontWeight: 400,
   fontFamily: "'Noto Sans', sans-serif",
   textTransform: 'none',

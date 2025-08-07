@@ -3,13 +3,13 @@
 import React, { useState } from "react";
 import { Box, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Header } from "../Header";
+import { Header } from "../../Header";
 import { EasyProgressStepper } from "./EasyProgressStepper";
 import { GameSelectionGrid } from "./GameSelectionGrid";
 import { PeriodSelector } from "./PeriodSelector";
 import { PlanSelectionGrid } from "./PlanSelectionGrid";
 import { ServerConfigForm } from "./ServerConfigForm";
-import { GameServerSetupProps } from "../../../types/gameServerSetup";
+import { GameServerSetupProps } from "../types/gameServerSetup";
 
 const MainContainer = styled(Box)(() => ({
   minHeight: "100vh",
@@ -40,7 +40,6 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
   onCreateServer,
   loading = false,
   error = null,
-  validationErrors,
 }) => {
   return (
     <MainContainer>
@@ -54,14 +53,12 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
             games={games}
             selectedGame={selectedGame}
             onGameSelect={onGameSelect}
-            hasError={validationErrors?.game || false}
           />
 
           <PeriodSelector
             periodOptions={periodOptions}
             selectedPeriod={selectedPeriod}
             onPeriodSelect={onPeriodSelect}
-            hasError={validationErrors?.period || false}
           />
 
           <PlanSelectionGrid
@@ -70,8 +67,6 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
             onPlanSelect={onPlanSelect}
             loading={loading}
             error={error}
-            hasError={validationErrors?.plan || false}
-            selectedPeriod={selectedPeriod}
           />
 
           <ServerConfigForm
@@ -80,7 +75,6 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
             onServerNameChange={onServerNameChange}
             onPasswordChange={onPasswordChange}
             onCreateServer={onCreateServer}
-            validationErrors={validationErrors}
           />
         </Stack>
       </ContentContainer>

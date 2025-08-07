@@ -3,6 +3,8 @@ import { initializeApp, getApps, getApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 import { getAnalytics } from 'firebase/analytics'
 import { getStorage } from 'firebase/storage';
+import { getFirestore } from "firebase/firestore";
+
 
 // Firebase構成情報（.envから読み込み）
 const firebaseConfig = {
@@ -28,8 +30,9 @@ if (typeof window !== 'undefined') {
   }
 }
 
+const db = getFirestore(app);
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
 const storage = getStorage(app);
 
-export { auth, provider, storage };
+export { auth, provider, db }

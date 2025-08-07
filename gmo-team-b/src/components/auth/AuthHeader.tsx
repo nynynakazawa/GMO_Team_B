@@ -3,36 +3,26 @@
 import React from 'react';
 import { Box, Typography, Stack } from '@mui/material';
 
-
-
 export const AuthHeader: React.FC = () => {
   return (
     <Box
       sx={{
-        justifyContent: 'space-between',
+        display: 'flex',
+        justifyContent: 'flex-end',
         alignItems: 'center',
-        padding: '4px 17px',
-        width: '100%'
+        padding: '16px 24px',
+        width: '100%',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        borderBottom: '1px solid #e0e0e0'
       }}
     >
-      {/* ConoHa Logo */}
-      <Box
-        component="img"
-        src="/images/conoha-logo.png"
-        alt="ConoHa for GAME"
-        sx={{
-          height: '84px',
-          width: '437px',
-          objectFit: 'cover'
-        }}
-      />
-
       {/* User Profile Section */}
-      <Stack direction="row" alignItems="center" spacing={3} sx={{ marginRight: '20px' }}>
+      <Stack direction="row" alignItems="center" spacing={3}>
         <Typography
           variant="body2"
           sx={{
-            color: '#ffffff',
+            color: '#666666',
             fontFamily: "'Noto Sans', sans-serif",
             fontSize: '16px',
             fontWeight: 400

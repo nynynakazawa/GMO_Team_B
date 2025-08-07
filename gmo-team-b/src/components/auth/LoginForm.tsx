@@ -9,14 +9,56 @@ import GoogleIcon from "@mui/icons-material/Google";
 import { signInWithGoogle } from "./firebaseAuth"
 import { auth } from "../../firebase/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { useRouter } from 'next/navigation'
+import { useAuth } from '../../contexts/AuthContext';
 
 
+//サーバー一覧の型定義
+export type Server = {
+  id: string;
+  name: string;
+  links: { rel: string; href: string }[];
+};
+
+export type ServersResponse = {
+  servers: Server[];
+};
 
 interface LoginFormProps {
   onLogin?: (email: string, password: string) => void
   onForgotPassword?: () => void
   onCreateAccount?: () => void
 }
+
+//サーバー一覧の取得
+export async function getConohaServers(): Promise<Server[]> {
+  const token = process.env.NEXT_PUBLIC_API_TOKEN;
+  if (!token) {
+    throw new Error('環境変数 `token` が未設定です（.env.local を確認してください）');
+  }
+
+  const res = await fetch('/api/conoha/v2.1/servers', {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'X-Auth-Token': token,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`ConoHa servers fetch failed: ${res.status} ${res.statusText}`);
+  }
+
+  const json: ServersResponse = await res.json();
+  return json.servers;
+}
+
+//サーバー一覧からサーバーの有無
+export async function judgeServer(){
+  const servers = await getConohaServers();
+    return servers.some(server => server.id != null && server.id !== '');
+}
+
 
 export const LoginForm: React.FC<LoginFormProps> = ({
   onLogin,
@@ -27,6 +69,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [password, setPassword] = useState('')
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -37,7 +81,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     return password.length >= 6
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     // Reset errors
@@ -62,6 +106,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       isValid = false
     }
 
+    //トークン情報をconsole.logに表示
+    const server_log = await getConohaServers();
+    //サーバーの有無
+    const server = await judgeServer()
+
     if (isValid) {
       signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
@@ -70,8 +119,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           console.log("ログイン成功:", user);
           console.log("ログインユーザーのメールアドレス:", user.email)
           console.log("ログインユーザーのパスワード:", password)
+          console.log("トークン:", server_log)
           localStorage.setItem('user_email', user.email || '');
           localStorage.setItem('user_password', password);
+          
+          // リダイレクト先を確認
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectPath = urlParams.get('redirect');
+          
+          if (redirectPath) {
+            router.push(redirectPath);
+          } else if (server) {
+            router.push("/easy/serverinfo");
+          } else {
+            router.push("/easy/create");
+          }
+          
           if (onLogin) {
             onLogin(email, password);
           }
@@ -117,21 +180,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
         {/* Form */}
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
-          <Stack spacing={2.5}>
+          <Stack spacing={2.5} alignItems="center">
             {/* Email Field */}
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack direction="row" alignItems="center" spacing={2} sx={{ width: '100%', maxWidth: '600px' }}>
               <Typography
                 sx={{
                   fontFamily: "'Noto Sans', sans-serif",
-                  fontSize: '16px',
+                  fontSize: '20px',
                   fontWeight: 500,
                   color: '#000000',
-                  minWidth: '100px'
+                  width: '180px',
+                  textAlign: 'right'
                 }}
               >
                 メールアドレス : 
               </Typography>
-              <Box sx={{ flexGrow: 1 }}>
+              <Box sx={{ width: '350px' }}>
                 <InputField
                   type="email"
                   value={email}
@@ -143,19 +207,20 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </Stack>
 
             {/* Password Field */}
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack direction="row" alignItems="center" spacing={2} sx={{ width: '100%', maxWidth: '600px' }}>
               <Typography
                 sx={{
                   fontFamily: "'Noto Sans', sans-serif",
-                  fontSize: '16px',
+                  fontSize: '20px',
                   fontWeight: 500,
                   color: '#000000',
-                  minWidth: '100px'
+                  width: '180px',
+                  textAlign: 'right'
                 }}
               >
                 パスワード : 
               </Typography>
-              <Box sx={{ flexGrow: 1 }}>
+              <Box sx={{ width: '350px' }}>
                 <InputField
                   type="password"
                   value={password}
@@ -164,24 +229,23 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                   helperText={passwordError}
                 />
               </Box>
-              
             </Stack>
-        <Box sx={{ display: 'flex',  justifyContent: 'flex-start', marginTop: '16px' }}>
-  <Button
-    variant="outlined"
-    startIcon={<GoogleIcon />}
-    onClick={signInWithGoogle}
-    sx={{
-      textTransform: 'none',
-      fontWeight: 500,
-      fontFamily: "'Noto Sans', sans-serif",
-    }}
-  >
-    Googleでログイン
-  </Button>
-</Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
+          <Button
+            variant="outlined"
+            startIcon={<GoogleIcon />}
+            onClick={signInWithGoogle}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 500,
+              fontFamily: "'Noto Sans', sans-serif",
+            }}
+          >
+            Googleでログイン
+          </Button>
+        </Box>
             {/* Navigation Links */}
-            <Stack spacing={1} sx={{ marginTop: '24px' }}>
+            <Stack spacing={1} sx={{ marginTop: '24px', alignItems: 'center' }}>
               <LinkText onClick={onCreateAccount}>
                 ＞新規アカウント登録はこちらから
               </LinkText>
