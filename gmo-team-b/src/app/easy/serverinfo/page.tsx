@@ -294,12 +294,14 @@ function ServerInfo() {
       const info = (await res.json()) as ParsedServerInfo;
       setServerInfo(info);
       setServerName(info.nameTag);
+      setServerStatus(info.status == "ACTIVE");
     } catch (err) {
       console.warn("Server info API call failed, using mock data:", err);
 
       // Fallback to mock data
       const mockServerInfo: ParsedServerInfo = {
         nameTag: serverInfoMockData.serverName,
+        status: "ACTIVE",
         ipAddress: serverInfoMockData.ipAddress,
         subnetMask: "255.255.254.0",
         gateway: "163.44.116.1",
