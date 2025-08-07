@@ -130,7 +130,7 @@ function ServerInfo() {
   } | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
+const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
   const handleServerAction = async (slug: ServerAction["slug"]) => {
     if (!selectedServerId) return;
 
@@ -438,7 +438,7 @@ function ServerInfo() {
         }}
       >
         <Container maxWidth="xl" disableGutters>
-          <Header />
+          <Header iconUrl={iconUrl}/>
 
           {error && (
             <Alert
