@@ -235,9 +235,6 @@ export default function EasyCreatePage() {
         alert(`${serverName} の作成が完了しました！\nサーバーID: ${result.serverId}\n管理者パスワード: ${result.adminPass}`);
       }, 1000);
       
-      // 必要に応じてサーバー情報ページにリダイレクト
-      // window.location.href = `/easy/serverinfo?serverId=${result.serverId}`;
-      
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'サーバー作成中にエラーが発生しました';
       
