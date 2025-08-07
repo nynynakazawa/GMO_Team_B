@@ -99,12 +99,14 @@ interface GameSelectionGridProps {
   games: Game[];
   selectedGame: string | null;
   onGameSelect: (gameId: string) => void;
+  hasError?: boolean;
 }
 
 export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
   games,
   selectedGame,
   onGameSelect,
+  hasError = false,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showOthers, setShowOthers] = useState(false);
@@ -131,10 +133,17 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
     return (
       <SectionContainer>
         <Stack direction="row" spacing={3} alignItems={"center"}>
-          <SectionTitle>ゲームを選択</SectionTitle>
+          <SectionTitle sx={{ color: hasError ? 'error.main' : 'primary.main' }}>
+            ゲームを選択
+          </SectionTitle>
           <Typography variant="body1" color="#19b8d7">
             {selectedGame}
           </Typography>
+          {hasError && (
+            <Typography variant="body2" color="error.main" sx={{ fontSize: '14px' }}>
+              入力が必要です
+            </Typography>
+          )}
           <Button
             variant="outlined"
             sx={{ width: 100, height: 38, fontSize: 16 }}
@@ -151,7 +160,14 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
     <SectionContainer>
       <SectionHeader direction="row">
         <Stack direction="row" alignItems="center" spacing={2}>
-          <SectionTitle>ゲームを選択</SectionTitle>
+          <SectionTitle sx={{ color: hasError ? 'error.main' : 'primary.main' }}>
+            ゲームを選択
+          </SectionTitle>
+          {hasError && (
+            <Typography variant="body2" color="error.main" sx={{ fontSize: '14px' }}>
+              入力が必要です
+            </Typography>
+          )}
           <HelpIconContainer>
             <HelpOutlineIcon />
             <Typography variant="body2" color="secondary">
