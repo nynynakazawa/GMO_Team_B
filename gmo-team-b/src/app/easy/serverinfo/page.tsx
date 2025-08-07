@@ -68,10 +68,6 @@ const serverActions: ServerAction[] = [
     slug: "force_shutdown",
   },
   {
-    label: "管理画面",
-    icon: OpenInNew,
-  },
-  {
     label: "保存",
     icon: CloudUpload,
   },
