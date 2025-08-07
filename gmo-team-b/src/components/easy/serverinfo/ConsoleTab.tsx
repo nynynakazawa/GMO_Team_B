@@ -102,6 +102,7 @@ export default function ConsoleTab({ serverId, serverInfo }: ConsoleTabProps) {
     }
   };
 
+  // サーバー状態が変更された時の処理（重複を削除して1つに統合）
   useEffect(() => {
     // サーバーIDが変更されたら接続をリセット
     setIsConnected(false);

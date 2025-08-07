@@ -17,8 +17,59 @@ export type ConoHaAuthResponse = {
     };
   };
 };
+
+// トークンキャッシュ用の変数
+let cachedToken: string | null = null;
+let cachedComputeEndpoint: string | null = null;
+let cachedProjectId: string | null = null;
+let tokenExpiryTime: number | null = null;
+
+// 同時実行制御用の変数
+let authenticationInProgress: Promise<{
+  token: string;
+  computeEndpoint: string;
+  projectId: string;
+}> | null = null;
 // ConoHa APIトークンとエンドポイントを取得する関数
 export async function getConoHaTokenAndEndpoint(): Promise<{
+  token: string;
+  computeEndpoint: string;
+  projectId: string;
+}> {
+  // キャッシュされたトークンが有効な場合はそれを返す
+  if (cachedToken && cachedComputeEndpoint && cachedProjectId && tokenExpiryTime) {
+    const now = Date.now();
+    // トークンの有効期限の10分前に期限切れとみなす（より長くキャッシュを保持）
+    if (now < tokenExpiryTime - 10 * 60 * 1000) {
+      console.log("=== キャッシュされたトークンを使用 ===");
+      return {
+        token: cachedToken,
+        computeEndpoint: cachedComputeEndpoint,
+        projectId: cachedProjectId,
+      };
+    }
+  }
+
+  // 既に認証処理が進行中の場合は、その結果を待つ
+  if (authenticationInProgress) {
+    console.log("=== 認証処理進行中のため待機 ===");
+    return await authenticationInProgress;
+  }
+
+  // 認証処理を開始し、Promiseを保存
+  authenticationInProgress = performAuthentication();
+  
+  try {
+    const result = await authenticationInProgress;
+    return result;
+  } finally {
+    // 認証処理完了後、フラグをクリア
+    authenticationInProgress = null;
+  }
+}
+
+// 実際の認証処理を行う内部関数
+async function performAuthentication(): Promise<{
   token: string;
   computeEndpoint: string;
   projectId: string;
@@ -109,6 +160,23 @@ export async function getConoHaTokenAndEndpoint(): Promise<{
     token,
     computeEndpoint: publicEndpoint.url,
     projectId: authData.token.project.id,
+  };
+}
+
+// キャッシュの状態を確認する関数
+export function getCacheStatus(): {
+  hasCachedToken: boolean;
+  tokenExpiryTime: number | null;
+  timeUntilExpiry: number | null;
+} {
+  const now = Date.now();
+  const hasCachedToken = !!(cachedToken && cachedComputeEndpoint && cachedProjectId && tokenExpiryTime);
+  const timeUntilExpiry = tokenExpiryTime ? tokenExpiryTime - now : null;
+  
+  return {
+    hasCachedToken,
+    tokenExpiryTime,
+    timeUntilExpiry,
   };
 }
 
