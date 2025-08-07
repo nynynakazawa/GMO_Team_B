@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import DropdownArrowIcon from "../../icons/DropdownArrowIcon";
-import { PeriodOption } from "../types/PeriodServerSetup";
+import { PeriodOption } from "../../../types/gameServerSetup";
 
 const SectionContainer = styled(Box)(() => ({
   marginBottom: 40,
@@ -62,21 +62,30 @@ interface PeriodSelectorProps {
   periodOptions: PeriodOption[];
   selectedPeriod: string | null;
   onPeriodSelect: (period: string) => void;
+  hasError?: boolean;
 }
 
 export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
   periodOptions,
   selectedPeriod,
   onPeriodSelect,
+  hasError = false,
 }) => {
   if (selectedPeriod) {
     return (
       <SectionContainer>
         <Stack direction="row" spacing={3} alignItems={"center"}>
-          <SectionTitle>期間を選択</SectionTitle>
+          <SectionTitle sx={{ color: hasError ? 'error.main' : 'primary.main' }}>
+            期間を選択
+          </SectionTitle>
           <Typography variant="body1" color="#19b8d7">
             {selectedPeriod}
           </Typography>
+          {hasError && (
+            <Typography variant="body2" color="error.main" sx={{ fontSize: '14px' }}>
+              入力が必要です
+            </Typography>
+          )}
           <Button
             variant="outlined"
             sx={{ width: 100, height: 38, fontSize: 16 }}
@@ -91,13 +100,22 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
 
   return (
     <SectionContainer>
-      <SectionTitle>期間を選択</SectionTitle>
+      <Stack direction="row" alignItems="center" spacing={2}>
+        <SectionTitle sx={{ color: hasError ? 'error.main' : 'primary.main' }}>
+          期間を選択
+        </SectionTitle>
+        {hasError && (
+          <Typography variant="body2" color="error.main" sx={{ fontSize: '14px' }}>
+            入力が必要です
+          </Typography>
+        )}
+      </Stack>
 
       <Box sx={{ position: "relative", display: "inline-block" }}>
         <StyledFormControl>
           <StyledSelect
             value={selectedPeriod || ""}
-            onChange={(e) => onPeriodSelect(e.target.value)}
+            onChange={(e) => onPeriodSelect(e.target.value as string)}
             displayEmpty
           >
             <MenuItem value="" disabled>

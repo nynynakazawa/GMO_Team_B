@@ -7,6 +7,8 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const { id } = params;
+
   try {
     const tokenAndEndpoint = await getConoHaTokenAndEndpoint();
     const token = tokenAndEndpoint.token;
@@ -33,7 +35,7 @@ export async function GET(
       return NextResponse.json(mockData, { status: 200 });
     }
     
-    const info = await getServerInfo(token, params.id);
+    const info = await getServerInfo(token, id);
     return NextResponse.json(info, { status: 200 });
   } catch (error) {
     console.error('Error fetching server info:', error);

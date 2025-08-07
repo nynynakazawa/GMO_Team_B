@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getConoHaTokenAndEndpoint } from "@/pages/api/vps/conohaAuth";
 
 type ServerSummary = {
   id: string;
   name: string;
+  nameTag?: string;
   links: { rel: string; href: string }[];
 };
 
@@ -10,7 +12,7 @@ export async function GET(_req: NextRequest) {
   try {
     console.log("=== /api/server/getServerList handler start ===");
     
-    const token = process.env.CONOHA_TOKEN;
+    const { token } = await getConoHaTokenAndEndpoint();
     
     if (!token) {
       console.warn('CONOHA_TOKEN not found, returning mock server list');

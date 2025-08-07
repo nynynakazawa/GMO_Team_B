@@ -19,6 +19,13 @@ export interface GameServerSetupProps {
   onCreateServer: () => void | Promise<void>;
   loading?: boolean;
   error?: string | null;
+  validationErrors?: {
+    game: boolean;
+    period: boolean;
+    plan: boolean;
+    serverName: boolean;
+    password: boolean;
+  };
 }
 
 export interface Game {

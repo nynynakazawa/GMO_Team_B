@@ -40,6 +40,7 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
   onCreateServer,
   loading = false,
   error = null,
+  validationErrors,
 }) => {
   return (
     <MainContainer>
@@ -53,12 +54,14 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
             games={games}
             selectedGame={selectedGame}
             onGameSelect={onGameSelect}
+            hasError={validationErrors?.game || false}
           />
 
           <PeriodSelector
             periodOptions={periodOptions}
             selectedPeriod={selectedPeriod}
             onPeriodSelect={onPeriodSelect}
+            hasError={validationErrors?.period || false}
           />
 
           <PlanSelectionGrid
@@ -67,6 +70,8 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
             onPlanSelect={onPlanSelect}
             loading={loading}
             error={error}
+            hasError={validationErrors?.plan || false}
+            selectedPeriod={selectedPeriod}
           />
 
           <ServerConfigForm
@@ -75,6 +80,7 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
             onServerNameChange={onServerNameChange}
             onPasswordChange={onPasswordChange}
             onCreateServer={onCreateServer}
+            validationErrors={validationErrors}
           />
         </Stack>
       </ContentContainer>

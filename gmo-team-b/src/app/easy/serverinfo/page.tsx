@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { AuthGuard } from "../../../components/auth/AuthGuard";
 import {
   Box,
   Container,
@@ -22,6 +23,12 @@ import {
   ListItem,
   ListItemText,
   ListItemButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Snackbar,
 } from "@mui/material";
 import {
   RestartAlt,
@@ -46,6 +53,7 @@ import type {
 interface ServerAction {
   label: string;
   icon: React.ElementType;
+  slug?: string;
 }
 
 
@@ -54,14 +62,12 @@ const serverActions: ServerAction[] = [
   {
     label: "再起動",
     icon: RestartAlt,
+    slug: "reboot",
   },
   {
     label: "強制終了",
     icon: PowerSettingsNew,
-  },
-  {
-    label: "管理画面",
-    icon: OpenInNew,
+    slug: "force_shutdown",
   },
   {
     label: "保存",
@@ -74,6 +80,7 @@ const serverActions: ServerAction[] = [
   {
     label: "削除",
     icon: Delete,
+    slug: "delete",
   },
 ];
 
@@ -99,7 +106,7 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-export default function ServerInfoPage() {
+function ServerInfo() {
   const [tabValue, setTabValue] = useState(0);
   const [serverStatus, setServerStatus] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState("8GB/6Core");
@@ -115,7 +122,49 @@ export default function ServerInfoPage() {
   const [serverListLoading, setServerListLoading] = useState(false);
   const [isServerListOpen, setIsServerListOpen] = useState(false);
   const [serverSettings, setServerSettings] = useState(serverInfoMockData.serverSettings);
-  //アカウント情報→ネームタグ編集用関数
+  
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<{
+    slug: ServerAction["slug"];
+    label: string;
+  } | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  const handleServerAction = async (slug: ServerAction["slug"]) => {
+    if (!selectedServerId) return;
+
+    try {
+      console.log(slug)
+      const path =
+        slug == "delete"
+          ? `/api/server/${selectedServerId}/deleteServer`
+          : `/api/server/${selectedServerId}/${slug}`;
+
+      const res = await fetch(path, {
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error ?? `${res.status} ${res.statusText}`);
+      }
+
+      // delete成功時にリスト再取得
+      if (slug === "delete") {
+        await loadServerList(); // 一覧リフレッシュ
+        setSnackbarMessage("サーバを削除しました");
+        return; // 以降の loadServerInfo は不要
+      }
+
+      // 成功したらステータス再取得
+      await loadServerInfo(selectedServerId);
+    } catch (err) {
+      console.error("handleServerAction error:", err);
+      throw err; // ← 呼び出し元に失敗を知らせる
+    }
+  };
+//アカウント情報→ネームタグ編集用関数
   
   const handleNameTagChange = (newValue: string) => {
     setServerSettings(prev =>
@@ -127,6 +176,51 @@ export default function ServerInfoPage() {
     );
     setServerName(newValue); // サーバー名も同期したい場合
   };
+  // open confirm dialog for a given action
+  const openConfirm = (slug: ServerAction["slug"], label: string) => {
+    setPendingAction({ slug, label });
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmOk = async () => {
+    if (!pendingAction?.slug) {
+      setConfirmOpen(false);
+      return;
+    }
+
+    try {
+      await handleServerAction(pendingAction.slug);
+      setSnackbarMessage(`${pendingAction.label} が完了しました`);
+      if (pendingAction.slug === "os-start") setServerStatus(true);
+      if (pendingAction.slug === "os-stop") setServerStatus(false);
+    } catch (_err) {
+      setSnackbarMessage(`${pendingAction.label} に失敗しました`);
+    } finally {
+      setSnackbarOpen(true);
+      setConfirmOpen(false);
+      setPendingAction(null);
+    }
+  };
+
+  const requestStatusToggle = (next: boolean) => {
+    const slug = next ? "os-start" : "os-stop";
+    const label = next ? "起動" : "停止";
+    openConfirm(slug, label);
+  };
+
+  const handleConfirmCancel = () => {
+    setConfirmOpen(false);
+    setPendingAction(null);
+  };
+
+  const handleSnackbarClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") return;
+    setSnackbarOpen(false);
+  };
+
   // Load nameTag for a server
   const loadServerNameTag = async (serverId: string): Promise<string> => {
     try {
@@ -224,12 +318,14 @@ export default function ServerInfoPage() {
       const info = (await res.json()) as ParsedServerInfo;
       setServerInfo(info);
       setServerName(info.nameTag);
+      setServerStatus(info.status == "ACTIVE");
     } catch (err) {
       console.warn("Server info API call failed, using mock data:", err);
 
       // Fallback to mock data
       const mockServerInfo: ParsedServerInfo = {
         nameTag: serverInfoMockData.serverName,
+        status: "ACTIVE",
         ipAddress: serverInfoMockData.ipAddress,
         subnetMask: "255.255.254.0",
         gateway: "163.44.116.1",
@@ -306,14 +402,30 @@ export default function ServerInfoPage() {
     setServerName(event.target.value);
   };
 
+  if (loading && !serverInfo) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          bgcolor: "#f5f5f5",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress size={60} sx={{ color: "#19B8D7" }} />
+      </Box>
+    );
+  }
 
-// const pathname = usePathname();
-// const getPageTitle = () => {
-//   if (pathname === '/easy/serverinfo') return menuLabels.myServer;
-//   if (pathname === '/account') return menuLabels.accountSettings;
-//   if (pathname === '/create') return menuLabels.createServer;
-//   return '';
-// };
+  // const pathname = usePathname();
+  // const getPageTitle = () => {
+  //   if (pathname === '/easy/serverinfo') return menuLabels.myServer;
+  //   if (pathname === '/account') return menuLabels.accountSettings;
+  //   if (pathname === '/create') return menuLabels.createServer;
+  //   return '';
+  // };
+
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       {/* Header */}
@@ -382,7 +494,7 @@ export default function ServerInfoPage() {
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Switch
                 checked={serverStatus}
-                onChange={handleServerStatusChange}
+                onChange={(e) => requestStatusToggle(e.target.checked)}
                 sx={{
                   "& .MuiSwitch-switchBase.Mui-checked": {
                     color: "#19B8D7",
@@ -424,13 +536,17 @@ export default function ServerInfoPage() {
             mb={2}
             sx={{ display: "flex", gap: 2, flexWrap: "wrap", px: 2 }}
           >
-            {serverActions.map((action: ServerAction, index: number) => {
-              const IconComponent = action.icon;
-              return (
+            {serverActions.map(
+              ({ label, icon: IconComponent, slug }, index: number) => (
                 <Button
                   key={index}
                   variant="outlined"
                   startIcon={<IconComponent />}
+                  onClick={() => {
+                    if (slug) {
+                      openConfirm(slug, label);
+                    }
+                  }}
                   sx={{
                     borderRadius: "50px",
                     textTransform: "none",
@@ -442,11 +558,38 @@ export default function ServerInfoPage() {
                     },
                   }}
                 >
-                  {action.label}
+                  {label}
                 </Button>
-              );
-            })}
+              )
+            )}
           </Box>
+          <Dialog
+            open={confirmOpen}
+            onClose={handleConfirmCancel}
+            aria-labelledby="server-action-confirm-title"
+          >
+            <DialogTitle id="server-action-confirm-title">
+              {pendingAction?.label} の確認
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                本当に {pendingAction?.label} を実行しますか？
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleConfirmCancel}>キャンセル</Button>
+              <Button onClick={handleConfirmOk} autoFocus>
+                OK
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={4000}
+            onClose={handleSnackbarClose}
+            message={snackbarMessage}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          />
         </Container>
       </Box>
 
@@ -672,3 +815,13 @@ export default function ServerInfoPage() {
     </Box>
   );
 }
+
+export default function ServerInfoPage() {
+  return (
+    <AuthGuard>
+      <ServerInfo />
+    </AuthGuard>
+  );
+}
+
+

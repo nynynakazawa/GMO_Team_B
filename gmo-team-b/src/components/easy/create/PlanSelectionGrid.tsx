@@ -38,6 +38,8 @@ interface PlanSelectionGridProps {
   onPlanSelect: (planId: string) => void;
   loading?: boolean;
   error?: string | null;
+  hasError?: boolean;
+  selectedPeriod?: string | null;
 }
 
 export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
@@ -46,16 +48,25 @@ export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
   onPlanSelect,
   loading = false,
   error = null,
+  hasError = false,
+  selectedPeriod = null,
 }) => {
   if (selectedPlan) {
     const selectedPlanData = plans.find(plan => plan.id === selectedPlan);
     return (
       <SectionContainer>
         <Stack direction="row" spacing={3} alignItems={"center"}>
-          <SectionTitle>プランを選択</SectionTitle>
+          <SectionTitle sx={{ color: hasError ? 'error.main' : 'primary.main' }}>
+            プランを選択
+          </SectionTitle>
           <Typography variant="body1" color="#19b8d7">
             {selectedPlanData?.name || selectedPlan}
           </Typography>
+          {hasError && (
+            <Typography variant="body2" color="error.main" sx={{ fontSize: '14px' }}>
+              入力が必要です
+            </Typography>
+          )}
           <Button
             variant="outlined"
             sx={{ width: 100, height: 38, fontSize: 16 }}
@@ -71,7 +82,16 @@ export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
   if (loading) {
     return (
       <SectionContainer>
-        <SectionTitle>プランを選択</SectionTitle>
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <SectionTitle sx={{ color: hasError ? 'error.main' : 'primary.main' }}>
+            プランを選択
+          </SectionTitle>
+          {hasError && (
+            <Typography variant="body2" color="error.main" sx={{ fontSize: '14px' }}>
+              入力が必要です
+            </Typography>
+          )}
+        </Stack>
         <LoadingContainer>
           <CircularProgress />
         </LoadingContainer>
@@ -82,7 +102,16 @@ export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
   if (error) {
     return (
       <SectionContainer>
-        <SectionTitle>プランを選択</SectionTitle>
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <SectionTitle sx={{ color: hasError ? 'error.main' : 'primary.main' }}>
+            プランを選択
+          </SectionTitle>
+          {hasError && (
+            <Typography variant="body2" color="error.main" sx={{ fontSize: '14px' }}>
+              入力が必要です
+            </Typography>
+          )}
+        </Stack>
         <Alert severity="error" sx={{ mt: 2 }}>
           {error}
         </Alert>
@@ -93,7 +122,16 @@ export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
   if (plans.length === 0) {
     return (
       <SectionContainer>
-        <SectionTitle>プランを選択</SectionTitle>
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <SectionTitle sx={{ color: hasError ? 'error.main' : 'primary.main' }}>
+            プランを選択
+          </SectionTitle>
+          {hasError && (
+            <Typography variant="body2" color="error.main" sx={{ fontSize: '14px' }}>
+              入力が必要です
+            </Typography>
+          )}
+        </Stack>
         <Alert severity="info" sx={{ mt: 2 }}>
           利用可能なプランがありません
         </Alert>
@@ -103,7 +141,16 @@ export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
 
   return (
     <SectionContainer>
-      <SectionTitle>プランを選択</SectionTitle>
+      <Stack direction="row" alignItems="center" spacing={2}>
+        <SectionTitle sx={{ color: hasError ? 'error.main' : 'primary.main' }}>
+          プランを選択
+        </SectionTitle>
+        {hasError && (
+          <Typography variant="body2" color="error.main" sx={{ fontSize: '14px' }}>
+            入力が必要です
+          </Typography>
+        )}
+      </Stack>
 
       <PlansContainer>
         {plans.map((plan, index) => (
@@ -112,6 +159,7 @@ export const PlanSelectionGrid: React.FC<PlanSelectionGridProps> = ({
             plan={plan}
             selected={selectedPlan === plan.id}
             onClick={onPlanSelect}
+            selectedPeriod={selectedPeriod}
           />
         ))}
       </PlansContainer>
