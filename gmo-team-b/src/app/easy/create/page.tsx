@@ -278,9 +278,8 @@ export default function EasyCreatePage() {
       // 成功時の処理: 3秒後にサーバー情報ページに自動遷移
       setTimeout(() => {
         alert(`${serverName} の作成が完了しました！\nサーバーID: ${result.serverId}\n管理者パスワード: ${result.adminPass}`);
-      }, 1000);
         router.push('/easy/serverinfo');
-      }, 3000);
+      }, 3000); 
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'サーバー作成中にエラーが発生しました';
