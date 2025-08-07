@@ -1,7 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Typography, TextField, Stack, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Stack,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Tooltip,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import AddIcon from "@mui/icons-material/Add";
@@ -118,7 +129,9 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
   );
 
   const MAX_DISPLAY = 18; // 6列 × 3行 = 18個
-  const displayedGames = showOthers ? filteredGames : filteredGames.slice(0, MAX_DISPLAY - 1); // その他ボタン用に1つ減らす
+  const displayedGames = showOthers
+    ? filteredGames
+    : filteredGames.slice(0, MAX_DISPLAY - 1); // その他ボタン用に1つ減らす
   const hasMoreGames = filteredGames.length > MAX_DISPLAY - 1;
 
   const handleCustomGameSubmit = () => {
@@ -133,14 +146,20 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
     return (
       <SectionContainer>
         <Stack direction="row" spacing={3} alignItems={"center"}>
-          <SectionTitle sx={{ color: hasError ? 'error.main' : 'primary.main' }}>
+          <SectionTitle
+            sx={{ color: hasError ? "error.main" : "primary.main" }}
+          >
             ゲームを選択
           </SectionTitle>
           <Typography variant="body1" color="#19b8d7">
             {selectedGame}
           </Typography>
           {hasError && (
-            <Typography variant="body2" color="error.main" sx={{ fontSize: '14px' }}>
+            <Typography
+              variant="body2"
+              color="error.main"
+              sx={{ fontSize: "14px" }}
+            >
               入力が必要です
             </Typography>
           )}
@@ -160,20 +179,28 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
     <SectionContainer>
       <SectionHeader direction="row">
         <Stack direction="row" alignItems="center" spacing={2}>
-          <SectionTitle sx={{ color: hasError ? 'error.main' : 'primary.main' }}>
+          <SectionTitle
+            sx={{ color: hasError ? "error.main" : "primary.main" }}
+          >
             ゲームを選択
           </SectionTitle>
           {hasError && (
-            <Typography variant="body2" color="error.main" sx={{ fontSize: '14px' }}>
+            <Typography
+              variant="body2"
+              color="error.main"
+              sx={{ fontSize: "14px" }}
+            >
               入力が必要です
             </Typography>
           )}
-          <HelpIconContainer>
-            <HelpOutlineIcon />
-            <Typography variant="body2" color="secondary">
-              ヘルプ
-            </Typography>
-          </HelpIconContainer>
+          <Tooltip title={"サーバを立てたいゲームタイトルを選択してください"}>
+            <HelpIconContainer>
+              <HelpOutlineIcon />
+              <Typography variant="body2" color="secondary">
+                ヘルプ
+              </Typography>
+            </HelpIconContainer>
+          </Tooltip>
         </Stack>
 
         <SearchField
@@ -193,12 +220,10 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
             onClick={onGameSelect}
           />
         ))}
-        
+
         {/* その他ボタン（検索中でない場合のみ表示） */}
         {!searchTerm && hasMoreGames && !showOthers && (
-          <OthersButton
-            onClick={() => setShowOthers(true)}
-          >
+          <OthersButton onClick={() => setShowOthers(true)}>
             <Typography variant="body1">その他</Typography>
             <Typography variant="body2" color="textSecondary">
               +{filteredGames.length - (MAX_DISPLAY - 1)}個
@@ -208,9 +233,7 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
 
         {/* カスタムゲーム作成ボタン */}
         {(searchTerm && filteredGames.length === 0) || showOthers ? (
-          <OthersButton
-            onClick={() => setShowCustomDialog(true)}
-          >
+          <OthersButton onClick={() => setShowCustomDialog(true)}>
             <AddIcon />
             <Typography variant="body1">カスタムゲーム</Typography>
             <Typography variant="body2" color="textSecondary">
@@ -257,7 +280,7 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
               value={customGameName}
               onChange={(e) => setCustomGameName(e.target.value)}
               onKeyPress={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   handleCustomGameSubmit();
                 }
               }}
@@ -265,7 +288,7 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button 
+          <Button
             onClick={() => {
               setShowCustomDialog(false);
               setCustomGameName("");
@@ -273,7 +296,7 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
           >
             キャンセル
           </Button>
-          <Button 
+          <Button
             variant="contained"
             onClick={handleCustomGameSubmit}
             disabled={!customGameName.trim()}
