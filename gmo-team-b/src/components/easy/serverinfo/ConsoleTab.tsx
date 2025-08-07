@@ -83,17 +83,6 @@ export default function ConsoleTab({ serverId, serverInfo }: ConsoleTabProps) {
   // 2. 依存配列に「関数内で読む値」を列挙
 }, [isServerAvailable, isServerActive, serverId]);
 
-// 3. useEffect には connectToConsole を依存に入れる
-useEffect(() => {
-  setIsConnected(false);
-  setConsoleUrl("");
-  setError("");
-
-  if (isServerAvailable && isServerActive) {
-    connectToConsole();
-  }
-}, [serverId, serverInfo?.status, isServerAvailable, isServerActive, connectToConsole]);
-
   const disconnectConsole = () => {
     setIsConnected(false);
     setConsoleUrl('');
@@ -110,6 +99,7 @@ useEffect(() => {
     }
   };
 
+  // サーバー状態が変更された時の処理（重複を削除して1つに統合）
   useEffect(() => {
     // サーバーIDが変更されたら接続をリセット
     setIsConnected(false);
