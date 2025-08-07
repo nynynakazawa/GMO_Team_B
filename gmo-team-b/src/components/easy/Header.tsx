@@ -99,7 +99,7 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
   onClick={handleUserMenuToggle}
 >
 <Image
-  src={iconUrl || '/images/conoha_image1.png'}
+  src={iconUrl || '/images/conohaIcon.png'}
   alt="アイコン"
   width={60}
   height={60}
