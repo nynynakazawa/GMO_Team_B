@@ -46,18 +46,19 @@ import {
   Delete,
   Person,
 } from '@mui/icons-material';
-import { serverInfoMockData, ServerAction, ServerSetting } from '../../../data/serverInfoMockData';
-import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
-import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
-import UserMenu from '../../../components/easy/UserMenu';
-import BillingCards from '../../../components/easy/serverinfo/BillingCards';
-import ConsoleTab from '../../../components/easy/serverinfo/ConsoleTab';
-import { Header } from "../../../components/easy/Header";
+import { serverInfoMockData, ServerSetting } from '@/data/serverInfoMockData';
+import ServerSettingsTab from '@/components/easy/serverinfo/ServerSettingsTab';
+import ServerNameEditor from '@/components/easy/serverinfo/ServerNameEditor';
+import UserMenu from '@/components/easy/UserMenu';
+import BillingCards from '@/components/easy/serverinfo/BillingCards';
+import ConsoleTab from '@/components/easy/serverinfo/ConsoleTab';
+import ResourceTab from '@/components/easy/serverinfo/ResourceTab';
+import { Header } from "@/components/easy/Header";
 import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
 import type {
   ServerListResponse,
   EnhancedServerSummary,
-} from "../../../types/serverTypes";
+} from "@/types/serverTypes";
 
 
 interface ServerAction {
@@ -619,6 +620,7 @@ export default function ServerInfoPage() {
               <Tab label="サーバー設定" />
               <Tab label="プラン変更" />
               <Tab label="コンソール" />
+              <Tab label="リソース" />
             </Tabs>
           </Box>
 
@@ -791,6 +793,11 @@ export default function ServerInfoPage() {
           {/* Console Tab */}
           <TabPanel value={tabValue} index={2}>
             <ConsoleTab serverId={selectedServerId || ""} serverInfo={serverInfo} />
+          </TabPanel>
+
+          {/* Resource Tab */}
+          <TabPanel value={tabValue} index={3}>
+            <ResourceTab serverId={selectedServerId || ""} serverInfo={serverInfo} />
           </TabPanel>
         </Paper>
 
