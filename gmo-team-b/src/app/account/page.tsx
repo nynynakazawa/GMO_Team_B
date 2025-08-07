@@ -39,7 +39,7 @@ function AccountPageContent() {
   const [paymentMethod, setPaymentMethod] = useState('Charge');
   const [savedEmail, setSavedEmail] = useState<string>('');
   const [savedPassword, setSavedPassword] = useState<string>('');
-  const [iconUrl, setIconUrl] = useState<string>('/images/conoha_image1.png'); 
+  const [iconUrl, setIconUrl] = useState<string>('/images/conohaIcon.png'); 
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
