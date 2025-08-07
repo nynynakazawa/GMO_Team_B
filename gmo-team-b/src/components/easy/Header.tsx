@@ -1,7 +1,7 @@
 "use client";
 import Image from 'next/image';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Container, Typography, IconButton, Stack } from "@mui/material";
 import { Person } from "@mui/icons-material";
 import UserMenu from "./UserMenu";
@@ -15,6 +15,20 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [easyMode, setEasyMode] = useState(true);
+  const pathname = usePathname();
+
+  // localStorageからeasyModeの状態を読み込み、または現在のページに基づいて設定
+  useEffect(() => {
+    const savedEasyMode = localStorage.getItem('easyMode');
+    if (savedEasyMode !== null) {
+      setEasyMode(JSON.parse(savedEasyMode));
+    } else {
+      // 保存された状態がない場合、現在のページに基づいて設定
+      const isEasyPage = pathname?.startsWith('/easy/') ?? true;
+      setEasyMode(isEasyPage);
+      localStorage.setItem('easyMode', JSON.stringify(isEasyPage));
+    }
+  }, [pathname]);
 
   const handleUserMenuToggle = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
@@ -22,8 +36,9 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
 
   const handleEasyModeChange = (checked: boolean) => {
     setEasyMode(checked);
+    // localStorageにeasyModeの状態を保存
+    localStorage.setItem('easyMode', JSON.stringify(checked));
   };
-  const pathname = usePathname();
   const getPageTitle = () => {
     if (pathname === '/nomal/serverinfo') return menuLabels.myServer;
     if (pathname === '/account') return menuLabels.accountSettings;
@@ -51,7 +66,7 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
             alignItems: "center",
           }}
         >
-          <Link href="/easy/serverinfo" style={{ textDecoration: "none" }}>
+          <Link href={easyMode ? "/easy/serverinfo" : "/nomal/serverinfo"} style={{ textDecoration: "none" }}>
             <Stack direction="row" alignItems="baseline" spacing={0.5}>
               <Typography
                 variant="h5"
@@ -101,6 +116,7 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
               isOpen={isUserMenuOpen}
               easyMode={easyMode}
               onEasyModeChange={handleEasyModeChange}
+              onClose={() => setIsUserMenuOpen(false)}
             />
           </Box>
         </Box>

@@ -2,19 +2,23 @@ import React from "react";
 import { Box, Typography, Switch, Divider, Paper, Link } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { logout } from "../auth/firebaseAuth";
+import { usePathname } from "next/navigation";
 
 interface UserMenuProps {
   isOpen: boolean;
   easyMode: boolean;
   onEasyModeChange: (checked: boolean) => void;
+  onClose?: () => void;
 }
 
 export default function UserMenu({
   isOpen,
   easyMode,
   onEasyModeChange,
+  onClose,
 }: UserMenuProps) {
   const router = useRouter();
+  const pathname = usePathname();
   if (!isOpen) return null;
 
   const handleLogout = async () => {
@@ -52,7 +56,7 @@ export default function UserMenu({
     >
       <Box sx={{ py: 1 }}>
         {/* Myサーバー */}
-        <Link href="/easy/serverinfo">
+        <Link href={easyMode ? "/easy/serverinfo" : "/nomal/serverinfo"}>
           <Box
             sx={{
               px: 3,
@@ -73,7 +77,7 @@ export default function UserMenu({
         <Divider sx={{ my: 0 }} />
 
         {/* 新規サーバー作成 */}
-        <Link href="/easy/create">
+        <Link href={easyMode ? "/easy/create" : "/nomal/create"}>
           <Box
             sx={{
               px: 3,
@@ -108,7 +112,24 @@ export default function UserMenu({
           </Typography>
           <Switch
             checked={easyMode}
-            onChange={(e) => onEasyModeChange(e.target.checked)}
+            onChange={(e) => {
+              const newEasyMode = e.target.checked;
+              onEasyModeChange(newEasyMode);
+              
+              // 現在のページに基づいて適切なページに遷移
+              if (pathname?.startsWith('/easy/')) {
+                // 現在easyページにいる場合、nomalページに遷移
+                const newPath = pathname.replace('/easy/', '/nomal/');
+                router.push(newPath);
+              } else if (pathname?.startsWith('/nomal/')) {
+                // 現在nomalページにいる場合、easyページに遷移
+                const newPath = pathname.replace('/nomal/', '/easy/');
+                router.push(newPath);
+              }
+              
+              // ユーザーメニューを閉じる
+              onClose?.();
+            }}
             size="small"
             sx={{
               "& .MuiSwitch-switchBase.Mui-checked": {

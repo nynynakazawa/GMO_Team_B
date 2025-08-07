@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -18,6 +18,18 @@ import {
   Card,
   CardContent,
   Tooltip,
+  CircularProgress,
+  Alert,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Snackbar,
 } from '@mui/material';
 import {
   KeyboardArrowRight,
@@ -39,8 +51,50 @@ import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSetting
 import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
 import UserMenu from '../../../components/easy/UserMenu';
 import BillingCards from '../../../components/easy/serverinfo/BillingCards';
+import ConsoleTab from '../../../components/easy/serverinfo/ConsoleTab';
 import { Header } from "../../../components/easy/Header";
+import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
+import type {
+  ServerListResponse,
+  EnhancedServerSummary,
+} from "../../../types/serverTypes";
 
+
+interface ServerAction {
+  label: string;
+  icon: React.ElementType;
+  slug?: string;
+}
+
+const serverActions: ServerAction[] = [
+  {
+    label: "再起動",
+    icon: RestartAlt,
+    slug: "reboot",
+  },
+  {
+    label: "強制終了",
+    icon: PowerSettingsNew,
+    slug: "force_shutdown",
+  },
+  {
+    label: "管理画面",
+    icon: OpenInNew,
+  },
+  {
+    label: "保存",
+    icon: CloudUpload,
+  },
+  {
+    label: "復元",
+    icon: CloudDownload,
+  },
+  {
+    label: "削除",
+    icon: Delete,
+    slug: "delete",
+  },
+];
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -70,10 +124,240 @@ export default function ServerInfoPage() {
   const [selectedPlan, setSelectedPlan] = useState("8GB/6Core");
   const [autoBackup, setAutoBackup] = useState(false);
   const [deleteLock, setDeleteLock] = useState(false);
-  const [serverName, setServerName] = useState(serverInfoMockData.serverName);
+  const [serverInfo, setServerInfo] = useState<ParsedServerInfo | null>(null);
+  const [serverName, setServerName] = useState("");
   const [isEditingServerName, setIsEditingServerName] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [easyMode, setEasyMode] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [serverList, setServerList] = useState<EnhancedServerSummary[]>([]);
+  const [selectedServerId, setSelectedServerId] = useState<string | null>(null);
+  const [serverListLoading, setServerListLoading] = useState(false);
+  const [isServerListOpen, setIsServerListOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<{
+    slug: ServerAction["slug"];
+    label: string;
+  } | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  const handleServerAction = async (slug: ServerAction["slug"]) => {
+    if (!selectedServerId) return;
+
+    try {
+      console.log(slug)
+      const path =
+        slug == "delete"
+          ? `/api/server/${selectedServerId}/deleteServer`
+          : `/api/server/${selectedServerId}/${slug}`;
+
+      const res = await fetch(path, {
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error ?? `${res.status} ${res.statusText}`);
+      }
+
+      // delete成功時にリスト再取得
+      if (slug === "delete") {
+        await loadServerList(); // 一覧リフレッシュ
+        setSnackbarMessage("サーバを削除しました");
+        return; // 以降の loadServerInfo は不要
+      }
+
+      // 成功したらステータス再取得
+      await loadServerInfo(selectedServerId);
+    } catch (err) {
+      console.error("handleServerAction error:", err);
+      throw err; // ← 呼び出し元に失敗を知らせる
+    }
+  };
+
+  // open confirm dialog for a given action
+  const openConfirm = (slug: ServerAction["slug"], label: string) => {
+    setPendingAction({ slug, label });
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmOk = async () => {
+    if (!pendingAction?.slug) {
+      setConfirmOpen(false);
+      return;
+    }
+
+    try {
+      await handleServerAction(pendingAction.slug);
+      setSnackbarMessage(`${pendingAction.label} が完了しました`);
+      if (pendingAction.slug === "os-start") setServerStatus(true);
+      if (pendingAction.slug === "os-stop") setServerStatus(false);
+    } catch (_err) {
+      setSnackbarMessage(`${pendingAction.label} に失敗しました`);
+    } finally {
+      setSnackbarOpen(true);
+      setConfirmOpen(false);
+      setPendingAction(null);
+    }
+  };
+
+  const requestStatusToggle = (next: boolean) => {
+    const slug = next ? "os-start" : "os-stop";
+    const label = next ? "起動" : "停止";
+    openConfirm(slug, label);
+  };
+
+  const handleConfirmCancel = () => {
+    setConfirmOpen(false);
+    setPendingAction(null);
+  };
+
+  const handleSnackbarClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") return;
+    setSnackbarOpen(false);
+  };
+
+  // Load nameTag for a server
+  const loadServerNameTag = async (serverId: string): Promise<string> => {
+    try {
+      const res = await fetch(`/api/server/${serverId}`);
+      if (res.ok) {
+        const info = (await res.json()) as ParsedServerInfo;
+        return info.nameTag;
+      }
+    } catch (err) {
+      console.warn(`Failed to load nameTag for server ${serverId}:`, err);
+    }
+    return ""; // Return empty string if failed
+  };
+
+  // Load server list with nameTags
+  const loadServerList = async () => {
+    try {
+      setServerListLoading(true);
+      setError(null);
+
+      const res = await fetch("/api/server/getServerList");
+
+      if (!res.ok) {
+        throw new Error(
+          `Server list API call failed: ${res.status} ${res.statusText}`
+        );
+      }
+
+      const json = (await res.json()) as ServerListResponse;
+      console.log("Server list response:", json);
+
+      // Safely access the servers array with proper null checks
+      const basicList = json?.servers || [];
+
+      if (Array.isArray(basicList) && basicList.length > 0) {
+        // Enhance server list with nameTags
+        const enhancedList: EnhancedServerSummary[] = await Promise.all(
+          basicList.map(async (server) => {
+            const nameTag = await loadServerNameTag(server.id);
+            return {
+              ...server,
+              nameTag,
+              displayName: nameTag || server.name, // Use nameTag if available, fallback to name
+            };
+          })
+        );
+
+        setServerList(enhancedList);
+        setSelectedServerId(enhancedList[0].id);
+        await loadServerInfo(enhancedList[0].id);
+      } else {
+        console.warn("No servers found in the response");
+        setError("No servers found");
+      }
+    } catch (err) {
+      console.error("Failed to load server list", err);
+      setError(
+        `Failed to load server list: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
+
+      // Fallback to mock data
+      const mockList: EnhancedServerSummary[] = [
+        {
+          id: "be135a87-c7ee-4f43-8072-8531716cad09",
+          name: "game-2025-08-04-13-54",
+          nameTag: "game-2025-08-04-13-54",
+          displayName: "game-2025-08-04-13-54",
+          links: [],
+        },
+      ];
+      setServerList(mockList);
+      setSelectedServerId(mockList[0].id);
+      await loadServerInfo(mockList[0].id);
+    } finally {
+      setServerListLoading(false);
+    }
+  };
+
+  // Load individual server info
+  const loadServerInfo = async (serverId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await fetch(`/api/server/${serverId}`);
+
+      if (!res.ok) {
+        throw new Error(
+          `Server info API call failed: ${res.status} ${res.statusText}`
+        );
+      }
+
+      const info = (await res.json()) as ParsedServerInfo;
+      setServerInfo(info);
+      setServerName(info.nameTag);
+      setServerStatus(info.status == "ACTIVE");
+    } catch (err) {
+      console.warn("Server info API call failed, using mock data:", err);
+
+      // Fallback to mock data
+      const mockServerInfo: ParsedServerInfo = {
+        nameTag: serverInfoMockData.serverName,
+        status: "ACTIVE",
+        ipAddress: serverInfoMockData.ipAddress,
+        subnetMask: "255.255.254.0",
+        gateway: "163.44.116.1",
+        macAddress: "fa:16:3e:f7:4e:47",
+        dnsServer1: "150.95.10.8",
+        dnsServer2: "150.95.10.9",
+        bandwidthIn: "100.0",
+        bandwidthOut: "100.0",
+        autoBackupEnabled: false,
+        bootStorage: "SSD 100GB",
+        securityGroup: "default",
+      };
+
+      setServerInfo(mockServerInfo);
+      setServerName(mockServerInfo.nameTag);
+      setError("Using mock data - API unavailable");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadServerList();
+  }, []);
+
+  const handleServerSelect = async (serverId: string) => {
+    setSelectedServerId(serverId);
+    await loadServerInfo(serverId);
+  };
+
+  const handleRefreshServerList = () => {
+    loadServerList();
+  };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -101,21 +385,16 @@ export default function ServerInfoPage() {
     setSelectedPlan(event.target.value);
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
-
   const handleServerNameEdit = () => {
     setIsEditingServerName(true);
   };
 
   const handleServerNameSave = () => {
     setIsEditingServerName(false);
-    // ここでサーバー名の保存処理を追加できます
   };
 
   const handleServerNameCancel = () => {
-    setServerName(serverInfoMockData.serverName);
+    setServerName(serverInfo?.nameTag || "");
     setIsEditingServerName(false);
   };
 
@@ -125,6 +404,22 @@ export default function ServerInfoPage() {
     setServerName(event.target.value);
   };
 
+
+  if (loading && !serverInfo) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          bgcolor: "#f5f5f5",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress size={60} sx={{ color: "#19B8D7" }} />
+      </Box>
+    );
+  }
   const handleUserMenuToggle = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
   };
@@ -133,6 +428,7 @@ export default function ServerInfoPage() {
     setEasyMode(checked);
   };
 const [serverSettings, setServerSettings] = useState(serverInfoMockData.serverSettings);
+
 
 const handleNameTagChange = (newValue: string) => {
   setServerSettings(prev =>
@@ -158,14 +454,51 @@ const handleNameTagChange = (newValue: string) => {
         <Container maxWidth="xl" disableGutters>
           <Header />
 
+          {error && (
+            <Alert
+              severity="warning"
+              sx={{ m: 2 }}
+              action={
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={handleRefreshServerList}
+                  startIcon={<Refresh />}
+                >
+                  Retry
+                </Button>
+              }
+            >
+              {error}
+            </Alert>
+          )}
+
           {/* Server Info Bar */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-            <IconButton size="small" sx={{ color: "text.secondary" }}>
-              <KeyboardArrowRight />
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              pt: 2,
+              pl: 2,
+              pr: 2,
+            }}
+          >
+            <IconButton
+              size="small"
+              sx={{ color: "text.secondary" }}
+              onClick={() => setIsServerListOpen((prev) => !prev)}
+            >
+              <KeyboardArrowRight
+                sx={{
+                  transform: isServerListOpen ? "rotate(90deg)" : "none",
+                  transition: "transform 0.2s",
+                }}
+              />
             </IconButton>
             <ServerNameEditor
               serverName={serverName}
-              ipAddress={serverInfoMockData.ipAddress}
+              ipAddress={serverInfo?.ipAddress ?? "Loading..."}
               isEditing={isEditingServerName}
               onEdit={handleServerNameEdit}
               onSave={handleServerNameSave}
@@ -175,7 +508,7 @@ const handleNameTagChange = (newValue: string) => {
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Switch
                 checked={serverStatus}
-                onChange={handleServerStatusChange}
+                onChange={(e) => requestStatusToggle(e.target.checked)}
                 sx={{
                   "& .MuiSwitch-switchBase.Mui-checked": {
                     color: "#19B8D7",
@@ -188,33 +521,89 @@ const handleNameTagChange = (newValue: string) => {
             </Box>
           </Box>
 
+          {isServerListOpen && serverList.length > 1 && (
+            <Box sx={{ pb: 2, pl: 2, pr: 2 }}>
+              <Paper sx={{ maxHeight: 200, overflow: "auto" }}>
+                <List>
+                  {serverList.map((server) => (
+                    <ListItem key={server.id} disablePadding>
+                      <ListItemButton
+                        selected={selectedServerId === server.id}
+                        onClick={() => handleServerSelect(server.id)}
+                        disabled={serverListLoading}
+                      >
+                        <ListItemText
+                          primary={server.displayName}
+                          // secondary={server.id}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
+            </Box>
+          )}
+
           {/* Action Buttons */}
-          <Box mb={2} sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            {serverInfoMockData.actions.map(
-              (action: ServerAction, index: number) => {
-                const IconComponent = action.icon;
-                return (
-                  <Button
-                    key={index}
-                    variant="outlined"
-                    startIcon={<IconComponent />}
-                    sx={{
-                      borderRadius: "50px",
-                      textTransform: "none",
-                      borderColor: "#19B8D7",
-                      color: "#19B8D7",
-                      "&:hover": {
-                        borderColor: "#15a0c0",
-                        backgroundColor: "#e3f2fd",
-                      },
-                    }}
-                  >
-                    {action.label}
-                  </Button>
-                );
-              }
+          <Box
+            mt={2}
+            mb={2}
+            sx={{ display: "flex", gap: 2, flexWrap: "wrap", px: 2 }}
+          >
+            {serverActions.map(
+              ({ label, icon: IconComponent, slug }, index: number) => (
+                <Button
+                  key={index}
+                  variant="outlined"
+                  startIcon={<IconComponent />}
+                  onClick={() => {
+                    if (slug) {
+                      openConfirm(slug, label);
+                    }
+                  }}
+                  sx={{
+                    borderRadius: "50px",
+                    textTransform: "none",
+                    borderColor: "#19B8D7",
+                    color: "#19B8D7",
+                    "&:hover": {
+                      borderColor: "#15a0c0",
+                      backgroundColor: "#e3f2fd",
+                    },
+                  }}
+                >
+                  {label}
+                </Button>
+              )
             )}
           </Box>
+          <Dialog
+            open={confirmOpen}
+            onClose={handleConfirmCancel}
+            aria-labelledby="server-action-confirm-title"
+          >
+            <DialogTitle id="server-action-confirm-title">
+              {pendingAction?.label} の確認
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                本当に {pendingAction?.label} を実行しますか？
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleConfirmCancel}>キャンセル</Button>
+              <Button onClick={handleConfirmOk} autoFocus>
+                OK
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={4000}
+            onClose={handleSnackbarClose}
+            message={snackbarMessage}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          />
         </Container>
       </Box>
 
@@ -249,6 +638,7 @@ const handleNameTagChange = (newValue: string) => {
             >
               <Tab label="サーバー設定" />
               <Tab label="プラン変更" />
+              <Tab label="コンソール" />
             </Tabs>
           </Box>
 
@@ -259,7 +649,6 @@ const handleNameTagChange = (newValue: string) => {
               deleteLock={deleteLock}
               onAutoBackupChange={handleAutoBackupChange}
               onDeleteLockChange={handleDeleteLockChange}
-              serverSettings={serverSettings}                // ★追加
               onNameTagChange={handleNameTagChange} 
             />
           </TabPanel>
@@ -417,6 +806,11 @@ const handleNameTagChange = (newValue: string) => {
                 </span>
               </Typography>
             </Box>
+          </TabPanel>
+
+          {/* Console Tab */}
+          <TabPanel value={tabValue} index={2}>
+            <ConsoleTab serverId={selectedServerId || ""} serverInfo={serverInfo} />
           </TabPanel>
         </Paper>
 
