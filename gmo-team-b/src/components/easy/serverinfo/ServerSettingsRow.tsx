@@ -176,14 +176,9 @@ export default function ServerSettingsRow({
                   <IconButton size="small" sx={{ color: '#19B8D7' }}>
                     <Edit fontSize="small" />
                   </IconButton>
-                ) : rightItem.label === '有効期間' ? (
-                  <IconButton size="small" sx={{ color: '#19B8D7' }}>
-                    <Clear fontSize="small" />
-                  </IconButton>
                 ) : (
-                  <IconButton size="small" sx={{ color: '#19B8D7' }}>
-                    <Clear fontSize="small" />
-                  </IconButton>
+                  <>
+                  </>
                 )
               )}
             </>
