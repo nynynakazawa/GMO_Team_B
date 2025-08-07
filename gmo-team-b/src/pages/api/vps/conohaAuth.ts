@@ -17,41 +17,12 @@ export type ConoHaAuthResponse = {
     };
   };
 };
-
-// トークンキャッシュ用の変数
-let cachedToken: string | null = null;
-let cachedComputeEndpoint: string | null = null;
-let cachedProjectId: string | null = null;
-let tokenExpiryTime: number | null = null;
 // ConoHa APIトークンとエンドポイントを取得する関数
 export async function getConoHaTokenAndEndpoint(): Promise<{
   token: string;
   computeEndpoint: string;
   projectId: string;
 }> {
-  // キャッシュされたトークンが有効な場合はそれを返す
-  if (cachedToken && cachedComputeEndpoint && cachedProjectId && tokenExpiryTime) {
-    const now = Date.now();
-    // トークンの有効期限の5分前に期限切れとみなす
-    if (now < tokenExpiryTime - 5 * 60 * 1000) {
-      console.log("=== キャッシュされたトークンを使用 ===");
-      console.log(`トークン有効期限: ${new Date(tokenExpiryTime).toISOString()}`);
-      console.log(`現在時刻: ${new Date(now).toISOString()}`);
-      console.log(`残り時間: ${Math.floor((tokenExpiryTime - now) / 1000 / 60)}分`);
-      return {
-        token: cachedToken,
-        computeEndpoint: cachedComputeEndpoint,
-        projectId: cachedProjectId,
-      };
-    } else {
-      console.log("=== キャッシュされたトークンが期限切れ ===");
-      console.log(`トークン有効期限: ${new Date(tokenExpiryTime).toISOString()}`);
-      console.log(`現在時刻: ${new Date(now).toISOString()}`);
-    }
-  } else {
-    console.log("=== キャッシュされたトークンが存在しない ===");
-  }
-
   const username = process.env.CONOHA_USERNAME;
   const password = process.env.CONOHA_PASSWORD;
   const tenantName = process.env.CONOHA_TENANT_NAME;
@@ -100,13 +71,6 @@ export async function getConoHaTokenAndEndpoint(): Promise<{
   if (!response.ok) {
     const errorText = await response.text();
     console.error("認証失敗:", response.status, response.statusText, errorText);
-    
-    // エラーが発生した場合はキャッシュをクリア
-    cachedToken = null;
-    cachedComputeEndpoint = null;
-    cachedProjectId = null;
-    tokenExpiryTime = null;
-    
     throw new Error(`ConoHa authentication failed: ${response.status} ${response.statusText} - ${errorText}`);
   }
   // ConoHa API v3では、トークンはX-Subject-Tokenヘッダーに含まれる
@@ -141,50 +105,11 @@ export async function getConoHaTokenAndEndpoint(): Promise<{
   console.log("Compute エンドポイント:", publicEndpoint.url);
   console.log("=== ConoHa認証完了 ===");
 
-  // トークンをキャッシュに保存
-  cachedToken = token;
-  cachedComputeEndpoint = publicEndpoint.url;
-  cachedProjectId = authData.token.project.id;
-  // トークンの有効期限を設定（ISO 8601文字列をミリ秒に変換）
-  tokenExpiryTime = new Date(authData.token.expires_at).getTime();
-
   return {
     token,
     computeEndpoint: publicEndpoint.url,
     projectId: authData.token.project.id,
   };
-}
-
-// キャッシュの状態を確認する関数
-export function getCacheStatus(): {
-  hasCachedToken: boolean;
-  tokenExpiryTime: number | null;
-  timeUntilExpiry: number | null;
-  isExpired: boolean;
-  expiryDate: string | null;
-} {
-  const now = Date.now();
-  const hasCachedToken = !!(cachedToken && cachedComputeEndpoint && cachedProjectId && tokenExpiryTime);
-  const timeUntilExpiry = tokenExpiryTime ? tokenExpiryTime - now : null;
-  const isExpired = tokenExpiryTime ? now >= tokenExpiryTime - 5 * 60 * 1000 : true; // 5分前に期限切れとみなす
-  const expiryDate = tokenExpiryTime ? new Date(tokenExpiryTime).toISOString() : null;
-  
-  return {
-    hasCachedToken,
-    tokenExpiryTime,
-    timeUntilExpiry,
-    isExpired,
-    expiryDate,
-  };
-}
-
-// キャッシュをクリアする関数
-export function clearCache(): void {
-  console.log("=== キャッシュをクリア ===");
-  cachedToken = null;
-  cachedComputeEndpoint = null;
-  cachedProjectId = null;
-  tokenExpiryTime = null;
 }
 
 // APIハンドラー - URL直打ちで実行可能
