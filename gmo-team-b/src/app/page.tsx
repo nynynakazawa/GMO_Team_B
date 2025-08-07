@@ -1,9 +1,11 @@
 import { AuthenticationPage } from "../components/auth/AuthenticationPage";
+import { Header } from "../components/easy/Header";
 
 export default function Home() {
   return (
     <div>
-  <AuthenticationPage />
-  </div>
+      <Header />
+      <AuthenticationPage />
+    </div>
   )
 }

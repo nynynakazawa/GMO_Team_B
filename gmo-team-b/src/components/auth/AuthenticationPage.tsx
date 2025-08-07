@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Box, Stack, Container } from '@mui/material';
-import { AuthHeader } from './AuthHeader';
 import { LoginForm } from './LoginForm';
 import { SignupForm } from './SignupForm';
 
@@ -65,7 +64,6 @@ export const AuthenticationPage: React.FC<AuthenticationPageProps> = ({
         padding: '50px'
       }}
     >
-      <AuthHeader />
       <Container component="main" maxWidth="md">
         <Stack spacing={3} sx={{ mt: 4, alignItems: 'center' }}>
           {currentView === 'login' ? (
