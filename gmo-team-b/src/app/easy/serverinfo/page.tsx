@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { AuthGuard } from "../../../components/auth/AuthGuard";
 import {
   Box,
   Container,
@@ -55,6 +56,8 @@ interface ServerAction {
   slug?: string;
 }
 
+
+
 const serverActions: ServerAction[] = [
   {
     label: "再起動",
@@ -67,10 +70,6 @@ const serverActions: ServerAction[] = [
     slug: "force_shutdown",
   },
   {
-    label: "管理画面",
-    icon: OpenInNew,
-  },
-  {
     label: "保存",
     icon: CloudUpload,
   },
@@ -81,6 +80,7 @@ const serverActions: ServerAction[] = [
   {
     label: "削除",
     icon: Delete,
+    slug: "delete",
   },
 ];
 
@@ -106,7 +106,7 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-export default function ServerInfoPage() {
+function ServerInfo() {
   const [tabValue, setTabValue] = useState(0);
   const [serverStatus, setServerStatus] = useState(true);
   const [autoBackup, setAutoBackup] = useState(false);
@@ -120,6 +120,8 @@ export default function ServerInfoPage() {
   const [selectedServerId, setSelectedServerId] = useState<string | null>(null);
   const [serverListLoading, setServerListLoading] = useState(false);
   const [isServerListOpen, setIsServerListOpen] = useState(false);
+  const [serverSettings, setServerSettings] = useState(serverInfoMockData.serverSettings);
+  
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{
     slug: ServerAction["slug"];
@@ -132,13 +134,26 @@ export default function ServerInfoPage() {
     if (!selectedServerId) return;
 
     try {
-      const res = await fetch(`/api/server/${selectedServerId}/${slug}`, {
+      console.log(slug)
+      const path =
+        slug == "delete"
+          ? `/api/server/${selectedServerId}/deleteServer`
+          : `/api/server/${selectedServerId}/${slug}`;
+
+      const res = await fetch(path, {
         method: "POST",
       });
 
       if (!res.ok) {
         const { error } = await res.json();
         throw new Error(error ?? `${res.status} ${res.statusText}`);
+      }
+
+      // delete成功時にリスト再取得
+      if (slug === "delete") {
+        await loadServerList(); // 一覧リフレッシュ
+        setSnackbarMessage("サーバを削除しました");
+        return; // 以降の loadServerInfo は不要
       }
 
       // 成功したらステータス再取得
@@ -148,7 +163,18 @@ export default function ServerInfoPage() {
       throw err; // ← 呼び出し元に失敗を知らせる
     }
   };
-
+//アカウント情報→ネームタグ編集用関数
+  
+  const handleNameTagChange = (newValue: string) => {
+    setServerSettings(prev =>
+      prev.map(setting =>
+        setting.label === 'ネームタグ'
+          ? { ...setting, value: newValue }
+          : setting
+      )
+    );
+    setServerName(newValue); // サーバー名も同期したい場合
+  };
   // open confirm dialog for a given action
   const openConfirm = (slug: ServerAction["slug"], label: string) => {
     setPendingAction({ slug, label });
@@ -160,11 +186,11 @@ export default function ServerInfoPage() {
       setConfirmOpen(false);
       return;
     }
-    
+
     try {
       await handleServerAction(pendingAction.slug);
       setSnackbarMessage(`${pendingAction.label} が完了しました`);
-      if (pendingAction.slug === "os-start")  setServerStatus(true);
+      if (pendingAction.slug === "os-start") setServerStatus(true);
       if (pendingAction.slug === "os-stop") setServerStatus(false);
     } catch (_err) {
       setSnackbarMessage(`${pendingAction.label} に失敗しました`);
@@ -176,11 +202,10 @@ export default function ServerInfoPage() {
   };
 
   const requestStatusToggle = (next: boolean) => {
-      const slug = next ? "os-start" : "os-stop";
-      const label = next ? "起動" : "停止";
-      openConfirm(slug, label);
-    };
-
+    const slug = next ? "os-start" : "os-stop";
+    const label = next ? "起動" : "停止";
+    openConfirm(slug, label);
+  };
 
   const handleConfirmCancel = () => {
     setConfirmOpen(false);
@@ -292,12 +317,14 @@ export default function ServerInfoPage() {
       const info = (await res.json()) as ParsedServerInfo;
       setServerInfo(info);
       setServerName(info.nameTag);
+      setServerStatus(info.status == "ACTIVE");
     } catch (err) {
       console.warn("Server info API call failed, using mock data:", err);
 
       // Fallback to mock data
       const mockServerInfo: ParsedServerInfo = {
         nameTag: serverInfoMockData.serverName,
+        status: "ACTIVE",
         ipAddress: serverInfoMockData.ipAddress,
         subnetMask: "255.255.254.0",
         gateway: "163.44.116.1",
@@ -409,10 +436,7 @@ export default function ServerInfoPage() {
     setServerName(serverInfo?.nameTag || "");
     setIsEditingServerName(false);
   };
-
-  const handleServerNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleServerNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setServerName(event.target.value);
   };
 
@@ -439,6 +463,7 @@ export default function ServerInfoPage() {
   //   if (pathname === '/create') return menuLabels.createServer;
   //   return '';
   // };
+
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       {/* Header */}
@@ -647,6 +672,7 @@ export default function ServerInfoPage() {
               onAutoBackupChange={handleAutoBackupChange}
               onDeleteLockChange={handleDeleteLockChange}
               serverInfo={serverInfo}
+              onNameTagChange={handleNameTagChange}
             />
           </TabPanel>
         </Paper>
@@ -671,3 +697,13 @@ export default function ServerInfoPage() {
     </Box>
   );
 }
+
+export default function ServerInfoPage() {
+  return (
+    <AuthGuard>
+      <ServerInfo />
+    </AuthGuard>
+  );
+}
+
+

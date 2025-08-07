@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { GameServerSetup } from "../../../components/easy/create/GameServerSetup";
 import { ServerCreationProgress } from "../../../components/easy/create/ServerCreationProgress";
+import { AuthGuard } from "../../../components/auth/AuthGuard";
 import { mockRootProps } from "../../../data/gameServerSetupMockData";
 import { Plan } from "../../../types/gameServerSetup";
 
 export default function EasyCreatePage() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
@@ -24,6 +27,21 @@ export default function EasyCreatePage() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isError, setIsError] = useState(false);
   const [progressError, setProgressError] = useState<string | null>(null);
+  
+  // バリデーションエラー用の状態
+  const [validationErrors, setValidationErrors] = useState<{
+    game: boolean;
+    period: boolean;
+    plan: boolean;
+    serverName: boolean;
+    password: boolean;
+  }>({
+    game: false,
+    period: false,
+    plan: false,
+    serverName: false,
+    password: false,
+  });
 
   // APIからプランを取得
   useEffect(() => {
@@ -71,6 +89,9 @@ export default function EasyCreatePage() {
   const handleGameSelect = (gameId: string) => {
     setSelectedGame(gameId);
     
+    // バリデーションエラーをクリア
+    setValidationErrors(prev => ({ ...prev, game: false }));
+    
     // 選択したゲーム名をサーバー名に自動設定
     const selectedGameData = mockRootProps.games.find(g => g.id === gameId);
     
@@ -89,26 +110,50 @@ export default function EasyCreatePage() {
 
   const handlePeriodSelect = (period: string) => {
     setSelectedPeriod(period);
+    // バリデーションエラーをクリア
+    setValidationErrors(prev => ({ ...prev, period: false }));
     setCurrentStep(3);
   };
 
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId);
+    // バリデーションエラーをクリア
+    setValidationErrors(prev => ({ ...prev, plan: false }));
     setCurrentStep(4);
   };
 
   const handleServerNameChange = (name: string) => {
     setServerName(name);
+    // バリデーションエラーをクリア
+    setValidationErrors(prev => ({ ...prev, serverName: false }));
   };
 
   const handlePasswordChange = (password: string) => {
     setPassword(password);
+    // バリデーションエラーをクリア
+    setValidationErrors(prev => ({ ...prev, password: false }));
+  };
+
+  // バリデーション関数
+  const validateForm = () => {
+    const errors = {
+      game: !selectedGame,
+      period: !selectedPeriod,
+      plan: !selectedPlan,
+      serverName: !serverName.trim(),
+      password: !password.trim(),
+    };
+    
+    setValidationErrors(errors);
+    
+    // エラーがある場合はfalseを返す
+    return !Object.values(errors).some(error => error);
   };
 
   const handleCreateServer = async () => {
-    if (!selectedGame || !selectedPeriod || !selectedPlan || !serverName || !password) {
-      setError('すべての項目を入力してください');
-      return;
+    // バリデーションを実行
+    if (!validateForm()) {
+      return; // バリデーションエラーがある場合は処理を中断
     }
 
     // パスワード要件チェック
@@ -230,10 +275,12 @@ export default function EasyCreatePage() {
       setCurrentStatus('completed');
       setIsCompleted(true);
       
-      // 成功時の処理
+      // 成功時の処理: 3秒後にサーバー情報ページに自動遷移
       setTimeout(() => {
         alert(`${serverName} の作成が完了しました！\nサーバーID: ${result.serverId}\n管理者パスワード: ${result.adminPass}`);
       }, 1000);
+        router.push('/easy/serverinfo');
+      }, 3000);
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'サーバー作成中にエラーが発生しました';
@@ -254,35 +301,38 @@ export default function EasyCreatePage() {
   const currentPlans = loading ? mockRootProps.plans : plans;
 
       return (
-      <>
-        <GameServerSetup
-          currentStep={currentStep}
-          selectedGame={selectedGame}
-          selectedPeriod={selectedPeriod}
-          selectedPlan={selectedPlan}
-          serverName={serverName}
-          password={password}
-          games={mockRootProps.games}
-          plans={currentPlans}
-          periodOptions={mockRootProps.periodOptions}
-          onGameSelect={handleGameSelect}
-          onPeriodSelect={handlePeriodSelect}
-          onPlanSelect={handlePlanSelect}
-          onServerNameChange={handleServerNameChange}
-          onPasswordChange={handlePasswordChange}
-          onCreateServer={handleCreateServer}
-          loading={loading}
-          error={error}
-        />
-        
-        <ServerCreationProgress
-          isVisible={showProgress}
-          progress={progress}
-          currentStatus={currentStatus}
-          isCompleted={isCompleted}
-          isError={isError}
-          errorMessage={progressError || undefined}
-        />
-      </>
+      <AuthGuard>
+        <>
+          <GameServerSetup
+            currentStep={currentStep}
+            selectedGame={selectedGame}
+            selectedPeriod={selectedPeriod}
+            selectedPlan={selectedPlan}
+            serverName={serverName}
+            password={password}
+            games={mockRootProps.games}
+            plans={currentPlans}
+            periodOptions={mockRootProps.periodOptions}
+            onGameSelect={handleGameSelect}
+            onPeriodSelect={handlePeriodSelect}
+            onPlanSelect={handlePlanSelect}
+            onServerNameChange={handleServerNameChange}
+            onPasswordChange={handlePasswordChange}
+            onCreateServer={handleCreateServer}
+            loading={loading}
+            error={error}
+            validationErrors={validationErrors}
+          />
+          
+          <ServerCreationProgress
+            isVisible={showProgress}
+            progress={progress}
+            currentStatus={currentStatus}
+            isCompleted={isCompleted}
+            isError={isError}
+            errorMessage={progressError || undefined}
+          />
+        </>
+      </AuthGuard>
     );
 }

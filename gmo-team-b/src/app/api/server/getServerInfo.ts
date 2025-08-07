@@ -12,6 +12,8 @@ export interface ParsedServerInfo {
   autoBackupEnabled: boolean;
   bootStorage: string; // 例: "SSD 100GB"
   securityGroup: string;
+
+  status: string; 
 }
 // 取得済みサーバーの詳細情報レスポンス
 export interface CreatedServerDetailResponse {
@@ -200,8 +202,13 @@ export async function getServerInfo(
       ? server.security_groups[0].name
       : "—";
 
+
+  // サーバの状態w（active, shutdownなど）
+  const status = server.status || "no status";
+  
   return {
     nameTag,
+    status,
     ipAddress,
     subnetMask,
     gateway,

@@ -10,6 +10,7 @@ import { signInWithGoogle } from "./firebaseAuth"
 import { auth } from "../../firebase/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from 'next/navigation'
+import { useAuth } from '../../contexts/AuthContext';
 
 
 //サーバー一覧の型定義
@@ -69,6 +70,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -120,11 +122,19 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           console.log("トークン:", server_log)
           localStorage.setItem('user_email', user.email || '');
           localStorage.setItem('user_password', password);
-          if (server){
-            router.push("/easy/serverinfo")
-          }else{
-            router.push("easy/create")
+          
+          // リダイレクト先を確認
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectPath = urlParams.get('redirect');
+          
+          if (redirectPath) {
+            router.push(redirectPath);
+          } else if (server) {
+            router.push("/easy/serverinfo");
+          } else {
+            router.push("/easy/create");
           }
+          
           if (onLogin) {
             onLogin(email, password);
           }
@@ -170,21 +180,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
         {/* Form */}
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
-          <Stack spacing={2.5}>
+          <Stack spacing={2.5} alignItems="center">
             {/* Email Field */}
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack direction="row" alignItems="center" spacing={2} sx={{ width: '100%', maxWidth: '600px' }}>
               <Typography
                 sx={{
                   fontFamily: "'Noto Sans', sans-serif",
-                  fontSize: '16px',
+                  fontSize: '20px',
                   fontWeight: 500,
                   color: '#000000',
-                  minWidth: '100px'
+                  width: '180px',
+                  textAlign: 'right'
                 }}
               >
                 メールアドレス : 
               </Typography>
-              <Box sx={{ flexGrow: 1 }}>
+              <Box sx={{ width: '350px' }}>
                 <InputField
                   type="email"
                   value={email}
@@ -196,19 +207,20 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </Stack>
 
             {/* Password Field */}
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack direction="row" alignItems="center" spacing={2} sx={{ width: '100%', maxWidth: '600px' }}>
               <Typography
                 sx={{
                   fontFamily: "'Noto Sans', sans-serif",
-                  fontSize: '16px',
+                  fontSize: '20px',
                   fontWeight: 500,
                   color: '#000000',
-                  minWidth: '100px'
+                  width: '180px',
+                  textAlign: 'right'
                 }}
               >
                 パスワード : 
               </Typography>
-              <Box sx={{ flexGrow: 1 }}>
+              <Box sx={{ width: '350px' }}>
                 <InputField
                   type="password"
                   value={password}
@@ -217,24 +229,23 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                   helperText={passwordError}
                 />
               </Box>
-              
             </Stack>
-        <Box sx={{ display: 'flex',  justifyContent: 'flex-start', marginTop: '16px' }}>
-  <Button
-    variant="outlined"
-    startIcon={<GoogleIcon />}
-    onClick={signInWithGoogle}
-    sx={{
-      textTransform: 'none',
-      fontWeight: 500,
-      fontFamily: "'Noto Sans', sans-serif",
-    }}
-  >
-    Googleでログイン
-  </Button>
-</Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
+          <Button
+            variant="outlined"
+            startIcon={<GoogleIcon />}
+            onClick={signInWithGoogle}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 500,
+              fontFamily: "'Noto Sans', sans-serif",
+            }}
+          >
+            Googleでログイン
+          </Button>
+        </Box>
             {/* Navigation Links */}
-            <Stack spacing={1} sx={{ marginTop: '24px' }}>
+            <Stack spacing={1} sx={{ marginTop: '24px', alignItems: 'center' }}>
               <LinkText onClick={onCreateAccount}>
                 ＞新規アカウント登録はこちらから
               </LinkText>

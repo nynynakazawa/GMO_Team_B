@@ -1,5 +1,6 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, {useRef, useEffect, useState } from 'react';
+import { AuthGuard } from '../../components/auth/AuthGuard';
 import {
   Box,
   Container,
@@ -21,17 +22,36 @@ import {
   FormControl,
   Divider,
 } from '@mui/material';
+import { storage } from '@/firebase/firebase'; 
+import Avatar from '@mui/material/Avatar';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { Person } from '@mui/icons-material';
+import Image from 'next/image';
+import UserMenu from '../../components/easy/serverinfo/UserMenu';
 import { Header } from "../../components/easy/Header";
 import { db } from '../../firebase/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const tabLabels = ['お支払い', 'アカウント設定', '過去の請求'];
 
-export default function AccountPage() {
+function AccountPageContent() {
   const [tab, setTab] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('Charge');
   const [savedEmail, setSavedEmail] = useState<string>('');
   const [savedPassword, setSavedPassword] = useState<string>('');
+  const [iconUrl, setIconUrl] = useState<string>('/images/conohaIcon.png'); 
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+
+  const handleIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    setUploading(true);
+    const url = URL.createObjectURL(file);
+    setIconUrl(url);
+    setUploading(false);
+  };
 
   // お客様情報編集用の状態
   const [isEditingCustomerInfo, setIsEditingCustomerInfo] = useState(false);
@@ -184,7 +204,27 @@ export default function AccountPage() {
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
-      <Header />
+      {/* ヘッダー部分 */}
+      {/* <Box sx={{ bgcolor: 'white', borderBottom: 1, borderColor: 'divider', p: 2, position: 'relative' }}>
+        <Container maxWidth="xl">
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ position: 'relative' }}>
+              <IconButton 
+                sx={{ bgcolor: '#e3f2fd', color: '#19B8D7' }}
+                onClick={handleUserMenuToggle}
+              >
+                <Person />
+              </IconButton>
+              <UserMenu
+                isOpen={isUserMenuOpen}
+                easyMode={easyMode}
+                onEasyModeChange={handleEasyModeChange}
+              />
+            </Box>
+          </Box>
+        </Container>
+      </Box> */}
+      <Header iconUrl={iconUrl} />
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Paper sx={{ width: "100%", borderRadius: "10px", boxShadow: 3 }}>
           <Box sx={{ borderBottom: 1, borderColor: "divider", px: 3, pt: 3 }}>
@@ -747,6 +787,43 @@ export default function AccountPage() {
                     </TableBody>
                   </Table>
                 </TableContainer>
+                <Button
+                  variant="contained"
+                  sx={{
+                    bgcolor: "#19B8D7",
+                    color: "white",
+                    borderRadius: "10px",
+                    px: 4,
+                    fontWeight: "bold",
+                  }}
+                >
+                  編集
+                </Button>
+                <Divider sx={{ my: 4 }} />
+ <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+<Image
+  src={iconUrl}
+  alt="アイコン"
+  width={80}
+  height={80}
+  style={{ borderRadius: '20px', border: '2px solid #19B8D7', objectFit: 'cover' }}
+/>
+      <Button
+        variant="contained"
+        component="label"
+        sx={{ bgcolor: "#19B8D7", color: "white", borderRadius: "10px", px: 4, fontWeight: "bold" }}
+        disabled={uploading}
+      >
+        {uploading ? "アップロード中..." : "画像を選択"}
+        <input
+          type="file"
+          accept="image/*"
+          hidden
+          ref={fileInputRef}
+          onChange={handleIconUpload}
+        />
+      </Button>
+    </Box>
               </Box>
             )}
             {/* 過去の請求タブ */}
@@ -834,5 +911,13 @@ export default function AccountPage() {
         </Paper>
       </Container>
     </Box>
+  );
+}
+
+export default function AccountPage() {
+  return (
+    <AuthGuard>
+      <AccountPageContent />
+    </AuthGuard>
   );
 } 

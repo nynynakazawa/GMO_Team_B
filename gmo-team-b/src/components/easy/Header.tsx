@@ -1,6 +1,7 @@
 "use client";
+import Image from 'next/image';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Container, Typography, IconButton, Stack } from "@mui/material";
 import { Person } from "@mui/icons-material";
 import UserMenu from "./UserMenu";
@@ -8,9 +9,26 @@ import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import { menuLabels } from "../../data/menuLabels";
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  iconUrl: string;
+}
+export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [easyMode, setEasyMode] = useState(true);
+  const pathname = usePathname();
+
+  // localStorageからeasyModeの状態を読み込み、または現在のページに基づいて設定
+  useEffect(() => {
+    const savedEasyMode = localStorage.getItem('easyMode');
+    if (savedEasyMode !== null) {
+      setEasyMode(JSON.parse(savedEasyMode));
+    } else {
+      // 保存された状態がない場合、現在のページに基づいて設定
+      const isEasyPage = pathname?.startsWith('/easy/') ?? true;
+      setEasyMode(isEasyPage);
+      localStorage.setItem('easyMode', JSON.stringify(isEasyPage));
+    }
+  }, [pathname]);
 
   const handleUserMenuToggle = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
@@ -18,8 +36,9 @@ export const Header: React.FC = () => {
 
   const handleEasyModeChange = (checked: boolean) => {
     setEasyMode(checked);
+    // localStorageにeasyModeの状態を保存
+    localStorage.setItem('easyMode', JSON.stringify(checked));
   };
-  const pathname = usePathname();
   const getPageTitle = () => {
     if (pathname === '/nomal/serverinfo') return menuLabels.myServer;
     if (pathname === '/account') return menuLabels.accountSettings;
@@ -47,7 +66,7 @@ export const Header: React.FC = () => {
             alignItems: "center",
           }}
         >
-          <Link href="/easy/serverinfo" style={{ textDecoration: "none" }}>
+          <Link href={easyMode ? "/easy/serverinfo" : "/nomal/serverinfo"} style={{ textDecoration: "none" }}>
             <Stack direction="row" alignItems="baseline" spacing={0.5}>
               <Typography
                 variant="h5"
@@ -68,16 +87,36 @@ export const Header: React.FC = () => {
             
           </Link>
           <Box sx={{ position: "relative" }}>
-            <IconButton
-              sx={{ bgcolor: "#e3f2fd", color: "#19B8D7" }}
-              onClick={handleUserMenuToggle}
-            >
-              <Person />
-            </IconButton>
+<IconButton
+  sx={{
+    bgcolor: "#e3f2fd",
+    color: "#19B8D7",
+    width: 60,
+    height: 60,
+    borderRadius: '50%', // 丸い背景にする（デフォルトでも丸だが明示）
+    padding: 0            // 余白を消してImageとぴったり合わせる
+  }}
+  onClick={handleUserMenuToggle}
+>
+<Image
+  src={iconUrl || '/images/conohaIcon.png'}
+  alt="アイコン"
+  width={60}
+  height={60}
+  style={{
+    width: '60px',
+    height: '60px',
+    borderRadius: '50%',
+    objectFit: 'cover',
+  }}
+/>
+
+</IconButton>
             <UserMenu
               isOpen={isUserMenuOpen}
               easyMode={easyMode}
               onEasyModeChange={handleEasyModeChange}
+              onClose={() => setIsUserMenuOpen(false)}
             />
           </Box>
         </Box>

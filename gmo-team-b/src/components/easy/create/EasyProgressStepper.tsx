@@ -77,22 +77,25 @@ const ActionButton = styled(Button)<{ active: boolean }>(
   })
 );
 
-const IconContainer = styled(Box)<{
-  active: boolean;
-  completed: boolean;
-}>(({ active, completed }) => ({
-  width: 122,
-  height: 110,
-  borderRadius: 10,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: active || completed ? "rgba(25, 184, 215, 0.1)" : "rgba(0, 0, 0, 0.05)",
-  opacity: active || completed ? 1 : 0.5,
-  transition: "all 0.3s ease",
-}));
+const IconContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "active" && prop !== "completed",
+})<{ active: boolean; completed: boolean }>(
+  ({ active, completed }) => ({
+    width: 122,
+    height: 110,
+    borderRadius: 10,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: active || completed ? "rgba(25, 184, 215, 0.1)" : "rgba(0, 0, 0, 0.05)",
+    opacity: active || completed ? 1 : 0.5,
+    transition: "all 0.3s ease",
+  })
+);
 
-const PlanCard = styled("img")<{ active: boolean; completed: boolean }>(
+const PlanCard = styled("img", {
+  shouldForwardProp: (prop) => prop !== "active" && prop !== "completed",
+})<{ active: boolean; completed: boolean }>(
   ({ active, completed }) => ({
     width: 127,
     height: 101,
@@ -103,7 +106,9 @@ const PlanCard = styled("img")<{ active: boolean; completed: boolean }>(
   })
 );
 
-const CharacterMascot = styled("img")<{ active: boolean; completed: boolean }>(
+const CharacterMascot = styled("img", {
+  shouldForwardProp: (prop) => prop !== "active" && prop !== "completed",
+})<{ active: boolean; completed: boolean }>(
   ({ active, completed }) => ({
     height: 150,
     opacity: active || completed ? 1 : 0.5,
