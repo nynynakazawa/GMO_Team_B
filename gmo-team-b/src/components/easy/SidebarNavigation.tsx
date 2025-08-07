@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { Box, List, ListItem, ListItemButton, ListItemText, Button, Stack } from '@mui/material';
+import { Box, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { FaServer, FaCompactDisc, FaFolder } from "react-icons/fa";
 import { FaNetworkWired, FaKey } from "react-icons/fa6";
@@ -28,18 +28,18 @@ const LogoContainer = styled(Box)(() => ({
   justifyContent: 'center'
 }));
 
-const AddServerButton = styled(Button)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  borderRadius: '0px',
-  height: 46,
-  fontSize: '14px',
-  fontFamily: '"Noto Sans", sans-serif',
-  textTransform: 'none',
-  '&:hover': {
-    backgroundColor: theme.palette.primary.dark
-  }
-}));
+// const AddServerButton = styled(Button)(({ theme }) => ({
+//   backgroundColor: theme.palette.primary.main,
+//   color: theme.palette.primary.contrastText,
+//   borderRadius: '0px',
+//   height: 46,
+//   fontSize: '14px',
+//   fontFamily: '"Noto Sans", sans-serif',
+//   textTransform: 'none',
+//   '&:hover': {
+//     backgroundColor: theme.palette.primary.dark
+//   }
+// }));
 
 const NavList = styled(List)(() => ({
   padding: 0,
