@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 
 import React, { useState } from "react";
 import { Box, Container, Typography, IconButton, Stack } from "@mui/material";
@@ -8,7 +9,10 @@ import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import { menuLabels } from "../../data/menuLabels";
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  iconUrl: string;
+}
+export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [easyMode, setEasyMode] = useState(true);
 
@@ -68,12 +72,31 @@ export const Header: React.FC = () => {
             
           </Link>
           <Box sx={{ position: "relative" }}>
-            <IconButton
-              sx={{ bgcolor: "#e3f2fd", color: "#19B8D7" }}
-              onClick={handleUserMenuToggle}
-            >
-              <Person />
-            </IconButton>
+<IconButton
+  sx={{
+    bgcolor: "#e3f2fd",
+    color: "#19B8D7",
+    width: 60,
+    height: 60,
+    borderRadius: '50%', // 丸い背景にする（デフォルトでも丸だが明示）
+    padding: 0            // 余白を消してImageとぴったり合わせる
+  }}
+  onClick={handleUserMenuToggle}
+>
+<Image
+  src={iconUrl || '/images/conoha_image1.png'}
+  alt="アイコン"
+  width={60}
+  height={60}
+  style={{
+    width: '60px',
+    height: '60px',
+    borderRadius: '50%',
+    objectFit: 'cover',
+  }}
+/>
+
+</IconButton>
             <UserMenu
               isOpen={isUserMenuOpen}
               easyMode={easyMode}

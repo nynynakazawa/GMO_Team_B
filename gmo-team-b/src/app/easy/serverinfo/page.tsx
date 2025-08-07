@@ -413,6 +413,7 @@ function ServerInfo() {
   //   if (pathname === '/create') return menuLabels.createServer;
   //   return '';
   // };
+
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       {/* Header */}
