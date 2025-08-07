@@ -17,7 +17,7 @@ import { usePathname } from "next/navigation";
 import { menuLabels } from "../../data/menuLabels";
 
 interface HeaderProps {
-  iconUrl: string;
+  iconUrl?: string;
 }
 export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);

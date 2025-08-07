@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [serverName, setServerName] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleGameSelect = (gameId: string) => {
     setSelectedGame(gameId);
@@ -41,6 +42,10 @@ const App: React.FC = () => {
 
   const handleServerNameChange = (name: string) => {
     setServerName(name);
+  };
+
+  const handlePasswordChange = (password: string) => {
+    setPassword(password);
   };
 
   const handleCreateServer = () => {
@@ -62,6 +67,7 @@ const App: React.FC = () => {
           selectedPeriod={selectedPeriod}
           selectedPlan={selectedPlan}
           serverName={serverName}
+          password={password}
           games={mockRootProps.games}
           plans={mockRootProps.plans}
           periodOptions={mockRootProps.periodOptions}
@@ -69,6 +75,7 @@ const App: React.FC = () => {
           onPeriodSelect={handlePeriodSelect}
           onPlanSelect={handlePlanSelect}
           onServerNameChange={handleServerNameChange}
+          onPasswordChange={handlePasswordChange}
           onCreateServer={handleCreateServer}
         />
       </ThemeProvider>

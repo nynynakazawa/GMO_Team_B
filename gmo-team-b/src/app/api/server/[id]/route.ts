@@ -19,6 +19,7 @@ export async function GET(
       // Return mock data when token is not available
       const mockData: ParsedServerInfo = {
         nameTag: "game-2025-08-04-13-54",
+        status: "ACTIVE",
         ipAddress: "133.117.75.97",
         subnetMask: "255.255.254.0",
         gateway: "133.117.75.1",
@@ -43,6 +44,7 @@ export async function GET(
     // Return mock data on error
     const mockData: ParsedServerInfo = {
       nameTag: "game-2025-08-04-13-54",
+      status: "ACTIVE",
       ipAddress: "133.117.75.97",
       subnetMask: "255.255.254.0",
       gateway: "133.117.75.1",

@@ -24,7 +24,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
     // 認証が必要なページで未認証の場合
     if (requireAuth && !isAuthenticated) {
       // 現在のパスをクエリパラメータとして保存
-      const redirectPath = pathname !== '/' ? `?redirect=${encodeURIComponent(pathname)}` : '';
+      const redirectPath = pathname && pathname !== '/' ? `?redirect=${encodeURIComponent(pathname)}` : '';
       router.push(`/${redirectPath}`);
       return;
     }
