@@ -133,7 +133,7 @@ export default async function handler(
     console.log("=== 認証結果 ===");
     console.log("プロジェクトID:", result.projectId);
     console.log("Compute エンドポイント:", result.computeEndpoint);
-    console.log("トークン（最初の20文字）:", result.token.substring(0, 20) + "...");
+    console.log("トークン（最初の20文字）:", result.token);
 
     // セキュリティのため、トークンは最初の20文字のみ返す
     const responseData = {

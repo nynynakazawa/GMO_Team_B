@@ -70,6 +70,7 @@ const serverActions: ServerAction[] = [
   {
     label: "保存",
     icon: CloudUpload,
+    slug: "save",
   },
   {
     label: "復元",
@@ -131,11 +132,16 @@ function ServerInfo() {
     if (!selectedServerId) return;
 
     try {
-      console.log(slug)
-      const path =
-        slug == "delete"
-          ? `/api/server/${selectedServerId}/deleteServer`
-          : `/api/server/${selectedServerId}/${slug}`;
+      console.log(slug);
+      
+      let path = ""
+      if (slug == "delete") {
+        path = `/api/server/${selectedServerId}/deleteServer`;
+      } else if (slug == "save") {
+        path = `/api/server/${selectedServerId}/saveImage`;
+      } else {
+        path = `/api/server/${selectedServerId}/${slug}`;
+      }
 
       const res = await fetch(path, {
         method: "POST",
@@ -809,5 +815,3 @@ export default function ServerInfoPage() {
     </AuthGuard>
   );
 }
-
-
