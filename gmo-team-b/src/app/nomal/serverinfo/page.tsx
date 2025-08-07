@@ -46,7 +46,7 @@ import {
   Delete,
   Person,
 } from '@mui/icons-material';
-import { serverInfoMockData } from '../../../data/serverInfoMockData';
+import { serverInfoMockData,  ServerSetting } from '../../../data/serverInfoMockData';
 import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
 import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
 import UserMenu from '../../../components/easy/UserMenu';
@@ -140,7 +140,7 @@ export default function ServerInfoPage() {
   } | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
+  const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
   const handleServerAction = async (slug: ServerAction["slug"]) => {
     if (!selectedServerId) return;
 
@@ -453,7 +453,7 @@ const handleNameTagChange = (newValue: string) => {
         }}
       >
         <Container maxWidth="xl" disableGutters>
-          <Header />
+          <Header iconUrl={iconUrl}/>
 
           {error && (
             <Alert
