@@ -5,6 +5,7 @@ import { Box, Typography, Stack, Paper } from '@mui/material'
 import { InputField } from './ui/InputField'
 import { ActionButton } from './ui/ActionButton'
 import { LinkText } from './ui/LinkText'
+import { AuthError } from 'firebase/auth'
 
 import { signUpWithEmailAndPassword } from './firebaseAuth'
 
