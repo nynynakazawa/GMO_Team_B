@@ -134,8 +134,9 @@ export default function ServerInfoPage() {
     if (!selectedServerId) return;
 
     try {
+      console.log(slug)
       const path =
-        slug === "delete"
+        slug == "delete"
           ? `/api/server/${selectedServerId}/deleteServer`
           : `/api/server/${selectedServerId}/${slug}`;
 

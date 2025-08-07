@@ -8,15 +8,16 @@ type Volume = {
   device: string;
 };
 
-export async function deleteServer(
-  _req: NextRequest,
-  context: { params: { id: string } }
+export async function POST(
+  _req: Request,
+  { params }: { params: { id: string } }
 ) {
+  const { id } = params;
+  const serverId = id;
   try {
     console.log("=== /api/server/deleteServer handler start ===");
 
     const { token } = await getConoHaTokenAndEndpoint();
-    const serverId = context.params.id;
     const tenantId = process.env.CONOHA_TENANT_ID;
 
     if (!token) {
@@ -59,10 +60,33 @@ export async function deleteServer(
       volumeList.volumeAttachments?.length || 0
     );
 
+    console.log("=== Start delete server ===");
+
+    const res = await fetch(
+      `https://compute.c3j1.conoha.io/v2.1/servers/${serverId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Accept: "application/json",
+          "X-Auth-Token": token,
+        },
+      }
+    );
+
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(
+        `Delete failed for ${serverId}: ${res.status} ${res.statusText} – ${txt}`
+      );
+    }
+
+    console.log("=== Delete server Completed ===");
+
     console.log("=== Start delete attached volumes ===");
 
     await Promise.all(
       volumeList.volumeAttachments.map(async (volume) => {
+        console.log(volume);
         const volumeId = volume.volumeId;
         const res = await fetch(
           `https://block-storage.c3j1.conoha.io/v3/${tenantId}/volumes/${volumeId}`,
@@ -85,27 +109,7 @@ export async function deleteServer(
     );
 
     console.log("=== Delete attached volumes Completed ===");
-    console.log("=== Start delete server ===");
-
-    const res = await fetch(
-      `https://compute.c3j1.conoha.io/v2.1/servers/${serverId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-          "X-Auth-Token": token,
-        },
-      }
-    );
-
-    if (!res.ok) {
-      const txt = await res.text();
-      throw new Error(
-        `Delete failed for ${serverId}: ${res.status} ${res.statusText} – ${txt}`
-      );
-    }
-
-    console.log("=== Delete server Completed ===");
+    
 
     /* ▼ 最新のサーバ一覧を取って返す（必要ないなら丸ごと省いて OK） */
     // const listAfter = await fetch(
