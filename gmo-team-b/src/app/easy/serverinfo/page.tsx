@@ -56,8 +56,6 @@ interface ServerAction {
   slug?: string;
 }
 
-
-
 const serverActions: ServerAction[] = [
   {
     label: "再起動",
@@ -120,8 +118,10 @@ function ServerInfo() {
   const [selectedServerId, setSelectedServerId] = useState<string | null>(null);
   const [serverListLoading, setServerListLoading] = useState(false);
   const [isServerListOpen, setIsServerListOpen] = useState(false);
-  const [serverSettings, setServerSettings] = useState(serverInfoMockData.serverSettings);
-  
+  const [serverSettings, setServerSettings] = useState(
+    serverInfoMockData.serverSettings
+  );
+
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{
     slug: ServerAction["slug"];
@@ -134,7 +134,7 @@ function ServerInfo() {
     if (!selectedServerId) return;
 
     try {
-      console.log(slug)
+      console.log(slug);
       const path =
         slug == "delete"
           ? `/api/server/${selectedServerId}/deleteServer`
@@ -163,12 +163,12 @@ function ServerInfo() {
       throw err; // ← 呼び出し元に失敗を知らせる
     }
   };
-//アカウント情報→ネームタグ編集用関数
-  
+  //アカウント情報→ネームタグ編集用関数
+
   const handleNameTagChange = (newValue: string) => {
-    setServerSettings(prev =>
-      prev.map(setting =>
-        setting.label === 'ネームタグ'
+    setServerSettings((prev) =>
+      prev.map((setting) =>
+        setting.label === "ネームタグ"
           ? { ...setting, value: newValue }
           : setting
       )
@@ -348,23 +348,26 @@ function ServerInfo() {
 
   useEffect(() => {
     loadServerList();
-    
+
     // flavorsResの結果を取得してコンソールに表示
     const fetchFlavorsRes = async () => {
       try {
         console.log("=== flavorsRes取得開始 ===");
-        const response = await fetch('/api/vps/plans');
-        
+        const response = await fetch("/api/vps/plans");
+
         if (!response.ok) {
           const errorData = await response.json();
-          console.error("flavorsRes取得エラー:", errorData.message || 'flavorsResの取得に失敗しました');
+          console.error(
+            "flavorsRes取得エラー:",
+            errorData.message || "flavorsResの取得に失敗しました"
+          );
           return;
         }
-        
+
         const data = await response.json();
         console.log("=== flavorsResの結果 ===");
         console.log("flavorsRes全体:", data);
-        
+
         // 元のflavorsResの構造を再現
         console.log("=== 元のflavorsRes構造 ===");
         if (data.plans && Array.isArray(data.plans)) {
@@ -379,11 +382,11 @@ function ServerInfo() {
               // 元のflavorsResに含まれる可能性のある他のプロパティ
               originalFlavorName: plan.flavorName,
               extractedRamGB: plan.ramGB,
-              extractedCpuCores: plan.vcpus
+              extractedCpuCores: plan.vcpus,
             });
           });
         }
-        
+
         console.log("=== flavorsRes取得完了 ===");
       } catch (err) {
         console.error("flavorsRes取得中にエラーが発生しました:", err);
@@ -436,7 +439,9 @@ function ServerInfo() {
     setServerName(serverInfo?.nameTag || "");
     setIsEditingServerName(false);
   };
-  const handleServerNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleServerNameChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setServerName(event.target.value);
   };
 
@@ -580,6 +585,11 @@ function ServerInfo() {
                   key={index}
                   variant="outlined"
                   startIcon={<IconComponent />}
+                  disabled={
+                    (slug == "reboot" && !serverStatus) ||
+                    (slug == "force_shutdown" && !serverStatus) ||
+                    (slug == "delete" && deleteLock)
+                  }
                   onClick={() => {
                     if (slug) {
                       openConfirm(slug, label);
@@ -705,5 +715,3 @@ export default function ServerInfoPage() {
     </AuthGuard>
   );
 }
-
-
