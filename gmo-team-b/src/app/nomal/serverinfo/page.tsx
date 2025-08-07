@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -30,7 +30,7 @@ import {
   DialogContentText,
   DialogTitle,
   Snackbar,
-} from '@mui/material';
+} from "@mui/material";
 import {
   KeyboardArrowRight,
   Refresh,
@@ -58,7 +58,6 @@ import type {
   ServerListResponse,
   EnhancedServerSummary,
 } from "../../../types/serverTypes";
-
 
 interface ServerAction {
   label: string;
@@ -145,7 +144,7 @@ export default function ServerInfoPage() {
     if (!selectedServerId) return;
 
     try {
-      console.log(slug)
+      console.log(slug);
       const path =
         slug == "delete"
           ? `/api/server/${selectedServerId}/deleteServer`
@@ -404,22 +403,21 @@ export default function ServerInfoPage() {
     setServerName(event.target.value);
   };
 
-
- 
-const [serverSettings, setServerSettings] = useState(serverInfoMockData.serverSettings);
-
-
-const handleNameTagChange = (newValue: string) => {
-  setServerSettings(prev =>
-    prev.map(setting =>
-      setting.label === 'ネームタグ'
-        ? { ...setting, value: newValue }
-        : setting
-    )
+  const [serverSettings, setServerSettings] = useState(
+    serverInfoMockData.serverSettings
   );
-  setServerName(newValue); // サーバー名も同期したい場合
-};
- if (loading && !serverInfo) {
+
+  const handleNameTagChange = (newValue: string) => {
+    setServerSettings((prev) =>
+      prev.map((setting) =>
+        setting.label === "ネームタグ"
+          ? { ...setting, value: newValue }
+          : setting
+      )
+    );
+    setServerName(newValue); // サーバー名も同期したい場合
+  };
+  if (loading && !serverInfo) {
     return (
       <Box
         sx={{
@@ -557,6 +555,11 @@ const handleNameTagChange = (newValue: string) => {
                   key={index}
                   variant="outlined"
                   startIcon={<IconComponent />}
+                  disabled={
+                    (slug == "reboot" && !serverStatus) ||
+                    (slug == "force_shutdown" && !serverStatus) ||
+                    (slug == "delete" && deleteLock)
+                  }
                   onClick={() => {
                     if (slug) {
                       openConfirm(slug, label);
@@ -650,8 +653,7 @@ const handleNameTagChange = (newValue: string) => {
               deleteLock={deleteLock}
               onAutoBackupChange={handleAutoBackupChange}
               onDeleteLockChange={handleDeleteLockChange}
-              onNameTagChange={handleNameTagChange} 
-
+              onNameTagChange={handleNameTagChange}
             />
           </TabPanel>
 
@@ -812,7 +814,10 @@ const handleNameTagChange = (newValue: string) => {
 
           {/* Console Tab */}
           <TabPanel value={tabValue} index={2}>
-            <ConsoleTab serverId={selectedServerId || ""} serverInfo={serverInfo} />
+            <ConsoleTab
+              serverId={selectedServerId || ""}
+              serverInfo={serverInfo}
+            />
           </TabPanel>
         </Paper>
 
@@ -835,4 +840,4 @@ const handleNameTagChange = (newValue: string) => {
       </Container>
     </Box>
   );
-} 
+}
