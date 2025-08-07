@@ -45,17 +45,13 @@ import {
   CloudDownload,
   Delete,
   Person,
-} from "@mui/icons-material";
-import {
-  serverInfoMockData,
-  ServerAction,
-  ServerSetting,
-} from "../../../data/serverInfoMockData";
-import ServerSettingsTab from "../../../components/easy/serverinfo/ServerSettingsTab";
-import ServerNameEditor from "../../../components/easy/serverinfo/ServerNameEditor";
-import UserMenu from "../../../components/easy/UserMenu";
-import BillingCards from "../../../components/easy/serverinfo/BillingCards";
-import ConsoleTab from "../../../components/easy/serverinfo/ConsoleTab";
+} from '@mui/icons-material';
+import { serverInfoMockData,  ServerSetting } from '../../../data/serverInfoMockData';
+import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
+import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
+import UserMenu from '../../../components/easy/UserMenu';
+import BillingCards from '../../../components/easy/serverinfo/BillingCards';
+import ConsoleTab from '../../../components/easy/serverinfo/ConsoleTab';
 import { Header } from "../../../components/easy/Header";
 import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
 import type {
@@ -143,7 +139,7 @@ export default function ServerInfoPage() {
   } | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
+  const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
   const handleServerAction = async (slug: ServerAction["slug"]) => {
     if (!selectedServerId) return;
 
@@ -455,7 +451,7 @@ export default function ServerInfoPage() {
         }}
       >
         <Container maxWidth="xl" disableGutters>
-          <Header />
+          <Header iconUrl={iconUrl}/>
 
           {error && (
             <Alert
