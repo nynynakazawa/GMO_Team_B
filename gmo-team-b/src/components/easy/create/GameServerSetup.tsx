@@ -14,12 +14,20 @@ import { GameServerSetupProps } from "../../../types/gameServerSetup";
 const MainContainer = styled(Box)(() => ({
   minHeight: "100vh",
   backgroundColor: "#f5f5f5",
+  overflowX: "hidden",
+  width: "100%",
 }));
 
-const ContentContainer = styled(Box)(() => ({
+const ContentContainer = styled(Box)(({ theme }) => ({
   padding: "0 20px 40px 20px",
   maxWidth: 1400,
   margin: "0 auto",
+  [theme.breakpoints.down('md')]: {
+    padding: "0 10px 30px 10px",
+  },
+  [theme.breakpoints.down('sm')]: {
+    padding: "0 8px 20px 8px",
+  },
 }));
 
 export const GameServerSetup: React.FC<GameServerSetupProps> = ({
@@ -49,7 +57,7 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
       <ContentContainer>
         <EasyProgressStepper currentStep={currentStep} />
 
-        <Stack spacing={4}>
+        <Stack spacing={{ xs: 5, md: 6 }} sx={{ mt: { xs: 4, md: 5 } }}>
           <GameSelectionGrid
             games={games}
             selectedGame={selectedGame}

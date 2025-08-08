@@ -121,21 +121,36 @@ export default function ConsoleTab({ serverId, serverInfo }: ConsoleTabProps) {
       <Box
         sx={{
           display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
           justifyContent: 'space-between',
-          alignItems: 'center',
+          alignItems: { xs: 'stretch', md: 'center' },
           mb: 2,
           p: 2,
           bgcolor: 'background.paper',
           borderRadius: 1,
           border: '1px solid',
           borderColor: 'divider',
+          gap: { xs: 2, md: 0 },
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
+        {/* 1行目: タイトル */}
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            fontWeight: 'medium',
+            textAlign: { xs: 'center', md: 'left' }
+          }}
+        >
           WebSocketコンソール
         </Typography>
         
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        {/* 2行目: ボタン群 */}
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 1,
+          justifyContent: { xs: 'center', md: 'flex-end' },
+          flexWrap: 'wrap'
+        }}>
           {!isConnected && (
             <Button
               variant="contained"
@@ -147,6 +162,7 @@ export default function ConsoleTab({ serverId, serverInfo }: ConsoleTabProps) {
                 '&:hover': { bgcolor: '#15a0c0' },
                 textTransform: 'none',
                 borderRadius: '50px',
+                minWidth: { xs: '120px', md: 'auto' },
               }}
             >
               {isConnecting ? '接続中...' : '接続'}
@@ -180,6 +196,8 @@ export default function ConsoleTab({ serverId, serverInfo }: ConsoleTabProps) {
                   },
                   textTransform: 'none',
                   borderRadius: '50px',
+                  minWidth: { xs: '120px', md: 'auto' },
+                  whiteSpace: 'nowrap',
                 }}
               >
                 切断

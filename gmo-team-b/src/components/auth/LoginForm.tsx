@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { Box,Button, Typography, Stack, Paper } from '@mui/material'
+import { styled } from '@mui/material/styles'
 import { InputField } from './ui/InputField'
 import { ActionButton } from './ui/ActionButton'
 import { LinkText } from './ui/LinkText'
@@ -12,6 +13,75 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../../contexts/AuthContext';
 
+// createページのパターンに合わせたstyled components
+const FormPaper = styled(Paper)(({ theme }) => ({
+  borderRadius: '10px',
+  padding: '60px 40px',
+  backgroundColor: '#ffffff',
+  boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
+  width: '100%',
+  maxWidth: '800px',
+  margin: '0 auto',
+  [theme.breakpoints.down('md')]: {
+    padding: '40px 30px',
+  },
+  [theme.breakpoints.down('sm')]: {
+    padding: '20px 16px',
+  },
+}));
+
+const FormStack = styled(Stack)(({ theme }) => ({
+  alignItems: "center",
+  [theme.breakpoints.down('sm')]: {
+    spacing: 1.5,
+  },
+}));
+
+const FormTitle = styled(Typography)(({ theme }) => ({
+  fontFamily: "'Noto Sans', sans-serif",
+  fontSize: '28px',
+  fontWeight: 600,
+  color: '#000000',
+  marginBottom: '32px',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '22px',
+    marginBottom: '20px',
+  },
+}));
+
+const FieldStack = styled(Stack)(({ theme }) => ({
+  width: '100%',
+  maxWidth: '600px',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: theme.spacing(2),
+  [theme.breakpoints.down('sm')]: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: theme.spacing(1),
+  },
+}));
+
+const FieldLabel = styled(Typography)(({ theme }) => ({
+  fontFamily: "'Noto Sans', sans-serif",
+  fontSize: '20px',
+  fontWeight: 500,
+  color: '#000000',
+  width: '180px',
+  textAlign: 'right',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '16px',
+    width: '100%',
+    textAlign: 'left',
+  },
+}));
+
+const FieldBox = styled(Box)(({ theme }) => ({
+  width: '350px',
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+  },
+}));
 
 //サーバー一覧の型定義
 export type Server = {
@@ -150,52 +220,23 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const isFormValid = email && password && validateEmail(email) && validatePassword(password)
 
   return (
-    <Paper
-      elevation={1}
-      sx={{
-        borderRadius: '10px',
-        padding: '60px 40px 60px 40px',
-        backgroundColor: '#ffffff',
-        boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-        width: '100%',
-        maxWidth: '800px',
-        margin: '0 auto'
-      }}
-    >
-      <Stack spacing={2} alignItems="center">
+    <FormPaper elevation={1}>
+      <FormStack spacing={{ xs: 1.5, md: 2 }}>
         {/* Title */}
-        <Typography
-          variant="h4"
-          sx={{
-            fontFamily: "'Noto Sans', sans-serif",
-            fontSize: '28px',
-            fontWeight: 600,
-            color: '#000000',
-            marginBottom: '32px'
-          }}
-        >
+        <FormTitle variant="h4">
           ログイン
-        </Typography>
+        </FormTitle>
 
 
         {/* Form */}
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
-          <Stack spacing={2.5} alignItems="center">
+          <Stack spacing={{ xs: 2, md: 2.5 }} alignItems="center">
             {/* Email Field */}
-            <Stack direction="row" alignItems="center" spacing={2} sx={{ width: '100%', maxWidth: '600px' }}>
-              <Typography
-                sx={{
-                  fontFamily: "'Noto Sans', sans-serif",
-                  fontSize: '20px',
-                  fontWeight: 500,
-                  color: '#000000',
-                  width: '180px',
-                  textAlign: 'right'
-                }}
-              >
+            <FieldStack>
+              <FieldLabel>
                 メールアドレス : 
-              </Typography>
-              <Box sx={{ width: '350px' }}>
+              </FieldLabel>
+              <FieldBox>
                 <InputField
                   type="email"
                   value={email}
@@ -203,24 +244,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                   error={!!emailError}
                   helperText={emailError}
                 />
-              </Box>
-            </Stack>
+              </FieldBox>
+            </FieldStack>
 
             {/* Password Field */}
-            <Stack direction="row" alignItems="center" spacing={2} sx={{ width: '100%', maxWidth: '600px' }}>
-              <Typography
-                sx={{
-                  fontFamily: "'Noto Sans', sans-serif",
-                  fontSize: '20px',
-                  fontWeight: 500,
-                  color: '#000000',
-                  width: '180px',
-                  textAlign: 'right'
-                }}
-              >
+            <FieldStack>
+              <FieldLabel>
                 パスワード : 
-              </Typography>
-              <Box sx={{ width: '350px' }}>
+              </FieldLabel>
+              <FieldBox>
                 <InputField
                   type="password"
                   value={password}
@@ -228,9 +260,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                   error={!!passwordError}
                   helperText={passwordError}
                 />
-              </Box>
-            </Stack>
-        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
+              </FieldBox>
+            </FieldStack>
+        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: { xs: '12px', md: '16px' } }}>
           <Button
             variant="outlined"
             startIcon={<GoogleIcon />}
@@ -239,13 +271,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               textTransform: 'none',
               fontWeight: 500,
               fontFamily: "'Noto Sans', sans-serif",
+              fontSize: { xs: '14px', sm: '16px', md: '18px' },
+              padding: { xs: '8px 16px', md: '10px 20px' },
             }}
           >
             Googleでログイン
           </Button>
         </Box>
             {/* Navigation Links */}
-            <Stack spacing={1} sx={{ marginTop: '24px', alignItems: 'center' }}>
+            <Stack spacing={{ xs: 0.5, md: 1 }} sx={{ marginTop: { xs: '12px', md: '20px' }, alignItems: 'center' }}>
               <LinkText onClick={onCreateAccount}>
                 ＞新規アカウント登録はこちらから
               </LinkText>
@@ -255,14 +289,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </Stack>
 
             {/* Submit Button */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: { xs: '16px', md: '24px' } }}>
               <ActionButton type="submit" disabled={!isFormValid}>
                 ログイン
               </ActionButton>
             </Box>
           </Stack>
         </Box>
-      </Stack>
-    </Paper>
+      </FormStack>
+    </FormPaper>
   )
 }

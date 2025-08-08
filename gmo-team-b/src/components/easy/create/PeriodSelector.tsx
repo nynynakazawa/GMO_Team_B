@@ -14,8 +14,14 @@ import { styled } from "@mui/material/styles";
 import DropdownArrowIcon from "../../icons/DropdownArrowIcon";
 import { PeriodOption } from "../../../types/gameServerSetup";
 
-const SectionContainer = styled(Box)(() => ({
+const SectionContainer = styled(Box)(({ theme }) => ({
   marginBottom: 40,
+  [theme.breakpoints.down('md')]: {
+    marginBottom: 30,
+  },
+  [theme.breakpoints.down('sm')]: {
+    marginBottom: 20,
+  },
 }));
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
@@ -24,10 +30,20 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
   fontFamily: "Iceland",
   color: theme.palette.primary.main,
   marginBottom: 20,
+  [theme.breakpoints.down('md')]: {
+    fontSize: "24px",
+    marginBottom: 15,
+  },
+  [theme.breakpoints.down('sm')]: {
+    fontSize: "20px",
+    marginBottom: 10,
+  },
 }));
 
 const StyledFormControl = styled(FormControl)(({ theme }) => ({
   minWidth: 300,
+  width: "100%",
+  maxWidth: "100%",
   "& .MuiOutlinedInput-root": {
     backgroundColor: theme.palette.background.paper,
     borderRadius: theme.shape.borderRadius,
@@ -41,6 +57,20 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
     fontSize: "18px",
     fontFamily: '"Noto Sans", sans-serif',
     padding: "12px 16px",
+    [theme.breakpoints.down('md')]: {
+      fontSize: "16px",
+      padding: "10px 14px",
+    },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "14px",
+      padding: "8px 12px",
+    },
+  },
+  [theme.breakpoints.down('md')]: {
+    minWidth: 250,
+  },
+  [theme.breakpoints.down('sm')]: {
+    minWidth: "100%",
   },
 }));
 

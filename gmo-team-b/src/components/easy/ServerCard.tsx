@@ -49,8 +49,7 @@ const ServerName = styled(Typography)(() => ({
 }));
 
 const ActionButtons = styled(Stack)(() => ({
-  direction: 'row',
-  spacing: 1
+  // Stackのdirectionとspacingは使用時に渡すため、ここでは空のオブジェクトにする
 }));
 
 const ActionButton = styled(IconButton)(({ theme }) => ({

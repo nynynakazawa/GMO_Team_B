@@ -14,6 +14,16 @@ const StyledButton = styled(Button)(({ theme }) => ({
   textTransform: 'none',
   height: '54px',
   minWidth: '162px',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '18px',
+    height: '42px',
+    minWidth: '120px',
+  },
+  [theme.breakpoints.down('xs')]: {
+    fontSize: '16px',
+    height: '38px',
+    minWidth: '100px',
+  },
   '&:hover': {
     backgroundColor: '#239bb5',
   },

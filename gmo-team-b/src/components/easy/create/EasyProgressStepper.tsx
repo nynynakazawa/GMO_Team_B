@@ -16,13 +16,28 @@ const ProgressContainer = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   minHeight: 324,
   boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
+  overflow: "hidden",
+  [theme.breakpoints.down('md')]: {
+    padding: theme.spacing(2),
+    margin: theme.spacing(1),
+    minHeight: 250,
+  },
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1.5),
+    margin: theme.spacing(0.5),
+    minHeight: 200,
+  },
 }));
 
-const StepContainer = styled(Box)(() => ({
+const StepContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "flex-start",
   justifyContent: "space-between",
   marginBottom: 20,
+  gap: theme.spacing(0.5),
+  [theme.breakpoints.down('sm')]: {
+    gap: theme.spacing(0.25),
+  },
 }));
 
 const StepContent = styled(Box, {
@@ -50,6 +65,14 @@ const StepTitle = styled(Typography, {
   textAlign: "center",
   marginBottom: theme.spacing(2),
   transition: "all 0.3s ease",
+  [theme.breakpoints.down('md')]: {
+    fontSize: "18px",
+    marginBottom: theme.spacing(1.5),
+  },
+  [theme.breakpoints.down('sm')]: {
+    fontSize: "14px",
+    marginBottom: theme.spacing(1),
+  },
 }));
 
 const ActionButton = styled(Button)<{ active: boolean }>(
@@ -80,7 +103,7 @@ const ActionButton = styled(Button)<{ active: boolean }>(
 const IconContainer = styled(Box, {
   shouldForwardProp: (prop) => prop !== "active" && prop !== "completed",
 })<{ active: boolean; completed: boolean }>(
-  ({ active, completed }) => ({
+  ({ theme, active, completed }) => ({
     width: 122,
     height: 110,
     borderRadius: 10,
@@ -90,6 +113,14 @@ const IconContainer = styled(Box, {
     backgroundColor: active || completed ? "rgba(25, 184, 215, 0.1)" : "rgba(0, 0, 0, 0.05)",
     opacity: active || completed ? 1 : 0.5,
     transition: "all 0.3s ease",
+    [theme.breakpoints.down('md')]: {
+      width: 80,
+      height: 70,
+    },
+    [theme.breakpoints.down('sm')]: {
+      width: 50,
+      height: 45,
+    },
   })
 );
 
@@ -109,15 +140,21 @@ const PlanCard = styled("img", {
 const CharacterMascot = styled("img", {
   shouldForwardProp: (prop) => prop !== "active" && prop !== "completed",
 })<{ active: boolean; completed: boolean }>(
-  ({ active, completed }) => ({
+  ({ theme, active, completed }) => ({
     height: 150,
     opacity: active || completed ? 1 : 0.5,
     filter: active || completed ? "none" : "grayscale(100%)",
     transition: "all 0.3s ease",
+    [theme.breakpoints.down('md')]: {
+      height: 100,
+    },
+    [theme.breakpoints.down('sm')]: {
+      height: 70,
+    },
   })
 );
 
-const ProgressLineContainer = styled(Box)(() => ({
+const ProgressLineContainer = styled(Box)(({ theme }) => ({
   marginTop: 20,
   display: "flex",
   justifyContent: "center",
@@ -307,7 +344,7 @@ export const EasyProgressStepper: React.FC<ProgressStepperProps> = ({
           <IconContainer active={active} completed={completed}>
             <SettingsIcon 
               sx={{ 
-                fontSize: 60, 
+                fontSize: { xs: 30, md: 45, lg: 60 }, 
                 color: active || completed ? '#19b8d7' : '#666' 
               }} 
             />
@@ -319,7 +356,7 @@ export const EasyProgressStepper: React.FC<ProgressStepperProps> = ({
           <IconContainer active={active} completed={completed}>
             <SportsEsportsIcon 
               sx={{ 
-                fontSize: 60, 
+                fontSize: { xs: 30, md: 45, lg: 60 }, 
                 color: active || completed ? '#19b8d7' : '#666' 
               }} 
             />
@@ -331,7 +368,7 @@ export const EasyProgressStepper: React.FC<ProgressStepperProps> = ({
           <IconContainer active={active} completed={completed}>
             <ScheduleIcon 
               sx={{ 
-                fontSize: 60, 
+                fontSize: { xs: 30, md: 45, lg: 60 }, 
                 color: active || completed ? '#19b8d7' : '#666' 
               }} 
             />

@@ -10,6 +10,8 @@ import {
   ListItemText,
   Stack,
   Link,
+  useMediaQuery, 
+  useTheme
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FaServer, FaCompactDisc, FaFolder } from "react-icons/fa";
@@ -107,10 +109,19 @@ const menuItems = [
   //   icon: <GrDomain size={20} color="white" />,
   // },
   // { id: "api", label: "API", icon: <GrDomain size={20} color="white" /> },
+
 ];
 
 // デフォルトエクスポートに修正
 const SidebarNavigation: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // モバイル版ではサイドバーを表示しない
+  if (isMobile) {
+    return null;
+  }
+
   return (
     <SidebarContainer>
       <LogoContainer>

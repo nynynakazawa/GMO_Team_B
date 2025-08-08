@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 import { Box, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Header } from "../../Header";
-import { EasyProgressStepper } from "./EasyProgressStepper";
-import { GameSelectionGrid } from "./GameSelectionGrid";
-import { PeriodSelector } from "./PeriodSelector";
-import { PlanSelectionGrid } from "./PlanSelectionGrid";
-import { ServerConfigForm } from "./ServerConfigForm";
+import { Header } from "./easy/Header";
+import { EasyProgressStepper } from "./easy/create/EasyProgressStepper";
+import { GameSelectionGrid } from "./easy/create/GameSelectionGrid";
+import { PeriodSelector } from "./easy/create/PeriodSelector";
+import { PlanSelectionGrid } from "./easy/create/PlanSelectionGrid";
+import { ServerConfigForm } from "./easy/create/ServerConfigForm";
 import { GameServerSetupProps } from "../types/gameServerSetup";
 
 const MainContainer = styled(Box)(() => ({
@@ -43,7 +43,7 @@ export const GameServerSetup: React.FC<GameServerSetupProps> = ({
 }) => {
   return (
     <MainContainer>
-      <Header />
+      <Header iconUrl="/images/conohaIcon.png" />
 
       <ContentContainer>
         <EasyProgressStepper currentStep={currentStep} />

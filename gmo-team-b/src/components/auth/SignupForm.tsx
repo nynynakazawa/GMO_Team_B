@@ -2,12 +2,79 @@
 
 import React, { useState } from 'react'
 import { Box, Typography, Stack, Paper } from '@mui/material'
+import { styled } from '@mui/material/styles'
 import { InputField } from './ui/InputField'
 import { ActionButton } from './ui/ActionButton'
 import { LinkText } from './ui/LinkText'
 import { AuthError } from 'firebase/auth'
 
 import { signUpWithEmailAndPassword } from './firebaseAuth'
+
+// createページのパターンに合わせたstyled components
+const FormPaper = styled(Paper)(({ theme }) => ({
+  borderRadius: '10px',
+  padding: '60px 40px',
+  backgroundColor: '#fafafa',
+  boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
+  width: '100%',
+  maxWidth: '800px',
+  margin: '0 auto',
+  [theme.breakpoints.down('md')]: {
+    padding: '40px 30px',
+  },
+  [theme.breakpoints.down('sm')]: {
+    padding: '20px 16px',
+  },
+}));
+
+const FormStack = styled(Stack)(({ theme }) => ({
+  alignItems: "center",
+  [theme.breakpoints.down('sm')]: {
+    spacing: 1.5,
+  },
+}));
+
+const FormTitle = styled(Typography)(({ theme }) => ({
+  fontFamily: "'Noto Sans', sans-serif",
+  fontSize: '28px',
+  fontWeight: 600,
+  color: '#000000',
+  marginBottom: '32px',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '22px',
+    marginBottom: '20px',
+  },
+}));
+
+const FieldStack = styled(Stack)(({ theme }) => ({
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: theme.spacing(2),
+  [theme.breakpoints.down('sm')]: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: theme.spacing(1),
+  },
+}));
+
+const FieldLabel = styled(Typography)(({ theme }) => ({
+  fontFamily: "'Noto Sans', sans-serif",
+  fontSize: '16px',
+  fontWeight: 500,
+  color: '#000000',
+  minWidth: '100px',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '14px',
+    minWidth: 'auto',
+  },
+}));
+
+const FieldBox = styled(Box)(({ theme }) => ({
+  flexGrow: 1,
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+  },
+}));
 
 // カスタムエラー型の定義
 type FirebaseAuthError = {
@@ -85,50 +152,22 @@ export const SignupForm: React.FC<SignupFormProps> = ({
   const isFormValid = email && password && validateEmail(email) && validatePassword(password)
 
   return (
-    <Paper
-      elevation={1}
-      sx={{
-        borderRadius: '10px',
-        padding: '60px 40px 60px 40px',
-        backgroundColor: '#fafafa',
-        boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-        width: '100%',
-        maxWidth: '800px',
-        margin: '0 auto'
-      }}
-    >
-      <Stack spacing={2} alignItems="center">
+    <FormPaper elevation={1}>
+      <FormStack spacing={{ xs: 1.5, md: 2 }}>
         {/* Title */}
-        <Typography
-          variant="h4"
-          sx={{
-            fontFamily: "'Noto Sans', sans-serif",
-            fontSize: '28px',
-            fontWeight: 600,
-            color: '#000000',
-            marginBottom: '32px'
-          }}
-        >
+        <FormTitle variant="h4">
           サインアップ
-        </Typography>
+        </FormTitle>
 
         {/* Form */}
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
-          <Stack spacing={2.5}>
+          <Stack spacing={{ xs: 2, md: 2.5 }}>
             {/* Email Field */}
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <Typography
-                sx={{
-                  fontFamily: "'Noto Sans', sans-serif",
-                  fontSize: '16px',
-                  fontWeight: 500,
-                  color: '#000000',
-                  minWidth: '100px'
-                }}
-              >
+            <FieldStack>
+              <FieldLabel>
                 メールアドレス : 
-              </Typography>
-              <Box sx={{ flexGrow: 1 }}>
+              </FieldLabel>
+              <FieldBox>
                 <InputField
                   isSignup
                   type="email"
@@ -137,23 +176,15 @@ export const SignupForm: React.FC<SignupFormProps> = ({
                   error={!!emailError}
                   helperText={emailError}
                 />
-              </Box>
-            </Stack>
+              </FieldBox>
+            </FieldStack>
 
             {/* Password Field */}
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <Typography
-                sx={{
-                  fontFamily: "'Noto Sans', sans-serif",
-                  fontSize: '16px',
-                  fontWeight: 500,
-                  color: '#000000',
-                  minWidth: '100px'
-                }}
-              >
+            <FieldStack>
+              <FieldLabel>
                 パスワード : 
-              </Typography>
-              <Box sx={{ flexGrow: 1 }}>
+              </FieldLabel>
+              <FieldBox>
                 <InputField
                   isSignup
                   type="password"
@@ -162,11 +193,11 @@ export const SignupForm: React.FC<SignupFormProps> = ({
                   error={!!passwordError}
                   helperText={passwordError}
                 />
-              </Box>
-            </Stack>
+              </FieldBox>
+            </FieldStack>
 
             {/* Terms Agreement */}
-            <Box sx={{ marginTop: '20px' }}>
+            <Box sx={{ marginTop: { xs: '16px', md: '20px' } }}>
               <Typography
                 sx={{
                   fontFamily: "'Noto Sans', sans-serif",
@@ -183,21 +214,21 @@ export const SignupForm: React.FC<SignupFormProps> = ({
             </Box>
 
             {/* Navigation Link */}
-            <Box sx={{ marginTop: '12px' }}>
+            <Box sx={{ marginTop: { xs: '8px', md: '12px' } }}>
               <LinkText onClick={onExistingAccount}>
                 ＞すでにアカウントがある方はこちらから
               </LinkText>
             </Box>
 
             {/* Submit Button */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: { xs: '16px', md: '24px' } }}>
               <ActionButton type="submit" disabled={!isFormValid}>
                 次へ
               </ActionButton>
             </Box>
           </Stack>
         </Box>
-      </Stack>
-    </Paper>
+      </FormStack>
+    </FormPaper>
   )
 }
