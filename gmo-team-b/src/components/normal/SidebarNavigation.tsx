@@ -30,6 +30,9 @@ const SidebarContainer = styled(Box)(({ theme }) => ({
   position: "sticky",
   top: 0,
   flexDirection: "column",
+  [theme.breakpoints.down('md')]: {
+    display: 'none',
+  },
 }));
 
 const LogoContainer = styled(Box)(() => ({
@@ -114,14 +117,6 @@ const menuItems = [
 
 // デフォルトエクスポートに修正
 const SidebarNavigation: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-
-  // モバイル版ではサイドバーを表示しない
-  if (isMobile) {
-    return null;
-  }
-
   return (
     <SidebarContainer>
       <LogoContainer>
