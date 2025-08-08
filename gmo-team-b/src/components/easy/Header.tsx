@@ -47,10 +47,10 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
     localStorage.setItem("easyMode", JSON.stringify(checked));
   };
   const getPageTitle = () => {
-    if (pathname === "/nomal/serverinfo"||
+    if (pathname === "/normal/serverinfo"||
     pathname === "/easy/serverinfo") return menuLabels.myServer;
     if (pathname === "/account") return menuLabels.accountSettings;
-    if (pathname === "/nomal/create"||
+    if (pathname === "/normal/create"||
     pathname === "/easy/create") return menuLabels.createServer;
     return "";
   };
@@ -80,7 +80,7 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
           }}
         >
           <Link
-            href={easyMode ? "/easy/serverinfo" : "/nomal/serverinfo"}
+            href={easyMode ? "/easy/serverinfo" : "/normal/serverinfo"}
             style={{ textDecoration: "none" }}
           >
             <Stack 

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { SidebarNavigation } from '../nomal/SidebarNavigation';
+import { SidebarNavigation } from '../normal/SidebarNavigation';
 import { HeaderTabs } from './HeaderTabs';
 import { ProgressStepper } from './ProgressStepper';
 import { ServicesList } from './ServicesList';
@@ -40,7 +40,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
     <DashboardContainer sx={{
       flexDirection: isMobile ? 'column' : 'row'
     }}>
-      <SidebarNavigation />
       
       <MainContent sx={{
         width: isMobile ? '100%' : 'auto'

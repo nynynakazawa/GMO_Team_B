@@ -56,7 +56,7 @@ export default function UserMenu({
     >
       <Box sx={{ py: 1 }}>
         {/* Myサーバー */}
-        <Link href={easyMode ? "/easy/serverinfo" : "/nomal/serverinfo"}>
+        <Link href={easyMode ? "/easy/serverinfo" : "/normal/serverinfo"} underline="none">
           <Box
             sx={{
               px: 3,
@@ -77,7 +77,7 @@ export default function UserMenu({
         <Divider sx={{ my: 0 }} />
 
         {/* 新規サーバー作成 */}
-        <Link href={easyMode ? "/easy/create" : "/nomal/create"}>
+        <Link href={easyMode ? "/easy/create" : "/normal/create"} underline="none">
           <Box
             sx={{
               px: 3,
@@ -118,12 +118,12 @@ export default function UserMenu({
               
               // 現在のページに基づいて適切なページに遷移
               if (pathname?.startsWith('/easy/')) {
-                // 現在easyページにいる場合、nomalページに遷移
-                const newPath = pathname.replace('/easy/', '/nomal/');
+                // 現在easyページにいる場合、normalページに遷移
+                const newPath = pathname.replace('/easy/', '/normal/');
                 router.push(newPath);
-              } else if (pathname?.startsWith('/nomal/')) {
-                // 現在nomalページにいる場合、easyページに遷移
-                const newPath = pathname.replace('/nomal/', '/easy/');
+              } else if (pathname?.startsWith('/normal/')) {
+                // 現在normalページにいる場合、easyページに遷移
+                const newPath = pathname.replace('/normal/', '/easy/');
                 router.push(newPath);
               }
               
@@ -145,7 +145,7 @@ export default function UserMenu({
         <Divider sx={{ my: 0 }} />
 
         {/* アカウント設定 */}
-        <Link href="/account">
+        <Link href="/account" underline="none">
           <Box
             sx={{
               px: 3,
