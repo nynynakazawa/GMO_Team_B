@@ -5,9 +5,9 @@ import { getConoHaTokenAndEndpoint } from "@/pages/api/vps/conohaAuth";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   try {
     const tokenAndEndpoint = await getConoHaTokenAndEndpoint();
@@ -19,6 +19,7 @@ export async function GET(
       // Return mock data when token is not available
       const mockData: ParsedServerInfo = {
         nameTag: "game-2025-08-04-13-54",
+        status: "ACTIVE",
         ipAddress: "133.117.75.97",
         subnetMask: "255.255.254.0",
         gateway: "133.117.75.1",
@@ -43,6 +44,7 @@ export async function GET(
     // Return mock data on error
     const mockData: ParsedServerInfo = {
       nameTag: "game-2025-08-04-13-54",
+      status: "ACTIVE",
       ipAddress: "133.117.75.97",
       subnetMask: "255.255.254.0",
       gateway: "133.117.75.1",

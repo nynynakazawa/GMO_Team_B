@@ -33,11 +33,11 @@ import {
 } from "@mui/icons-material";
 import { KeyboardArrowRight, HelpOutline, Refresh } from "@mui/icons-material";
 import { serverInfoMockData } from "../../../data/serverInfoMockData";
+import ServerSettingsTab from "../../../components/easy/serverinfo/ServerSettingsTab";
+import ServerNameEditor from "../../../components/easy/serverinfo/ServerNameEditor";
+import BillingCards from "../../../components/easy/serverinfo/BillingCards";
 import { Header } from "../../../components/easy/Header";
 import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
-import ServerNameEditor from "@/components/easy/serverinfo/ServerNameEditor";
-import ServerSettingsTab from "@/components/easy/serverinfo/ServerSettingsTab";
-import BillingCards from "@/components/easy/serverinfo/BillingCards";
 import type {
   ServerListResponse,
   EnhancedServerSummary,
@@ -111,7 +111,7 @@ function ServerInfo() {
   const [selectedServerId, setSelectedServerId] = useState<string | null>(null);
   const [serverListLoading, setServerListLoading] = useState(false);
   const [isServerListOpen, setIsServerListOpen] = useState(false);
-  const [, setServerSettings] = useState(
+  const [serverSettings, setServerSettings] = useState(
     serverInfoMockData.serverSettings
   );
 
@@ -122,7 +122,8 @@ function ServerInfo() {
   } | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const iconUrl = useState("/images/conohaIcon.png")
+
+const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
   const handleServerAction = async (slug: ServerAction["slug"]) => {
     if (!selectedServerId) return;
 
@@ -185,7 +186,7 @@ function ServerInfo() {
       setSnackbarMessage(`${pendingAction.label} が完了しました`);
       if (pendingAction.slug === "os-start") setServerStatus(true);
       if (pendingAction.slug === "os-stop") setServerStatus(false);
-    } catch {
+    } catch (_err) {
       setSnackbarMessage(`${pendingAction.label} に失敗しました`);
     } finally {
       setSnackbarOpen(true);
@@ -227,42 +228,72 @@ function ServerInfo() {
     return ""; // Return empty string if failed
   };
 
-  // Load server list with nameTags
+  // Load server list with detailed info using batch API
   const loadServerList = async () => {
     try {
       setServerListLoading(true);
       setError(null);
 
-      const res = await fetch("/api/server/getServerList");
+      console.log("=== サーバーリスト読み込み開始 ===");
 
-      if (!res.ok) {
+      // 1. まず基本的なサーバーリストを取得
+      const serverListRes = await fetch("/api/server/getServerList");
+
+      if (!serverListRes.ok) {
         throw new Error(
-          `Server list API call failed: ${res.status} ${res.statusText}`
+          `Server list API call failed: ${serverListRes.status} ${serverListRes.statusText}`
         );
       }
 
-      const json = (await res.json()) as ServerListResponse;
-      console.log("Server list response:", json);
+      const serverListJson = (await serverListRes.json()) as ServerListResponse;
+      console.log("Server list response:", serverListJson);
 
       // Safely access the servers array with proper null checks
-      const basicList = json?.servers || [];
+      const basicList = serverListJson?.servers || [];
 
       if (Array.isArray(basicList) && basicList.length > 0) {
-        // Enhance server list with nameTags
-        const enhancedList: EnhancedServerSummary[] = await Promise.all(
-          basicList.map(async (server) => {
-            const nameTag = await loadServerNameTag(server.id);
-            return {
-              ...server,
-              nameTag,
-              displayName: nameTag || server.name, // Use nameTag if available, fallback to name
-            };
-          })
-        );
+        console.log(`=== ${basicList.length}台のサーバーの詳細情報をバッチ取得開始 ===`);
+        
+        // 2. バッチAPIで全サーバーの詳細情報を一度に取得
+        const serverIds = basicList.map(server => server.id);
+        const batchRes = await fetch("/api/server/batch", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ serverIds }),
+        });
+
+        if (!batchRes.ok) {
+          console.warn("Batch API failed, falling back to individual requests");
+          throw new Error("Batch API failed");
+        }
+
+        const batchData = await batchRes.json();
+        console.log("Batch server info response:", batchData);
+
+        // 3. サーバーリストと詳細情報を結合
+        const enhancedList: EnhancedServerSummary[] = basicList.map(server => {
+          const detailedInfo = batchData.servers.find((s: any) => s.id === server.id);
+          return {
+            ...server,
+            nameTag: detailedInfo?.nameTag || server.name,
+            displayName: detailedInfo?.nameTag || server.name,
+          };
+        });
+
+        // 4. 最初のサーバーの詳細情報をセット
+        const firstServerDetail = batchData.servers.find((s: any) => s.id === enhancedList[0].id);
+        if (firstServerDetail) {
+          setServerInfo(firstServerDetail);
+          setServerName(firstServerDetail.nameTag);
+          setServerStatus(firstServerDetail.status === "ACTIVE");
+        }
 
         setServerList(enhancedList);
         setSelectedServerId(enhancedList[0].id);
-        await loadServerInfo(enhancedList[0].id);
+        
+        console.log(`=== サーバーリスト読み込み完了 (${enhancedList.length}台) ===`);
       } else {
         console.warn("No servers found in the response");
         setError("No servers found");
@@ -387,7 +418,10 @@ function ServerInfo() {
     };
 
     fetchFlavorsRes();
-  });
+
+  }, []); // 依存配列を空配列に修正
+
+
 
   const handleServerSelect = async (serverId: string) => {
     setSelectedServerId(serverId);
@@ -400,6 +434,12 @@ function ServerInfo() {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+
+  const handleServerStatusChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setServerStatus(event.target.checked);
   };
 
   const handleAutoBackupChange = (

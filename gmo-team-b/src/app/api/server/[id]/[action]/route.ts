@@ -5,9 +5,9 @@ type Action = "os-start" | "os-stop" | "reboot" | "force_shutdown";
 
 export async function POST(
   _req: Request,
-  { params }: { params: { id: string; action: Action } }
+  { params }: { params: Promise<{ id: string; action: Action }> }
 ) {
-  const { id, action } = params;
+  const { id, action } = await params;
 
   // 1) アクション妥当性チェック
   if (!["os-start", "os-stop", "reboot", "force_shutdown"].includes(action)) {

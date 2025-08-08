@@ -27,7 +27,7 @@ const StepContainer = styled(Box)(() => ({
 
 const StepContent = styled(Box, {
   shouldForwardProp: (prop) => prop !== "completed",
-})<{ completed: boolean }>(() => ({
+})<{ completed: boolean }>(({ theme, completed }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -89,6 +89,19 @@ const IconContainer = styled(Box, {
     justifyContent: "center",
     backgroundColor: active || completed ? "rgba(25, 184, 215, 0.1)" : "rgba(0, 0, 0, 0.05)",
     opacity: active || completed ? 1 : 0.5,
+    transition: "all 0.3s ease",
+  })
+);
+
+const PlanCard = styled("img", {
+  shouldForwardProp: (prop) => prop !== "active" && prop !== "completed",
+})<{ active: boolean; completed: boolean }>(
+  ({ active, completed }) => ({
+    width: 127,
+    height: 101,
+    borderRadius: 10,
+    opacity: active || completed ? 1 : 0.5,
+    filter: active || completed ? "none" : "grayscale(100%)",
     transition: "all 0.3s ease",
   })
 );
@@ -334,6 +347,7 @@ export const EasyProgressStepper: React.FC<ProgressStepperProps> = ({
     <ProgressContainer>
       <StepContainer>
         {steps.map((step) => {
+          const active = isStepActive(step.id);
           const completed = isStepCompleted(step.id);
 
           return (

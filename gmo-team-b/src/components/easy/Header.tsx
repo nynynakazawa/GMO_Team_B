@@ -10,13 +10,14 @@ import {
   Stack,
   ClickAwayListener,
 } from "@mui/material";
+import { Person } from "@mui/icons-material";
 import UserMenu from "./UserMenu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { menuLabels } from "../../data/menuLabels";
 
 interface HeaderProps {
-  iconUrl: string;
+  iconUrl?: string;
 }
 export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -103,8 +104,8 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
                   sx={{
                     bgcolor: "#e3f2fd",
                     color: "#19B8D7",
-                    width: 60,
-                    height: 60,
+                    width: 50,
+                    height: 50,
                     borderRadius: "50%", // 丸い背景にする（デフォルトでも丸だが明示）
                     padding: 0, // 余白を消してImageとぴったり合わせる
                   }}
@@ -113,11 +114,11 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
                   <Image
                     src={iconUrl || "/images/conohaIcon.png"}
                     alt="アイコン"
-                    width={60}
-                    height={60}
+                    width={50}
+                    height={50}
                     style={{
-                      width: "60px",
-                      height: "60px",
+                      width: "50px",
+                      height: "50px",
                       borderRadius: "50%",
                       objectFit: "cover",
                     }}

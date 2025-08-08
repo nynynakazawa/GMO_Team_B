@@ -14,8 +14,10 @@ import {
   Select,
   MenuItem,
   FormControl,
+  Divider,
   Card,
   CardContent,
+  Tooltip,
   CircularProgress,
   Alert,
   List,
@@ -33,28 +35,30 @@ import {
   KeyboardArrowRight,
   Refresh,
   HelpOutline,
+  Edit,
+  Clear,
+  ContentCopy,
   RestartAlt,
   PowerSettingsNew,
   OpenInNew,
   CloudUpload,
   CloudDownload,
   Delete,
+  Person,
 } from '@mui/icons-material';
-
-import { serverInfoMockData, ServerSetting } from '@/data/serverInfoMockData';
-import ServerSettingsTab from '@/components/easy/serverinfo/ServerSettingsTab';
-import ServerNameEditor from '@/components/easy/serverinfo/ServerNameEditor';
-import UserMenu from '@/components/easy/UserMenu';
-import BillingCards from '@/components/easy/serverinfo/BillingCards';
-import ConsoleTab from '@/components/easy/serverinfo/ConsoleTab';
-import ResourceTab from '@/components/easy/serverinfo/ResourceTab';
-import { Header } from "@/components/easy/Header";
-
+import { serverInfoMockData,  ServerSetting } from '../../../data/serverInfoMockData';
+import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
+import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
+import UserMenu from '../../../components/easy/UserMenu';
+import BillingCards from '../../../components/easy/serverinfo/BillingCards';
+import ConsoleTab from '../../../components/easy/serverinfo/ConsoleTab';
+import ResourceTab from '../../../components/easy/serverinfo/ResourceTab';
+import { Header } from "../../../components/easy/Header";
 import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
 import type {
   ServerListResponse,
   EnhancedServerSummary,
-} from "@/types/serverTypes";
+} from "../../../types/serverTypes";
 
 interface ServerAction {
   label: string;
@@ -136,7 +140,9 @@ export default function ServerInfoPage() {
   } | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [isLoadingServerList, setIsLoadingServerList] = useState(false);
   const iconUrl = "/images/conohaIcon.png"
+
   const handleServerAction = async (slug: ServerAction["slug"]) => {
     if (!selectedServerId) return;
 
@@ -188,7 +194,7 @@ export default function ServerInfoPage() {
       setSnackbarMessage(`${pendingAction.label} が完了しました`);
       if (pendingAction.slug === "os-start") setServerStatus(true);
       if (pendingAction.slug === "os-stop") setServerStatus(false);
-    } catch {
+    } catch (_err) {
       setSnackbarMessage(`${pendingAction.label} に失敗しました`);
     } finally {
       setSnackbarOpen(true);
@@ -230,42 +236,79 @@ export default function ServerInfoPage() {
     return ""; // Return empty string if failed
   };
 
-  // Load server list with nameTags
+  // Load server list with detailed info using batch API
   const loadServerList = async () => {
+    // 既にロード中の場合はスキップ
+    if (isLoadingServerList) {
+      console.log('サーバーリストのロード中のため、新しいリクエストをスキップします');
+      return;
+    }
+
     try {
+      setIsLoadingServerList(true);
       setServerListLoading(true);
       setError(null);
 
-      const res = await fetch("/api/server/getServerList");
+      console.log("=== サーバーリスト読み込み開始 ===");
 
-      if (!res.ok) {
+      // 1. まず基本的なサーバーリストを取得
+      const serverListRes = await fetch("/api/server/getServerList");
+
+      if (!serverListRes.ok) {
         throw new Error(
-          `Server list API call failed: ${res.status} ${res.statusText}`
+          `Server list API call failed: ${serverListRes.status} ${serverListRes.statusText}`
         );
       }
 
-      const json = (await res.json()) as ServerListResponse;
-      console.log("Server list response:", json);
+      const serverListJson = (await serverListRes.json()) as ServerListResponse;
+      console.log("Server list response:", serverListJson);
 
       // Safely access the servers array with proper null checks
-      const basicList = json?.servers || [];
+      const basicList = serverListJson?.servers || [];
 
       if (Array.isArray(basicList) && basicList.length > 0) {
-        // Enhance server list with nameTags
-        const enhancedList: EnhancedServerSummary[] = await Promise.all(
-          basicList.map(async (server) => {
-            const nameTag = await loadServerNameTag(server.id);
-            return {
-              ...server,
-              nameTag,
-              displayName: nameTag || server.name, // Use nameTag if available, fallback to name
-            };
-          })
-        );
+        console.log(`=== ${basicList.length}台のサーバーの詳細情報をバッチ取得開始 ===`);
+        
+        // 2. バッチAPIで全サーバーの詳細情報を一度に取得
+        const serverIds = basicList.map(server => server.id);
+        const batchRes = await fetch("/api/server/batch", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ serverIds }),
+        });
+
+        if (!batchRes.ok) {
+          console.warn("Batch API failed, falling back to individual requests");
+          throw new Error("Batch API failed");
+        }
+
+        const batchData = await batchRes.json();
+        console.log("Batch server info response:", batchData);
+
+        // 3. サーバーリストと詳細情報を結合
+        const enhancedList: EnhancedServerSummary[] = basicList.map(server => {
+          const detailedInfo = batchData.servers.find((s: any) => s.id === server.id);
+          return {
+            ...server,
+            nameTag: detailedInfo?.nameTag || server.name,
+            displayName: detailedInfo?.nameTag || server.name,
+          };
+        });
+
+        // 4. 最初のサーバーの詳細情報をセット
+        const firstServerDetail = batchData.servers.find((s: any) => s.id === enhancedList[0].id);
+        if (firstServerDetail) {
+          setServerInfo(firstServerDetail);
+          setServerName(firstServerDetail.nameTag);
+          setServerStatus(firstServerDetail.status === "ACTIVE");
+        }
 
         setServerList(enhancedList);
         setSelectedServerId(enhancedList[0].id);
-        await loadServerInfo(enhancedList[0].id);
+        
+        console.log(`=== サーバーリスト読み込み完了 (${enhancedList.length}台) ===`);
       } else {
         console.warn("No servers found in the response");
         setError("No servers found");
@@ -293,6 +336,7 @@ export default function ServerInfoPage() {
       await loadServerInfo(mockList[0].id);
     } finally {
       setServerListLoading(false);
+      setIsLoadingServerList(false);
     }
   };
 
@@ -344,7 +388,7 @@ export default function ServerInfoPage() {
 
   useEffect(() => {
     loadServerList();
-  });
+  }, []); // 依存配列を空配列に修正
 
   const handleServerSelect = async (serverId: string) => {
     setSelectedServerId(serverId);
@@ -357,6 +401,12 @@ export default function ServerInfoPage() {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+
+  const handleServerStatusChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setServerStatus(event.target.checked);
   };
 
   const handleAutoBackupChange = (
@@ -394,7 +444,7 @@ export default function ServerInfoPage() {
     setServerName(event.target.value);
   };
 
-  const [, setServerSettings] = useState(
+  const [serverSettings, setServerSettings] = useState(
     serverInfoMockData.serverSettings
   );
 
@@ -814,7 +864,10 @@ export default function ServerInfoPage() {
 
           {/* Resource Tab */}
           <TabPanel value={tabValue} index={3}>
-            <ResourceTab serverId={selectedServerId || ""} serverInfo={serverInfo} />
+            <ResourceTab
+              serverId={selectedServerId || ""}
+              serverInfo={serverInfo}
+            />
           </TabPanel>
         </Paper>
 

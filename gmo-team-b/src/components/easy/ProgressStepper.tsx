@@ -75,10 +75,25 @@ const ProgressLineContainer = styled(Box)(() => ({
 }));
 
 interface ProgressStepperProps {
-  currentStep: number;
+  currentStep?: number;
+  onStepChange?: (step: number) => void;
+  onComplete?: () => void;
+  autoProgress?: boolean;
+  autoProgressDelay?: number;
+  steps?: Array<{
+    title: string;
+    description?: string;
+  }>;
 }
 
-export const ProgressStepper: React.FC<ProgressStepperProps> = () => {
+export const ProgressStepper: React.FC<ProgressStepperProps> = ({ 
+  currentStep = 1,
+  onStepChange,
+  onComplete,
+  autoProgress = false,
+  autoProgressDelay = 2000,
+  steps
+}) => {
   return (
     <ProgressContainer>
       <StepContainer>

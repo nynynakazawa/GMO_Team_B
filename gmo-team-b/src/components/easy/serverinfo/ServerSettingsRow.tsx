@@ -9,6 +9,7 @@ import {
 import {
   Edit,
   Clear,
+  ContentCopy,
   HelpOutline,
 } from '@mui/icons-material';
 import { ServerSetting } from '../../../data/serverInfoMockData';
@@ -40,7 +41,11 @@ export default function ServerSettingsRow({
   rightItem,
   leftValue,
   rightValue,
+  leftIcon,
   rightIcon,
+  leftOnClick,
+  rightOnClick,
+  leftSwitch,
   rightSwitch,
   isLastRow = false,
   customBorderWidth,
@@ -48,6 +53,10 @@ export default function ServerSettingsRow({
 }: ServerSettingsRowProps) {
  const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(leftItem.value as string);
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
 
   const borderWidth = customBorderWidth || (isLastRow ? 'none' : '1px solid #e0e0e0');
   useEffect(() => {
@@ -167,14 +176,9 @@ export default function ServerSettingsRow({
                   <IconButton size="small" sx={{ color: '#19B8D7' }}>
                     <Edit fontSize="small" />
                   </IconButton>
-                ) : rightItem.label === '有効期間' ? (
-                  <IconButton size="small" sx={{ color: '#19B8D7' }}>
-                    <Clear fontSize="small" />
-                  </IconButton>
                 ) : (
-                  <IconButton size="small" sx={{ color: '#19B8D7' }}>
-                    <Clear fontSize="small" />
-                  </IconButton>
+                  <>
+                  </>
                 )
               )}
             </>

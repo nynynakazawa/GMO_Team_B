@@ -2,6 +2,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { getAnalytics } from 'firebase/analytics'
+import { getStorage } from 'firebase/storage';
 import { getFirestore } from "firebase/firestore";
 
 
@@ -32,6 +33,7 @@ if (typeof window !== 'undefined') {
 const db = getFirestore(app);
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
+const storage = getStorage(app);
 
 // Googleでサインイン
 export const signInWithGoogle = async () => {
