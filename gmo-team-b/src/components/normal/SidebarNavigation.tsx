@@ -139,7 +139,7 @@ const SidebarNavigation: React.FC = () => {
             <NavListItem>
               <Stack direction="row" spacing={1} alignItems="center">
                 {item.icon}
-                <Link href={`/nomal/${item.id}`} underline="none">
+                <Link href={`/normal/${item.id}`} underline="none">
                   <ListItemText
                     primary={item.label}
                     primaryTypographyProps={{

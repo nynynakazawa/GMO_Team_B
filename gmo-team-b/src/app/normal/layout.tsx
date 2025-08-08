@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
-import SidebarNavigation from '../../components/nomal/SidebarNavigation';
+import SidebarNavigation from '../../components/normal/SidebarNavigation';
 
 export default function NormalLayout({ children }: { children: React.ReactNode }) {
   const theme = useTheme();
