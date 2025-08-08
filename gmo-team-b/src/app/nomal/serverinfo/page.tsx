@@ -240,31 +240,52 @@ export default function ServerInfoPage() {
   const loadServerList = async () => {
     // 既にロード中の場合はスキップ
     if (isLoadingServerList) {
-      console.log('サーバーリストのロード中のため、新しいリクエストをスキップします');
+      console.log('[ServerInfo] サーバーリストのロード中のため、新しいリクエストをスキップします');
       return;
     }
 
     try {
+      console.log('[ServerInfo] loadServerList 開始');
       setIsLoadingServerList(true);
       setServerListLoading(true);
       setError(null);
+      setLoading(true);
+      console.log('[ServerInfo] 各種ローディング状態をセット. loading:', true);
 
       console.log("=== サーバーリスト読み込み開始 ===");
 
       // 1. まず基本的なサーバーリストを取得
       const serverListRes = await fetch("/api/server/getServerList");
+      console.log("Server list API response status:", serverListRes.status);
 
       if (!serverListRes.ok) {
+        console.error(`Server list API call failed: ${serverListRes.status} ${serverListRes.statusText}`);
+        // APIエラーの場合は一時停止して再試行
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const retryRes = await fetch("/api/server/getServerList");
+        if (!retryRes.ok) {
         throw new Error(
-          `Server list API call failed: ${serverListRes.status} ${serverListRes.statusText}`
-        );
+            `Server list API call failed after retry: ${retryRes.status} ${retryRes.statusText}`
+          );
+        }
+        console.log("Server list API retry succeeded");
+        const retryJson = await retryRes.json();
+        console.log("Server list retry response:", retryJson);
+        const basicList = retryJson?.servers || [];
+        if (!basicList.length) {
+          throw new Error("No servers found in retry response");
+        }
+        return basicList;
       }
 
-      const serverListJson = (await serverListRes.json()) as ServerListResponse;
+      const serverListJson = await serverListRes.json();
       console.log("Server list response:", serverListJson);
 
       // Safely access the servers array with proper null checks
       const basicList = serverListJson?.servers || [];
+      if (!basicList.length) {
+        throw new Error("No servers found in response");
+      }
 
       if (Array.isArray(basicList) && basicList.length > 0) {
         console.log(`=== ${basicList.length}台のサーバーの詳細情報をバッチ取得開始 ===`);
@@ -297,43 +318,174 @@ export default function ServerInfoPage() {
           };
         });
 
-        // 4. 最初のサーバーの詳細情報をセット
-        const firstServerDetail = batchData.servers.find((s: any) => s.id === enhancedList[0].id);
-        if (firstServerDetail) {
-          setServerInfo(firstServerDetail);
-          setServerName(firstServerDetail.nameTag);
-          setServerStatus(firstServerDetail.status === "ACTIVE");
+        // 4. 最初のサーバーの詳細情報をセット（新しく作成されたサーバーを優先）
+        let serverToShow = basicList[0];
+        
+        // sessionStorageから新しく作成されたサーバー情報を取得
+        if (typeof window !== 'undefined') {
+          const newServerData = sessionStorage.getItem('newlyCreatedServer');
+          if (newServerData) {
+            try {
+              const { serverId, serverName: expectedName, createdAt } = JSON.parse(newServerData);
+              
+              // 5分以内に作成されたサーバーのみ対象
+              if (Date.now() - createdAt < 5 * 60 * 1000) {
+                const newServer = basicList.find(server => server.id === serverId);
+                if (newServer) {
+                  serverToShow = newServer;
+                  console.log('[ServerInfo] 新しく作成されたサーバーを優先選択:', serverToShow.id, 'expected name:', expectedName);
+                }
+              } else {
+                // 古いデータは削除
+                sessionStorage.removeItem('newlyCreatedServer');
+              }
+            } catch (error) {
+              console.error('[ServerInfo] sessionStorage解析エラー:', error);
+              sessionStorage.removeItem('newlyCreatedServer');
+            }
+          }
+        }
+        
+        console.log('[ServerInfo] 表示対象のサーバー:', serverToShow);
+        
+        const serverDetail = batchData.servers.find((s: any) => s.id === serverToShow.id);
+        if (serverDetail) {
+          console.log('[ServerInfo] serverDetail が見つかりました:', serverDetail);
+          
+          // 新しく作成されたサーバーの場合、構築中なら再読み込み設定
+          const isNewlyCreated = typeof window !== 'undefined' && sessionStorage.getItem('newlyCreatedServer');
+          const isBuilding = serverDetail.status === 'BUILD' || serverDetail.ipAddress.includes('構築中');
+          
+          console.log('[ServerInfo] 再読み込み判定:', {
+            isNewlyCreated: !!isNewlyCreated,
+            status: serverDetail.status,
+            ipAddress: serverDetail.ipAddress,
+            isBuilding: isBuilding
+          });
+          
+          // 一旦現在の情報を表示
+          setServerInfo(serverDetail);
+          setServerName(serverDetail.nameTag);
+          setServerStatus(serverDetail.status === "ACTIVE");
+          setLoading(false);
+          
+          if (isNewlyCreated && isBuilding) {
+            console.log('[ServerInfo] 新しく作成されたサーバーが構築中です。5秒ごとにページを再読み込みします');
+            
+            // 5秒ごとにページを再読み込み
+            const reloadInterval = setInterval(() => {
+              console.log('[ServerInfo] ページを再読み込みします');
+              window.location.reload();
+            }, 5000);
+            
+            // 5分後にタイムアウト
+            setTimeout(() => {
+              console.log('[ServerInfo] 最大リトライ時間に達したため、自動再読み込みを停止します');
+              clearInterval(reloadInterval);
+              setError('サーバー情報の取得に時間がかかっています。手動で再読み込みしてください。');
+            }, 300000); // 5分
+          } else {
+            // 構築完了したらsessionStorageをクリア
+            if (isNewlyCreated && !isBuilding) {
+              console.log('[ServerInfo] サーバー構築が完了しました。sessionStorageをクリアします');
+              sessionStorage.removeItem('newlyCreatedServer');
+            }
+          }
+          
+          console.log('[ServerInfo] サーバー情報をセットし、loading を false にしました');
+        } else {
+          // バッチでサーバー詳細が取得できなかった場合は個別取得を試みる
+          console.log('[ServerInfo] バッチでサーバー詳細が取得できませんでした。個別取得を試みます');
+          
+          // 新しく作成されたサーバーの場合、詳細情報が取得できるまで複数回リトライ
+          const isNewlyCreated = typeof window !== 'undefined' && sessionStorage.getItem('newlyCreatedServer');
+          let retryCount = 0;
+          const maxRetries = isNewlyCreated ? 3 : 1;
+          
+          const attemptLoadServerInfo = async (): Promise<void> => {
+            try {
+              console.log(`[ServerInfo] 個別取得を試行中 (${retryCount + 1}/${maxRetries})`);
+              await loadServerInfo(serverToShow.id);
+              console.log('[ServerInfo] 個別取得成功');
+            } catch (error) {
+              console.error(`[ServerInfo] 個別取得失敗 (${retryCount + 1}/${maxRetries}):`, error);
+              retryCount++;
+              
+              if (retryCount < maxRetries) {
+                console.log(`[ServerInfo] ${3}秒後に再試行します`);
+                setTimeout(attemptLoadServerInfo, 3000);
+              } else {
+                console.error('[ServerInfo] 最大リトライ回数に達しました');
+                
+                // 新しく作成されたサーバーの場合、期待される名前を表示
+                let displayName = serverToShow.name; // デフォルトはvm-形式
+                if (isNewlyCreated) {
+                  const newServerData = sessionStorage.getItem('newlyCreatedServer');
+                  if (newServerData) {
+                    try {
+                      const { serverName: expectedName } = JSON.parse(newServerData);
+                      displayName = expectedName;
+                      console.log('[ServerInfo] 新しく作成されたサーバーの期待される名前を使用:', displayName);
+                    } catch (error) {
+                      console.error('[ServerInfo] sessionStorage解析エラー:', error);
+                    }
+                  }
+                }
+
+                // 最後の手段として、基本情報だけでも表示
+                const basicServerInfo: ParsedServerInfo = {
+                  nameTag: displayName,
+                  status: "BUILDING", // 構築中として表示
+                  ipAddress: "取得中...",
+                  subnetMask: "取得中...",
+                  gateway: "取得中...",
+                  macAddress: "取得中...",
+                  dnsServer1: "取得中...",
+                  dnsServer2: "取得中...",
+                  bandwidthIn: "取得中...",
+                  bandwidthOut: "取得中...",
+                  autoBackupEnabled: false,
+                  bootStorage: "取得中...",
+                  securityGroup: "取得中...",
+                };
+                
+                setServerInfo(basicServerInfo);
+                setServerName(displayName);
+                setServerStatus(false);
+                setLoading(false);
+                setError('サーバー詳細情報を取得中です。自動的に更新されます。');
+                
+
+              }
+            }
+          };
+          
+          await attemptLoadServerInfo();
         }
 
         setServerList(enhancedList);
-        setSelectedServerId(enhancedList[0].id);
+        setSelectedServerId(serverToShow.id);
         
         console.log(`=== サーバーリスト読み込み完了 (${enhancedList.length}台) ===`);
       } else {
         console.warn("No servers found in the response");
-        setError("No servers found");
+        // サーバーが見つからない場合でもローディング状態を解除
+        setLoading(false);
+        setError("サーバーが見つかりませんでした。新しいサーバーを作成してください。");
+        return;
       }
     } catch (err) {
       console.error("Failed to load server list", err);
       setError(
-        `Failed to load server list: ${
+        `サーバーリストの読み込みに失敗しました: ${
           err instanceof Error ? err.message : "Unknown error"
         }`
       );
 
-      // Fallback to mock data
-      const mockList: EnhancedServerSummary[] = [
-        {
-          id: "be135a87-c7ee-4f43-8072-8531716cad09",
-          name: "game-2025-08-04-13-54",
-          nameTag: "game-2025-08-04-13-54",
-          displayName: "game-2025-08-04-13-54",
-          links: [],
-        },
-      ];
-      setServerList(mockList);
-      setSelectedServerId(mockList[0].id);
-      await loadServerInfo(mockList[0].id);
+      // エラー時はローディング状態を解除し、エラーメッセージを表示
+      setLoading(false);
+      setServerList([]);
+      setSelectedServerId("");
     } finally {
       setServerListLoading(false);
       setIsLoadingServerList(false);
@@ -355,39 +507,67 @@ export default function ServerInfoPage() {
       }
 
       const info = (await res.json()) as ParsedServerInfo;
+      
+      // 新しく作成されたサーバーで名前がまだvm-形式の場合、期待される名前を使用
+      let displayName = info.nameTag;
+      if (typeof window !== 'undefined') {
+        const newServerData = sessionStorage.getItem('newlyCreatedServer');
+        if (newServerData) {
+          try {
+            const { serverId, serverName: expectedName } = JSON.parse(newServerData);
+            // vm-形式または構築中の場合は期待される名前を使用
+            if (info.nameTag && (info.nameTag.startsWith('vm-') || info.ipAddress.includes('構築中'))) {
+              console.log(`[ServerInfo] サーバー構築中のため期待される名前に置換: ${info.nameTag} -> ${expectedName}`);
+              displayName = expectedName;
+              // 構築中の場合はsessionStorageはまだクリアしない
+              if (!info.ipAddress.includes('構築中')) {
+                sessionStorage.removeItem('newlyCreatedServer');
+              }
+            } else {
+              console.log(`[ServerInfo] 名前は既に正しい形式です: ${info.nameTag}`);
+              // 正しい名前が取得できた場合はsessionStorageをクリア
+              sessionStorage.removeItem('newlyCreatedServer');
+            }
+          } catch (error) {
+            console.error('[ServerInfo] sessionStorage解析エラー:', error);
+          }
+        }
+      }
+      
       setServerInfo(info);
-      setServerName(info.nameTag);
+      setServerName(displayName);
       setServerStatus(info.status == "ACTIVE");
     } catch (err) {
       console.warn("Server info API call failed, using mock data:", err);
 
-      // Fallback to mock data
-      const mockServerInfo: ParsedServerInfo = {
-        nameTag: serverInfoMockData.serverName,
-        status: "ACTIVE",
-        ipAddress: serverInfoMockData.ipAddress,
-        subnetMask: "255.255.254.0",
-        gateway: "163.44.116.1",
-        macAddress: "fa:16:3e:f7:4e:47",
-        dnsServer1: "150.95.10.8",
-        dnsServer2: "150.95.10.9",
-        bandwidthIn: "100.0",
-        bandwidthOut: "100.0",
-        autoBackupEnabled: false,
-        bootStorage: "SSD 100GB",
-        securityGroup: "default",
-      };
-
-      setServerInfo(mockServerInfo);
-      setServerName(mockServerInfo.nameTag);
-      setError("Using mock data - API unavailable");
+      // エラー時はサーバー情報をクリアしてエラーメッセージを表示
+      setServerInfo(null);
+      setServerName("");
+      setError("サーバー情報の取得に失敗しました。しばらく待ってから再試行してください。");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadServerList();
+    console.log("[ServerInfo] ページマウント。初期化を開始します");
+    const initializePage = async () => {
+      try {
+        console.log("[ServerInfo] loadServerList を呼び出します");
+        await loadServerList();
+        console.log("[ServerInfo] loadServerList が完了しました");
+      } catch (error) {
+        console.error('[ServerInfo] Failed to initialize server info page:', error);
+        // エラーが発生した場合でもローディング状態を解除
+        setLoading(false);
+        setError('サーバー情報の読み込みに失敗しました。ページを再読み込みしてください。');
+      }
+    };
+
+    initializePage();
+    return () => {
+      console.log("[ServerInfo] ページアンマウント");
+    };
   }, []); // 依存配列を空配列に修正
 
   const handleServerSelect = async (serverId: string) => {
@@ -459,6 +639,7 @@ export default function ServerInfoPage() {
     setServerName(newValue); // サーバー名も同期したい場合
   };
   if (loading && !serverInfo) {
+    console.log("[ServerInfo] ローディング表示中. loading:", loading, "serverInfo:", !!serverInfo);
     return (
       <Box
         sx={{
@@ -473,6 +654,7 @@ export default function ServerInfoPage() {
       </Box>
     );
   }
+  console.log("[ServerInfo] メイン画面表示. loading:", loading, "serverInfo:", !!serverInfo);
   // const handleUserMenuToggle = () => {
   //   setIsUserMenuOpen(!isUserMenuOpen);
   // };

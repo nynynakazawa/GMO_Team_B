@@ -43,7 +43,7 @@ export const mockRootProps = {
     },
     {
       id: GameType.ARK_SURVIVAL_EVOLVED,
-      name: "ARK: Survival Evolved",
+      name: "ARK Survival Evolved",
       icon: PetsIcon, // 恐竜・猛獣系
       featured: true,
     },
@@ -76,7 +76,7 @@ export const mockRootProps = {
     },
     {
       id: GameType.DONT_STARVE_TOGETHER,
-      name: "Don't Starve Together",
+      name: "Dont Starve Together",
       icon: GroupIcon, // 協力サバイバル系
     },
     {
@@ -98,13 +98,13 @@ export const mockRootProps = {
     },
     {
       id: GameType.MINECRAFT_BEDROCK,
-      name: "Minecraft 統合版",
+      name: "Minecraft Integrated",
       icon: ViewInArIcon, // ブロック・建築系
       featured: true,
     },
     {
       id: GameType.MINECRAFT_JAVA,
-      name: "Minecraft Java版",
+      name: "Minecraft Java",
       icon: ViewInArIcon, // ブロック・建築系
       featured: true,
     },

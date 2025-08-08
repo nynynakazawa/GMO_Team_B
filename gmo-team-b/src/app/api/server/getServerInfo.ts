@@ -169,7 +169,24 @@ export async function getServerInfo(
   }
 
   if (!ipAddress) {
-    throw new Error("IPv4 address not found in server.addresses");
+    console.log("IPv4 address not found, server may still be building. Returning partial info.");
+    
+    // IPアドレスがまだ割り当てられていない場合（サーバー構築中）
+    return {
+      nameTag: nameTag || `vm-${server.id.substring(0, 8)}`,
+      status: server.status,
+      ipAddress: "構築中...",
+      subnetMask: "構築中...",
+      gateway: "構築中...",
+      macAddress: "構築中...",
+      dnsServer1: "150.95.10.8", // ConoHa固定値
+      dnsServer2: "150.95.10.9", // ConoHa固定値
+      bandwidthIn: "構築中...",
+      bandwidthOut: "構築中...",
+      autoBackupEnabled: false,
+      bootStorage: "構築中...",
+      securityGroup: "構築中...",
+    };
   }
 
   // subnet mask は /23 (=255.255.254.0) が ConoHa デフォ

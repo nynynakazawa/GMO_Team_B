@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Box, List, ListItem, ListItemButton, ListItemText, Stack, useMediaQuery, useTheme } from '@mui/material';
+import { Box, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { FaServer, FaCompactDisc, FaFolder } from "react-icons/fa";
 import { FaNetworkWired, FaKey } from "react-icons/fa6";
@@ -17,7 +17,11 @@ const SidebarContainer = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   padding: theme.spacing(1),
   display: 'flex',
-  flexDirection: 'column'
+  flexDirection: 'column',
+  // モバイルでは非表示（SSRでも適用されるCSSベース制御）
+  [theme.breakpoints.down('md')]: {
+    display: 'none',
+  },
 }));
 
 const LogoContainer = styled(Box)(() => ({
@@ -76,14 +80,6 @@ const menuItems = [
 
 // デフォルトエクスポートに修正
 const SidebarNavigation: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-
-  // モバイル版ではサイドバーを表示しない
-  if (isMobile) {
-    return null;
-  }
-
   return (
     <SidebarContainer>
       <LogoContainer>

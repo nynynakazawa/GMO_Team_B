@@ -277,8 +277,20 @@ export default function NormalCreatePage() {
       setCurrentStatus('completed');
       setIsCompleted(true);
       
+      console.log("[Create] サーバー作成完了。3秒後に遷移します。serverId:", result.serverId);
+      
+      // 作成したサーバー情報をsessionStorageに保存（名前反映待ち用）
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('newlyCreatedServer', JSON.stringify({
+          serverId: result.serverId,
+          serverName: serverName,
+          createdAt: Date.now()
+        }));
+      }
+      
       // 成功時の処理: 3秒後にサーバー情報ページに自動遷移
       setTimeout(() => {
+        console.log("[Create] serverinfo に遷移します");
         router.push('/nomal/serverinfo');
       }, 3000);
       
