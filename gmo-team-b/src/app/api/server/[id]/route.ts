@@ -10,11 +10,12 @@ export async function GET(
   const { id } = await params;
 
   try {
+    console.log(`[API] サーバー情報取得開始 - ID: ${id}`);
     const tokenAndEndpoint = await getConoHaTokenAndEndpoint();
     const token = tokenAndEndpoint.token;
     
     if (!token) {
-      console.warn('CONOHA_TOKEN not found, returning mock data');
+      console.warn(`[API] CONOHA_TOKEN not found for server ${id}, returning mock data`);
       
       // Return mock data when token is not available
       const mockData: ParsedServerInfo = {
@@ -36,26 +37,28 @@ export async function GET(
       return NextResponse.json(mockData, { status: 200 });
     }
     
+    console.log(`[API] ConoHA API呼び出し開始 - ID: ${id}`);
     const info = await getServerInfo(token, id);
+    console.log(`[API] ConoHA API呼び出し成功 - ID: ${id}`, info);
     return NextResponse.json(info, { status: 200 });
   } catch (error) {
-    console.error('Error fetching server info:', error);
+    console.error(`[API] Error fetching server info for ${id}:`, error);
     
-    // Return mock data on error
+    // Return mock data on error - but try to use server ID as name if available
     const mockData: ParsedServerInfo = {
-      nameTag: "game-2025-08-04-13-54",
-      status: "ACTIVE",
-      ipAddress: "133.117.75.97",
-      subnetMask: "255.255.254.0",
-      gateway: "133.117.75.1",
-      macAddress: "fa:16:3e:f7:4e:47",
-      dnsServer1: "150.95.10.8",
-      dnsServer2: "150.95.10.9",
-      bandwidthIn: "100.0",
-      bandwidthOut: "100.0",
+      nameTag: `server-${id.substring(0, 8)}`, // サーバーIDの最初の8文字を使用
+      status: "BUILDING", // エラー時は構築中として表示
+      ipAddress: "取得中...",
+      subnetMask: "取得中...",
+      gateway: "取得中...",
+      macAddress: "取得中...",
+      dnsServer1: "取得中...",
+      dnsServer2: "取得中...",
+      bandwidthIn: "取得中...",
+      bandwidthOut: "取得中...",
       autoBackupEnabled: false,
-      bootStorage: "SSD 100GB",
-      securityGroup: "default",
+      bootStorage: "取得中...",
+      securityGroup: "取得中...",
     };
     
     return NextResponse.json(mockData, { status: 200 });

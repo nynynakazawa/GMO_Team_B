@@ -11,6 +11,13 @@ import {
   Switch,
   IconButton,
   Button,
+  Select,
+  MenuItem,
+  FormControl,
+  Divider,
+  Card,
+  CardContent,
+  Tooltip,
   CircularProgress,
   Alert,
   List,
@@ -30,21 +37,22 @@ import {
   HelpOutline,
   Edit,
   Clear,
+  ContentCopy,
   RestartAlt,
   PowerSettingsNew,
   OpenInNew,
   CloudUpload,
   CloudDownload,
   Delete,
-} from "@mui/icons-material";
-import {
-  serverInfoMockData,
-  ServerSetting,
-} from "../../../data/serverInfoMockData";
-import ServerSettingsTab from "../../../components/easy/serverinfo/ServerSettingsTab";
-import BillingCards from "../../../components/easy/serverinfo/BillingCards";
-import ConsoleTab from "../../../components/easy/serverinfo/ConsoleTab";
-import ResourceTab from "../../../components/easy/serverinfo/ResourceTab";
+  Person,
+} from '@mui/icons-material';
+import { serverInfoMockData,  ServerSetting } from '../../../data/serverInfoMockData';
+import ServerSettingsTab from '../../../components/easy/serverinfo/ServerSettingsTab';
+import ServerNameEditor from '../../../components/easy/serverinfo/ServerNameEditor';
+import UserMenu from '../../../components/easy/UserMenu';
+import BillingCards from '../../../components/easy/serverinfo/BillingCards';
+import ConsoleTab from '../../../components/easy/serverinfo/ConsoleTab';
+import ResourceTab from '../../../components/easy/serverinfo/ResourceTab';
 import { Header } from "../../../components/easy/Header";
 import type { ParsedServerInfo } from "@/app/api/server/getServerInfo";
 import type {
@@ -133,7 +141,7 @@ export default function ServerInfoPage() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isLoadingServerList, setIsLoadingServerList] = useState(false);
-  const iconUrl = "/images/conohaIcon.png";
+  const iconUrl = "/images/conohaIcon.png"
 
   const handleServerAction = async (slug: ServerAction["slug"]) => {
     if (!selectedServerId) return;
@@ -167,17 +175,6 @@ export default function ServerInfoPage() {
       console.error("handleServerAction error:", err);
       throw err; // ← 呼び出し元に失敗を知らせる
     }
-  };
-
-  const handleNameTagChange = (newValue: string) => {
-    setServerSettings((prev) =>
-      prev.map((setting) =>
-        setting.label === "ネームタグ"
-          ? { ...setting, value: newValue }
-          : setting
-      )
-    );
-    setServerName(newValue); // サーバー名も同期したい場合
   };
 
   // open confirm dialog for a given action
@@ -240,13 +237,10 @@ export default function ServerInfoPage() {
   };
 
   // Load server list with detailed info using batch API
-
   const loadServerList = async () => {
     // 既にロード中の場合はスキップ
     if (isLoadingServerList) {
-
       console.log('[ServerInfo] サーバーリストのロード中のため、新しいリクエストをスキップします');
-
       return;
     }
 
@@ -294,12 +288,10 @@ export default function ServerInfoPage() {
       }
 
       if (Array.isArray(basicList) && basicList.length > 0) {
-        console.log(
-          `=== ${basicList.length}台のサーバーの詳細情報をバッチ取得開始 ===`
-        );
-
+        console.log(`=== ${basicList.length}台のサーバーの詳細情報をバッチ取得開始 ===`);
+        
         // 2. バッチAPIで全サーバーの詳細情報を一度に取得
-        const serverIds = basicList.map((server) => server.id);
+        const serverIds = basicList.map(server => server.id);
         const batchRes = await fetch("/api/server/batch", {
           method: "POST",
           headers: {
@@ -317,18 +309,14 @@ export default function ServerInfoPage() {
         console.log("Batch server info response:", batchData);
 
         // 3. サーバーリストと詳細情報を結合
-        const enhancedList: EnhancedServerSummary[] = basicList.map(
-          (server) => {
-            const detailedInfo = batchData.servers.find(
-              (s: any) => s.id === server.id
-            );
-            return {
-              ...server,
-              nameTag: detailedInfo?.nameTag || server.name,
-              displayName: detailedInfo?.nameTag || server.name,
-            };
-          }
-        );
+        const enhancedList: EnhancedServerSummary[] = basicList.map(server => {
+          const detailedInfo = batchData.servers.find((s: any) => s.id === server.id);
+          return {
+            ...server,
+            nameTag: detailedInfo?.nameTag || server.name,
+            displayName: detailedInfo?.nameTag || server.name,
+          };
+        });
 
         // 4. 最初のサーバーの詳細情報をセット（新しく作成されたサーバーを優先）
         let serverToShow = basicList[0];
@@ -479,7 +467,6 @@ export default function ServerInfoPage() {
         setSelectedServerId(serverToShow.id);
         
         console.log(`=== サーバーリスト読み込み完了 (${enhancedList.length}台) ===`);
-
       } else {
         console.warn("No servers found in the response");
         // サーバーが見つからない場合でもローディング状態を解除
@@ -641,6 +628,16 @@ export default function ServerInfoPage() {
     serverInfoMockData.serverSettings
   );
 
+  const handleNameTagChange = (newValue: string) => {
+    setServerSettings((prev) =>
+      prev.map((setting) =>
+        setting.label === "ネームタグ"
+          ? { ...setting, value: newValue }
+          : setting
+      )
+    );
+    setServerName(newValue); // サーバー名も同期したい場合
+  };
   if (loading && !serverInfo) {
     console.log("[ServerInfo] ローディング表示中. loading:", loading, "serverInfo:", !!serverInfo);
     return (
@@ -677,7 +674,7 @@ export default function ServerInfoPage() {
         }}
       >
         <Container maxWidth="xl" disableGutters>
-          <Header iconUrl={iconUrl} />
+          <Header iconUrl={iconUrl}/>
 
           {error && (
             <Alert
@@ -698,170 +695,170 @@ export default function ServerInfoPage() {
             </Alert>
           )}
 
-          {/* Server Info Bar */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              alignItems: { xs: "center", md: "center" },
-              gap: { xs: 1, md: 2 },
-              pt: 2,
-              pl: { xs: 1, md: 2 },
-              pr: { xs: 1, md: 2 },
-            }}
-          >
-            {/* First Row - Arrow, Server Name and Edit Icon */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: { xs: "center", md: "flex-start" },
-                gap: { xs: 1, md: 2 },
-                flexWrap: { xs: "wrap", md: "nowrap" },
-                width: { xs: "100%", md: "auto" },
-              }}
-            >
-              <IconButton
-                size="small"
-                sx={{ color: "text.secondary" }}
-                onClick={() => setIsServerListOpen((prev) => !prev)}
-              >
-                <KeyboardArrowRight
-                  sx={{
-                    transform: isServerListOpen ? "rotate(90deg)" : "none",
-                    transition: "transform 0.2s",
-                  }}
-                />
-              </IconButton>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                {isEditingServerName ? (
-                  <>
-                    <input
-                      type="text"
-                      value={serverName}
-                      onChange={handleServerNameChange}
-                      style={{
-                        border: "1px solid #19B8D7",
-                        borderRadius: "4px",
-                        padding: "4px 8px",
-                        fontSize: "16px",
-                        fontWeight: "500",
-                        outline: "none",
-                        minWidth: "150px",
-                      }}
-                      autoFocus
-                    />
-                    <IconButton
-                      size="small"
-                      sx={{ color: "#19B8D7" }}
-                      onClick={handleServerNameSave}
-                    >
-                      <Edit fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      sx={{ color: "text.secondary" }}
-                      onClick={handleServerNameCancel}
-                    >
-                      <Clear fontSize="small" />
-                    </IconButton>
-                  </>
-                ) : (
-                  <>
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        fontWeight: "medium",
-                        fontSize: { xs: "1.7rem", md: "2.0rem" },
-                      }}
-                    >
-                      {serverName}
-                    </Typography>
-                    <IconButton
-                      size="small"
-                      sx={{ color: "#19B8D7" }}
-                      onClick={handleServerNameEdit}
-                    >
-                      <Edit fontSize="small" />
-                    </IconButton>
-                  </>
-                )}
-              </Box>
-            </Box>
+                     {/* Server Info Bar */}
+           <Box
+             sx={{
+               display: "flex",
+               flexDirection: { xs: "column", md: "row" },
+               alignItems: { xs: "center", md: "center" },
+               gap: { xs: 1, md: 2 },
+               pt: 2,
+               pl: { xs: 1, md: 2 },
+               pr: { xs: 1, md: 2 },
+             }}
+           >
+                                                   {/* First Row - Arrow, Server Name and Edit Icon */}
+             <Box
+               sx={{
+                 display: "flex",
+                 alignItems: "center",
+                 justifyContent: { xs: "center", md: "flex-start" },
+                 gap: { xs: 1, md: 2 },
+                 flexWrap: { xs: "wrap", md: "nowrap" },
+                 width: { xs: "100%", md: "auto" },
+               }}
+             >
+               <IconButton
+                 size="small"
+                 sx={{ color: "text.secondary" }}
+                 onClick={() => setIsServerListOpen((prev) => !prev)}
+               >
+                 <KeyboardArrowRight
+                   sx={{
+                     transform: isServerListOpen ? "rotate(90deg)" : "none",
+                     transition: "transform 0.2s",
+                   }}
+                 />
+               </IconButton>
+               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                 {isEditingServerName ? (
+                   <>
+                     <input
+                       type="text"
+                       value={serverName}
+                       onChange={handleServerNameChange}
+                       style={{
+                         border: '1px solid #19B8D7',
+                         borderRadius: '4px',
+                         padding: '4px 8px',
+                         fontSize: '16px',
+                         fontWeight: '500',
+                         outline: 'none',
+                         minWidth: '150px'
+                       }}
+                       autoFocus
+                     />
+                     <IconButton
+                       size="small"
+                       sx={{ color: '#19B8D7' }}
+                       onClick={handleServerNameSave}
+                     >
+                       <Edit fontSize="small" />
+                     </IconButton>
+                     <IconButton
+                       size="small"
+                       sx={{ color: 'text.secondary' }}
+                       onClick={handleServerNameCancel}
+                     >
+                       <Clear fontSize="small" />
+                     </IconButton>
+                   </>
+                 ) : (
+                   <>
+                     <Typography
+                       variant="body1"
+                       sx={{
+                         fontWeight: "medium",
+                         fontSize: { xs: "1.7rem", md: "2.0rem" }
+                       }}
+                     >
+                       {serverName}
+                     </Typography>
+                     <IconButton
+                       size="small"
+                       sx={{ color: "#19B8D7" }}
+                       onClick={handleServerNameEdit}
+                     >
+                       <Edit fontSize="small" />
+                     </IconButton>
+                   </>
+                 )}
+               </Box>
+             </Box>
+            
+                         {/* Second Row - IP Address and Status Switch */}
+             <Box 
+               sx={{ 
+                 display: "flex", 
+                 alignItems: "center",
+                 justifyContent: { xs: "center", md: "center" },
+                 gap: { xs: 2, md: 2 },
+                 width: { xs: "100%", md: "auto" },
+               }}
+             >
+               <Typography
+                 variant="body1"
+                 sx={{
+                   fontWeight: "medium",
+                   fontSize: { xs: "1.5rem", md: "1.125rem" },
+                   color: "text.secondary",
+                 }}
+               >
+                 {serverInfo?.ipAddress ?? "Loading..."}
+               </Typography>
+               <Switch
+                 checked={serverStatus}
+                 onChange={(e) => requestStatusToggle(e.target.checked)}
+                 sx={{
+                   "& .MuiSwitch-switchBase.Mui-checked": {
+                     color: "#19B8D7",
+                   },
+                   "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                     backgroundColor: "#19B8D7",
+                   },
+                 }}
+               />
+             </Box>
+           </Box>
 
-            {/* Second Row - IP Address and Status Switch */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: { xs: "center", md: "center" },
-                gap: { xs: 2, md: 2 },
-                width: { xs: "100%", md: "auto" },
-              }}
-            >
-              <Typography
-                variant="body1"
-                sx={{
-                  fontWeight: "medium",
-                  fontSize: { xs: "1.5rem", md: "1.125rem" },
-                  color: "text.secondary",
-                }}
-              >
-                {serverInfo?.ipAddress ?? "Loading..."}
-              </Typography>
-              <Switch
-                checked={serverStatus}
-                onChange={(e) => requestStatusToggle(e.target.checked)}
-                sx={{
-                  "& .MuiSwitch-switchBase.Mui-checked": {
-                    color: "#19B8D7",
-                  },
-                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                    backgroundColor: "#19B8D7",
-                  },
-                }}
-              />
-            </Box>
-          </Box>
+                     {isServerListOpen && serverList.length > 1 && (
+             <Box sx={{ pb: 2, pl: { xs: 1, md: 2 }, pr: { xs: 1, md: 2 } }}>
+               <Paper sx={{ maxHeight: { xs: 150, md: 200 }, overflow: "auto" }}>
+                 <List dense={window.innerWidth < 600}>
+                   {serverList.map((server) => (
+                     <ListItem key={server.id} disablePadding>
+                       <ListItemButton
+                         selected={selectedServerId === server.id}
+                         onClick={() => handleServerSelect(server.id)}
+                         disabled={serverListLoading}
+                         sx={{ py: { xs: 0.5, md: 1 } }}
+                       >
+                         <ListItemText
+                           primary={server.displayName}
+                           primaryTypographyProps={{
+                             fontSize: { xs: "0.875rem", md: "1rem" }
+                           }}
+                         />
+                       </ListItemButton>
+                     </ListItem>
+                   ))}
+                 </List>
+               </Paper>
+             </Box>
+           )}
 
-          {isServerListOpen && serverList.length > 1 && (
-            <Box sx={{ pb: 2, pl: { xs: 1, md: 2 }, pr: { xs: 1, md: 2 } }}>
-              <Paper sx={{ maxHeight: { xs: 150, md: 200 }, overflow: "auto" }}>
-                <List dense={window.innerWidth < 600}>
-                  {serverList.map((server) => (
-                    <ListItem key={server.id} disablePadding>
-                      <ListItemButton
-                        selected={selectedServerId === server.id}
-                        onClick={() => handleServerSelect(server.id)}
-                        disabled={serverListLoading}
-                        sx={{ py: { xs: 0.5, md: 1 } }}
-                      >
-                        <ListItemText
-                          primary={server.displayName}
-                          primaryTypographyProps={{
-                            fontSize: { xs: "0.875rem", md: "1rem" },
-                          }}
-                        />
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
-                </List>
-              </Paper>
-            </Box>
-          )}
-
-          {/* Action Buttons */}
-          <Box
-            mt={2}
-            mb={2}
-            sx={{
-              display: "flex",
-              gap: { xs: 1, md: 2 },
-              flexWrap: "wrap",
-              px: { xs: 1, md: 2 },
-              justifyContent: { xs: "center", md: "flex-start" },
-            }}
-          >
+                     {/* Action Buttons */}
+           <Box
+             mt={2}
+             mb={2}
+             sx={{ 
+               display: "flex", 
+               gap: { xs: 1, md: 2 }, 
+               flexWrap: "wrap", 
+               px: { xs: 1, md: 2 },
+               justifyContent: { xs: "center", md: "flex-start" }
+             }}
+           >
             {serverActions.map(
               ({ label, icon: IconComponent, slug }, index: number) => (
                 <Button
@@ -878,19 +875,19 @@ export default function ServerInfoPage() {
                       openConfirm(slug, label);
                     }
                   }}
-                  sx={{
-                    borderRadius: "50px",
-                    textTransform: "none",
-                    borderColor: "#19B8D7",
-                    color: "#19B8D7",
-                    minHeight: { xs: "40px", md: "36px" },
-                    px: { xs: 2, md: 3 },
-                    fontSize: { xs: "0.75rem", md: "0.875rem" },
-                    "&:hover": {
-                      borderColor: "#15a0c0",
-                      backgroundColor: "#e3f2fd",
-                    },
-                  }}
+                                     sx={{
+                     borderRadius: "50px",
+                     textTransform: "none",
+                     borderColor: "#19B8D7",
+                     color: "#19B8D7",
+                     minHeight: { xs: "40px", md: "36px" },
+                     px: { xs: 2, md: 3 },
+                     fontSize: { xs: "0.75rem", md: "0.875rem" },
+                     "&:hover": {
+                       borderColor: "#15a0c0",
+                       backgroundColor: "#e3f2fd",
+                     },
+                   }}
                 >
                   {label}
                 </Button>
@@ -927,106 +924,101 @@ export default function ServerInfoPage() {
         </Container>
       </Box>
 
-      {/* Main Content */}
-      <Container
-        maxWidth="xl"
-        sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 3 } }}
-      >
-        <Paper sx={{ width: "100%", mx: { xs: 0, md: "auto" } }}>
-          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <Tabs
-              value={tabValue}
-              onChange={handleTabChange}
-              variant="scrollable"
-              scrollButtons="auto"
-              sx={{
-                minHeight: { xs: 36, md: 40 },
-                alignItems: "center",
-                "& .MuiTab-root": {
-                  textTransform: "none",
-                  fontWeight: "medium",
-                  minHeight: { xs: 36, md: 40 },
-                  fontSize: { xs: "0.875rem", md: "1rem" },
-                  px: { xs: 1, md: 2 },
-                  minWidth: { xs: "auto", md: 90 },
-                  display: "flex",
-                  alignItems: "center",
-                  lineHeight: 1.5,
-                },
-                "& .Mui-selected": {
-                  color: "#19B8D7",
-                },
-                "& .MuiTabs-indicator": {
-                  backgroundColor: "#19B8D7",
-                  height: 3,
-                },
-              }}
-            >
+             {/* Main Content */}
+       <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 3 } }}>
+         <Paper sx={{ width: "100%", mx: { xs: 0, md: "auto" } }}>
+           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+             <Tabs
+               value={tabValue}
+               onChange={handleTabChange}
+               variant="scrollable"
+               scrollButtons="auto"
+               sx={{
+                 minHeight: { xs: 36, md: 40 },
+                 alignItems: "center",
+                 "& .MuiTab-root": {
+                   textTransform: "none",
+                   fontWeight: "medium",
+                   minHeight: { xs: 36, md: 40 },
+                   fontSize: { xs: "0.875rem", md: "1rem" },
+                   px: { xs: 1, md: 2 },
+                   minWidth: { xs: "auto", md: 90 },
+                   display: "flex",
+                   alignItems: "center",
+                   lineHeight: 1.5,
+                 },
+                 "& .Mui-selected": {
+                   color: "#19B8D7",
+                 },
+                 "& .MuiTabs-indicator": {
+                   backgroundColor: "#19B8D7",
+                   height: 3,
+                 },
+               }}
+             >
               <Tab label="サーバー設定" />
               <Tab label="コンソール" />
               <Tab label="リソース" />
             </Tabs>
           </Box>
 
-          {/* Server Settings Tab */}
-          <TabPanel value={tabValue} index={0}>
-            <Box sx={{ px: { xs: 0, md: 0 }, mx: { xs: -3, md: 0 } }}>
-              <ServerSettingsTab
-                autoBackup={autoBackup}
-                deleteLock={deleteLock}
-                onAutoBackupChange={handleAutoBackupChange}
-                onDeleteLockChange={handleDeleteLockChange}
-                serverInfo={serverInfo}
-                onNameTagChange={handleNameTagChange}
-              />
-            </Box>
-          </TabPanel>
+                     {/* Server Settings Tab */}
+           <TabPanel value={tabValue} index={0}>
+             <Box sx={{ px: { xs: 0, md: 0 }, mx: { xs: -3, md: 0 } }}>
+               <ServerSettingsTab
+                 autoBackup={autoBackup}
+                 deleteLock={deleteLock}
+                 onAutoBackupChange={handleAutoBackupChange}
+                 onDeleteLockChange={handleDeleteLockChange}
+                 onNameTagChange={handleNameTagChange}
+               />
+             </Box>
+           </TabPanel>
 
-          {/* Console Tab */}
-          <TabPanel value={tabValue} index={1}>
-            <Box sx={{ px: { xs: 0, md: 0 }, mx: { xs: -3, md: 0 } }}>
-              <ConsoleTab
-                serverId={selectedServerId || ""}
-                serverInfo={serverInfo}
-              />
-            </Box>
-          </TabPanel>
 
-          {/* Resource Tab */}
-          <TabPanel value={tabValue} index={2}>
-            <Box sx={{ px: { xs: 0, md: 0 }, mx: { xs: -3, md: 0 } }}>
-              <ResourceTab
-                serverId={selectedServerId || ""}
-                serverInfo={serverInfo}
-              />
-            </Box>
-          </TabPanel>
+                     {/* Console Tab */}
+           <TabPanel value={tabValue} index={1}>
+             <Box sx={{ px: { xs: 0, md: 0 }, mx: { xs: -3, md: 0 } }}>
+               <ConsoleTab
+                 serverId={selectedServerId || ""}
+                 serverInfo={serverInfo}
+               />
+             </Box>
+           </TabPanel>
+
+           {/* Resource Tab */}
+           <TabPanel value={tabValue} index={2}>
+             <Box sx={{ px: { xs: 0, md: 0 }, mx: { xs: -3, md: 0 } }}>
+               <ResourceTab
+                 serverId={selectedServerId || ""}
+                 serverInfo={serverInfo}
+               />
+             </Box>
+           </TabPanel>
         </Paper>
 
         {/* Billing Cards */}
         <BillingCards />
 
-        {/* Help Link */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: { xs: "center", md: "flex-end" },
-            mt: 2,
-            px: { xs: 1, md: 0 },
-          }}
-        >
-          <Button
-            startIcon={<HelpOutline />}
-            sx={{
-              color: "#19B8D7",
-              textTransform: "none",
-              fontSize: { xs: "0.875rem", md: "1rem" },
-              "&:hover": { backgroundColor: "transparent" },
-            }}
-          >
-            この画面のサポート &gt;
-          </Button>
-        </Box>
+                 {/* Help Link */}
+         <Box sx={{ 
+           display: "flex", 
+           justifyContent: { xs: "center", md: "flex-end" }, 
+           mt: 2,
+           px: { xs: 1, md: 0 }
+         }}>
+           <Button
+             startIcon={<HelpOutline />}
+             sx={{
+               color: "#19B8D7",
+               textTransform: "none",
+               fontSize: { xs: "0.875rem", md: "1rem" },
+               "&:hover": { backgroundColor: "transparent" },
+             }}
+           >
+             この画面のサポート &gt;
+           </Button>
+         </Box>
       </Container>
     </Box>
   );

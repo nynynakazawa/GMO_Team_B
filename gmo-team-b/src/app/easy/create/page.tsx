@@ -275,11 +275,19 @@ export default function EasyCreatePage() {
       setCurrentStatus('completed');
       setIsCompleted(true);
       
-      // 成功時の処理: 3秒後にサーバー情報ページに自動遷移
+      // 作成したサーバー情報をsessionStorageに保存（名前反映待ち用）
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('newlyCreatedServer', JSON.stringify({
+          serverId: result.serverId,
+          serverName: serverName,
+          createdAt: Date.now()
+        }));
+      }
+      
+      // 成功時の処理: 7秒後にサーバー情報ページに自動遷移
       setTimeout(() => {
-        alert(`${serverName} の作成が完了しました！\nサーバーID: ${result.serverId}\n管理者パスワード: ${result.adminPass}`);
         router.push('/easy/serverinfo');
-      }, 3000); 
+      }, 7000); 
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'サーバー作成中にエラーが発生しました';

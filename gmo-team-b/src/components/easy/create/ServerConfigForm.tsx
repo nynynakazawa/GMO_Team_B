@@ -151,11 +151,13 @@ export const ServerConfigForm: React.FC<ServerConfigFormProps> = ({
           <StyledTextField
             value={serverName}
             onChange={(e) => {
-              // 英数字のみを許可
-              const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
-              onServerNameChange(value);
+              // 英数字とハイフンのみを許可
+              const value = e.target.value.replace(/[^a-zA-Z0-9-]/g, '');
+              // 連続するハイフンを1つに置換
+              const cleanValue = value.replace(/-+/g, '-');
+              onServerNameChange(cleanValue);
             }}
-            placeholder="英数字で設定"
+            placeholder="英数字とハイフン(-)のみ使用可能"
             variant="outlined"
             inputProps={{
               maxLength: 20
