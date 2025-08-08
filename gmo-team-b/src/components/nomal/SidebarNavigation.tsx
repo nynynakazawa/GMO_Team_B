@@ -9,8 +9,8 @@ import {
   ListItemButton,
   ListItemText,
   Stack,
+  Link,
 } from "@mui/material";
-import Link from "next/link";
 import { styled } from "@mui/material/styles";
 import { FaServer, FaCompactDisc, FaFolder } from "react-icons/fa";
 import { FaNetworkWired, FaKey } from "react-icons/fa6";
@@ -128,7 +128,7 @@ const SidebarNavigation: React.FC = () => {
             <NavListItem>
               <Stack direction="row" spacing={1} alignItems="center">
                 {item.icon}
-                <Link href={`/nomal/${item.id}`}>
+                <Link href={`/nomal/${item.id}`} underline="none">
                   <ListItemText
                     primary={item.label}
                     primaryTypographyProps={{
