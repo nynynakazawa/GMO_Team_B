@@ -126,7 +126,7 @@ function ServerInfo() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
+  const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
   const handleServerAction = async (slug: ServerAction["slug"]) => {
     if (!selectedServerId) return;
 
@@ -255,10 +255,12 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
       const basicList = serverListJson?.servers || [];
 
       if (Array.isArray(basicList) && basicList.length > 0) {
-        console.log(`=== ${basicList.length}台のサーバーの詳細情報をバッチ取得開始 ===`);
-        
+        console.log(
+          `=== ${basicList.length}台のサーバーの詳細情報をバッチ取得開始 ===`
+        );
+
         // 2. バッチAPIで全サーバーの詳細情報を一度に取得
-        const serverIds = basicList.map(server => server.id);
+        const serverIds = basicList.map((server) => server.id);
         const batchRes = await fetch("/api/server/batch", {
           method: "POST",
           headers: {
@@ -276,17 +278,23 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
         console.log("Batch server info response:", batchData);
 
         // 3. サーバーリストと詳細情報を結合
-        const enhancedList: EnhancedServerSummary[] = basicList.map(server => {
-          const detailedInfo = batchData.servers.find((s: any) => s.id === server.id);
-          return {
-            ...server,
-            nameTag: detailedInfo?.nameTag || server.name,
-            displayName: detailedInfo?.nameTag || server.name,
-          };
-        });
+        const enhancedList: EnhancedServerSummary[] = basicList.map(
+          (server) => {
+            const detailedInfo = batchData.servers.find(
+              (s: any) => s.id === server.id
+            );
+            return {
+              ...server,
+              nameTag: detailedInfo?.nameTag || server.name,
+              displayName: detailedInfo?.nameTag || server.name,
+            };
+          }
+        );
 
         // 4. 最初のサーバーの詳細情報をセット
-        const firstServerDetail = batchData.servers.find((s: any) => s.id === enhancedList[0].id);
+        const firstServerDetail = batchData.servers.find(
+          (s: any) => s.id === enhancedList[0].id
+        );
         if (firstServerDetail) {
           setServerInfo(firstServerDetail);
           setServerName(firstServerDetail.nameTag);
@@ -295,8 +303,10 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
 
         setServerList(enhancedList);
         setSelectedServerId(enhancedList[0].id);
-        
-        console.log(`=== サーバーリスト読み込み完了 (${enhancedList.length}台) ===`);
+
+        console.log(
+          `=== サーバーリスト読み込み完了 (${enhancedList.length}台) ===`
+        );
       } else {
         console.warn("No servers found in the response");
         setError("No servers found");
@@ -421,10 +431,7 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
     };
 
     fetchFlavorsRes();
-
   }, []); // 依存配列を空配列に修正
-
-
 
   const handleServerSelect = async (serverId: string) => {
     setSelectedServerId(serverId);
@@ -511,7 +518,7 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
         }}
       >
         <Container maxWidth="xl" disableGutters>
-          <Header iconUrl={iconUrl}/>
+          <Header iconUrl={iconUrl} />
 
           {error && (
             <Alert
@@ -575,26 +582,26 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
                       value={serverName}
                       onChange={handleServerNameChange}
                       style={{
-                        border: '1px solid #19B8D7',
-                        borderRadius: '4px',
-                        padding: '4px 8px',
-                        fontSize: '16px',
-                        fontWeight: '500',
-                        outline: 'none',
-                        minWidth: '150px'
+                        border: "1px solid #19B8D7",
+                        borderRadius: "4px",
+                        padding: "4px 8px",
+                        fontSize: "16px",
+                        fontWeight: "500",
+                        outline: "none",
+                        minWidth: "150px",
                       }}
                       autoFocus
                     />
                     <IconButton
                       size="small"
-                      sx={{ color: '#19B8D7' }}
+                      sx={{ color: "#19B8D7" }}
                       onClick={handleServerNameSave}
                     >
                       <Edit fontSize="small" />
                     </IconButton>
                     <IconButton
                       size="small"
-                      sx={{ color: 'text.secondary' }}
+                      sx={{ color: "text.secondary" }}
                       onClick={handleServerNameCancel}
                     >
                       <Clear fontSize="small" />
@@ -606,7 +613,7 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
                       variant="body1"
                       sx={{
                         fontWeight: "medium",
-                        fontSize: { xs: "1.7rem", md: "2.0rem" }
+                        fontSize: { xs: "1.7rem", md: "2.0rem" },
                       }}
                     >
                       {serverName}
@@ -673,7 +680,7 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
                         <ListItemText
                           primary={server.displayName}
                           primaryTypographyProps={{
-                            fontSize: { xs: "0.875rem", md: "1rem" }
+                            fontSize: { xs: "0.875rem", md: "1rem" },
                           }}
                         />
                       </ListItemButton>
@@ -688,12 +695,12 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
           <Box
             mt={2}
             mb={2}
-            sx={{ 
-              display: "flex", 
-              gap: { xs: 1, md: 2 }, 
-              flexWrap: "wrap", 
+            sx={{
+              display: "flex",
+              gap: { xs: 1, md: 2 },
+              flexWrap: "wrap",
               px: { xs: 1, md: 2 },
-              justifyContent: { xs: "center", md: "flex-start" }
+              justifyContent: { xs: "center", md: "flex-start" },
             }}
           >
             {serverActions.map(
@@ -762,7 +769,10 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
       </Box>
 
       {/* Main Content */}
-      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 3 } }}>
+      <Container
+        maxWidth="xl"
+        sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 3 } }}
+      >
         <Paper sx={{ width: "100%", mx: { xs: 0, md: "auto" } }}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
@@ -816,12 +826,14 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
         <BillingCards />
 
         {/* Help Link */}
-        <Box sx={{ 
-          display: "flex", 
-          justifyContent: { xs: "center", md: "flex-end" }, 
-          mt: 2,
-          px: { xs: 1, md: 0 }
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: { xs: "center", md: "flex-end" },
+            mt: 2,
+            px: { xs: 1, md: 0 },
+          }}
+        >
           <Button
             startIcon={<HelpOutline />}
             sx={{
