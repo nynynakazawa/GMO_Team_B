@@ -14,6 +14,14 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
   fontFamily: "Iceland",
   color: theme.palette.primary.main,
   marginBottom: 20,
+  [theme.breakpoints.down('md')]: {
+    fontSize: "24px",
+    marginBottom: 15,
+  },
+  [theme.breakpoints.down('sm')]: {
+    fontSize: "20px",
+    marginBottom: 10,
+  },
 }));
 
 const FormContainer = styled(Stack)(() => ({
@@ -28,16 +36,24 @@ const InputRow = styled(Stack)(() => ({
 }));
 
 const InputLabel = styled(Typography)(({ theme }) => ({
-  fontSize: "24px",
+  fontSize: "18px",
   fontWeight: 400,
   fontFamily: '"Noto Sans", sans-serif',
   color: theme.palette.text.primary,
-  minWidth: 135,
+  minWidth: 120,
+  [theme.breakpoints.down('md')]: {
+    fontSize: "16px",
+    minWidth: 100,
+  },
+  [theme.breakpoints.down('sm')]: {
+    fontSize: "14px",
+    minWidth: 80,
+  },
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   flex: 1,
-  maxWidth: 902,
+  maxWidth: 500,
   "& .MuiOutlinedInput-root": {
     backgroundColor: theme.palette.background.paper,
     borderRadius: theme.shape.borderRadius,
@@ -48,31 +64,56 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
     },
   },
   "& .MuiInputBase-input": {
-    fontSize: "18px",
+    fontSize: "16px",
     fontFamily: '"Noto Sans", sans-serif',
-    padding: "16px",
+    padding: "12px 16px",
   },
   "& .MuiInputBase-input::placeholder": {
     color: theme.palette.grey[400],
     opacity: 1,
+  },
+  [theme.breakpoints.down('md')]: {
+    maxWidth: 400,
+    "& .MuiInputBase-input": {
+      fontSize: "14px",
+      padding: "10px 14px",
+    },
+  },
+  [theme.breakpoints.down('sm')]: {
+    maxWidth: '100%',
+    "& .MuiInputBase-input": {
+      fontSize: "14px",
+      padding: "8px 12px",
+    },
   },
 }));
 
 const CreateButton = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
-  fontSize: "32px",
-  fontWeight: 400,
+  fontSize: "20px",
+  fontWeight: 500,
   fontFamily: '"Noto Sans", sans-serif',
   textTransform: "none",
   borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(1.5, 4),
+  padding: theme.spacing(1.5, 3),
   boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
   marginTop: theme.spacing(3),
   alignSelf: "center",
+  minWidth: 120,
   "&:hover": {
     backgroundColor: theme.palette.primary.dark,
     boxShadow: "0px 6px 8px rgba(0, 0, 0, 0.3)",
+  },
+  [theme.breakpoints.down('md')]: {
+    fontSize: "18px",
+    padding: theme.spacing(1.25, 2.5),
+    minWidth: 100,
+  },
+  [theme.breakpoints.down('sm')]: {
+    fontSize: "16px",
+    padding: theme.spacing(1, 2),
+    minWidth: 80,
   },
 }));
 

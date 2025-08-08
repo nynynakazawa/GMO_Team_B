@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Box, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
+import { Box, List, ListItem, ListItemButton, ListItemText, Stack, useMediaQuery, useTheme } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { FaServer, FaCompactDisc, FaFolder } from "react-icons/fa";
 import { FaNetworkWired, FaKey } from "react-icons/fa6";
@@ -58,6 +58,7 @@ const NavListItem = styled(ListItemButton)(({ theme }) => ({
 }));
 
 const menuItems = [
+
   { id: 'dashboard', label: 'ダッシュボード', icon: <IoLogoGameControllerB size={20} color="white" /> },
   { id: 'addserver', label: 'サーバー追加', icon: <IoIosAdd size={20} color="white" /> },
   { id: 'server', label: 'サーバー', icon: <FaServer size={20} color="white" /> },
@@ -70,10 +71,19 @@ const menuItems = [
   { id: 'license', label: 'ライセンス', icon: <IoIosPaper size={20} color="white" /> },
   { id: 'domain', label: 'ドメイン', icon: <GrDomain size={20} color="white" /> },
   { id: 'api', label: 'API', icon: <GrDomain size={20} color="white" /> }
+
 ];
 
 // デフォルトエクスポートに修正
 const SidebarNavigation: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // モバイル版ではサイドバーを表示しない
+  if (isMobile) {
+    return null;
+  }
+
   return (
     <SidebarContainer>
       <LogoContainer>

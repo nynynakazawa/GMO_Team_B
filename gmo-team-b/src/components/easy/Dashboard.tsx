@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react';
-import { Box } from '@mui/material';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { SidebarNavigation } from '../nomal/SidebarNavigation';
 import { HeaderTabs } from './HeaderTabs';
@@ -33,11 +33,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
   servers,
   billingInfo
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   return (
-    <DashboardContainer>
+    <DashboardContainer sx={{
+      flexDirection: isMobile ? 'column' : 'row'
+    }}>
       <SidebarNavigation />
       
-      <MainContent>
+      <MainContent sx={{
+        width: isMobile ? '100%' : 'auto'
+      }}>
         <HeaderTabs />
         
         <ContentArea>

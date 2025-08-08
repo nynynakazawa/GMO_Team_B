@@ -65,33 +65,56 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
         justifyContent: "center",
         alignItems: "center",
       }}
-      height={"60px"}
+      height={{ xs: "auto", md: "60px" }}
+      minHeight={{ xs: "60px", md: "60px" }}
     >
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3 } }}>
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            py: { xs: 1, md: 0 },
+            flexWrap: { xs: "wrap", md: "nowrap" },
+            gap: { xs: 1, md: 0 }
           }}
         >
           <Link
             href={easyMode ? "/easy/serverinfo" : "/nomal/serverinfo"}
             style={{ textDecoration: "none" }}
           >
-            <Stack direction="row" alignItems="baseline" spacing={0.5}>
+            <Stack 
+              direction={{ xs: "column", sm: "row" }} 
+              alignItems={{ xs: "flex-start", sm: "baseline" }} 
+              spacing={{ xs: 0, sm: 0.5 }}
+            >
               <Typography
-                variant="h5"
-                sx={{ color: "#19B8D7", fontWeight: "bold" }}
+                sx={{ 
+                  color: "#19B8D7", 
+                  fontWeight: "bold",
+                  fontSize: { xs: "1.1rem", sm: "1.5rem" }
+                }}
               >
                 ConoHa for GAME
               </Typography>
-              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  color: "text.secondary",
+                  fontSize: { xs: "0.75rem", sm: "0.75rem" }
+                }}
+              >
                 by GMO
               </Typography>
               {getPageTitle() && (
-                <Typography variant="subtitle2" sx={{ color: "#888", ml: 1 }}>
-                  {"　"}
+                <Typography 
+                  variant="subtitle2" 
+                  sx={{ 
+                    color: "#888", 
+                    ml: { xs: 0, sm: 1 },
+                    fontSize: { xs: "0.8rem", sm: "0.875rem" }
+                  }}
+                >
                   {getPageTitle()}
                 </Typography>
               )}
@@ -104,10 +127,12 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
                   sx={{
                     bgcolor: "#e3f2fd",
                     color: "#19B8D7",
-                    width: 50,
-                    height: 50,
-                    borderRadius: "50%", // 丸い背景にする（デフォルトでも丸だが明示）
-                    padding: 0, // 余白を消してImageとぴったり合わせる
+
+                    width: { xs: 50, md: 60 },
+                    height: { xs: 50, md: 60 },
+                    borderRadius: "50%",
+                    padding: 0,
+
                   }}
                   onClick={handleUserMenuToggle}
                 >
@@ -117,8 +142,10 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
                     width={50}
                     height={50}
                     style={{
-                      width: "50px",
-                      height: "50px",
+
+                      width: "100%",
+                      height: "100%",
+
                       borderRadius: "50%",
                       objectFit: "cover",
                     }}

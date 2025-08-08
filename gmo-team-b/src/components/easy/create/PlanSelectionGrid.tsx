@@ -6,8 +6,14 @@ import { styled } from "@mui/material/styles";
 import { PlanCard } from "../PlanCard";
 import { Plan } from "../../../types/gameServerSetup";
 
-const SectionContainer = styled(Box)(() => ({
+const SectionContainer = styled(Box)(({ theme }) => ({
   marginBottom: 40,
+  [theme.breakpoints.down('md')]: {
+    marginBottom: 30,
+  },
+  [theme.breakpoints.down('sm')]: {
+    marginBottom: 20,
+  },
 }));
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
@@ -16,13 +22,31 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
   fontFamily: "Iceland",
   color: theme.palette.primary.main,
   marginBottom: 20,
+  [theme.breakpoints.down('md')]: {
+    fontSize: "24px",
+    marginBottom: 15,
+  },
+  [theme.breakpoints.down('sm')]: {
+    fontSize: "20px",
+    marginBottom: 10,
+  },
 }));
 
-const PlansContainer = styled(Box)(() => ({
+const PlansContainer = styled(Box)(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
   gap: 20,
   marginTop: 20,
+  [theme.breakpoints.down('md')]: {
+    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+    gap: 15,
+    marginTop: 15,
+  },
+  [theme.breakpoints.down('sm')]: {
+    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+    gap: 10,
+    marginTop: 10,
+  },
 }));
 
 const LoadingContainer = styled(Box)(() => ({

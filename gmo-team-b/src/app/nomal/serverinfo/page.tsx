@@ -513,83 +513,170 @@ export default function ServerInfoPage() {
             </Alert>
           )}
 
-          {/* Server Info Bar */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
-              pt: 2,
-              pl: 2,
-              pr: 2,
-            }}
-          >
-            <IconButton
-              size="small"
-              sx={{ color: "text.secondary" }}
-              onClick={() => setIsServerListOpen((prev) => !prev)}
-            >
-              <KeyboardArrowRight
-                sx={{
-                  transform: isServerListOpen ? "rotate(90deg)" : "none",
-                  transition: "transform 0.2s",
-                }}
-              />
-            </IconButton>
-            <ServerNameEditor
-              serverName={serverName}
-              ipAddress={serverInfo?.ipAddress ?? "Loading..."}
-              isEditing={isEditingServerName}
-              onEdit={handleServerNameEdit}
-              onSave={handleServerNameSave}
-              onCancel={handleServerNameCancel}
-              onChange={handleServerNameChange}
-            />
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Switch
-                checked={serverStatus}
-                onChange={(e) => requestStatusToggle(e.target.checked)}
-                sx={{
-                  "& .MuiSwitch-switchBase.Mui-checked": {
-                    color: "#19B8D7",
-                  },
-                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                    backgroundColor: "#19B8D7",
-                  },
-                }}
-              />
-            </Box>
-          </Box>
+                     {/* Server Info Bar */}
+           <Box
+             sx={{
+               display: "flex",
+               flexDirection: { xs: "column", md: "row" },
+               alignItems: { xs: "center", md: "center" },
+               gap: { xs: 1, md: 2 },
+               pt: 2,
+               pl: { xs: 1, md: 2 },
+               pr: { xs: 1, md: 2 },
+             }}
+           >
+                                                   {/* First Row - Arrow, Server Name and Edit Icon */}
+             <Box
+               sx={{
+                 display: "flex",
+                 alignItems: "center",
+                 justifyContent: { xs: "center", md: "flex-start" },
+                 gap: { xs: 1, md: 2 },
+                 flexWrap: { xs: "wrap", md: "nowrap" },
+                 width: { xs: "100%", md: "auto" },
+               }}
+             >
+               <IconButton
+                 size="small"
+                 sx={{ color: "text.secondary" }}
+                 onClick={() => setIsServerListOpen((prev) => !prev)}
+               >
+                 <KeyboardArrowRight
+                   sx={{
+                     transform: isServerListOpen ? "rotate(90deg)" : "none",
+                     transition: "transform 0.2s",
+                   }}
+                 />
+               </IconButton>
+               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                 {isEditingServerName ? (
+                   <>
+                     <input
+                       type="text"
+                       value={serverName}
+                       onChange={handleServerNameChange}
+                       style={{
+                         border: '1px solid #19B8D7',
+                         borderRadius: '4px',
+                         padding: '4px 8px',
+                         fontSize: '16px',
+                         fontWeight: '500',
+                         outline: 'none',
+                         minWidth: '150px'
+                       }}
+                       autoFocus
+                     />
+                     <IconButton
+                       size="small"
+                       sx={{ color: '#19B8D7' }}
+                       onClick={handleServerNameSave}
+                     >
+                       <Edit fontSize="small" />
+                     </IconButton>
+                     <IconButton
+                       size="small"
+                       sx={{ color: 'text.secondary' }}
+                       onClick={handleServerNameCancel}
+                     >
+                       <Clear fontSize="small" />
+                     </IconButton>
+                   </>
+                 ) : (
+                   <>
+                     <Typography
+                       variant="body1"
+                       sx={{
+                         fontWeight: "medium",
+                         fontSize: { xs: "1.7rem", md: "2.0rem" }
+                       }}
+                     >
+                       {serverName}
+                     </Typography>
+                     <IconButton
+                       size="small"
+                       sx={{ color: "#19B8D7" }}
+                       onClick={handleServerNameEdit}
+                     >
+                       <Edit fontSize="small" />
+                     </IconButton>
+                   </>
+                 )}
+               </Box>
+             </Box>
+            
+                         {/* Second Row - IP Address and Status Switch */}
+             <Box 
+               sx={{ 
+                 display: "flex", 
+                 alignItems: "center",
+                 justifyContent: { xs: "center", md: "center" },
+                 gap: { xs: 2, md: 2 },
+                 width: { xs: "100%", md: "auto" },
+               }}
+             >
+               <Typography
+                 variant="body1"
+                 sx={{
+                   fontWeight: "medium",
+                   fontSize: { xs: "1.5rem", md: "1.125rem" },
+                   color: "text.secondary",
+                 }}
+               >
+                 {serverInfo?.ipAddress ?? "Loading..."}
+               </Typography>
+               <Switch
+                 checked={serverStatus}
+                 onChange={(e) => requestStatusToggle(e.target.checked)}
+                 sx={{
+                   "& .MuiSwitch-switchBase.Mui-checked": {
+                     color: "#19B8D7",
+                   },
+                   "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                     backgroundColor: "#19B8D7",
+                   },
+                 }}
+               />
+             </Box>
+           </Box>
 
-          {isServerListOpen && serverList.length > 1 && (
-            <Box sx={{ pb: 2, pl: 2, pr: 2 }}>
-              <Paper sx={{ maxHeight: 200, overflow: "auto" }}>
-                <List>
-                  {serverList.map((server) => (
-                    <ListItem key={server.id} disablePadding>
-                      <ListItemButton
-                        selected={selectedServerId === server.id}
-                        onClick={() => handleServerSelect(server.id)}
-                        disabled={serverListLoading}
-                      >
-                        <ListItemText
-                          primary={server.displayName}
-                          // secondary={server.id}
-                        />
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
-                </List>
-              </Paper>
-            </Box>
-          )}
+                     {isServerListOpen && serverList.length > 1 && (
+             <Box sx={{ pb: 2, pl: { xs: 1, md: 2 }, pr: { xs: 1, md: 2 } }}>
+               <Paper sx={{ maxHeight: { xs: 150, md: 200 }, overflow: "auto" }}>
+                 <List dense={window.innerWidth < 600}>
+                   {serverList.map((server) => (
+                     <ListItem key={server.id} disablePadding>
+                       <ListItemButton
+                         selected={selectedServerId === server.id}
+                         onClick={() => handleServerSelect(server.id)}
+                         disabled={serverListLoading}
+                         sx={{ py: { xs: 0.5, md: 1 } }}
+                       >
+                         <ListItemText
+                           primary={server.displayName}
+                           primaryTypographyProps={{
+                             fontSize: { xs: "0.875rem", md: "1rem" }
+                           }}
+                         />
+                       </ListItemButton>
+                     </ListItem>
+                   ))}
+                 </List>
+               </Paper>
+             </Box>
+           )}
 
-          {/* Action Buttons */}
-          <Box
-            mt={2}
-            mb={2}
-            sx={{ display: "flex", gap: 2, flexWrap: "wrap", px: 2 }}
-          >
+                     {/* Action Buttons */}
+           <Box
+             mt={2}
+             mb={2}
+             sx={{ 
+               display: "flex", 
+               gap: { xs: 1, md: 2 }, 
+               flexWrap: "wrap", 
+               px: { xs: 1, md: 2 },
+               justifyContent: { xs: "center", md: "flex-start" }
+             }}
+           >
             {serverActions.map(
               ({ label, icon: IconComponent, slug }, index: number) => (
                 <Button
@@ -606,16 +693,19 @@ export default function ServerInfoPage() {
                       openConfirm(slug, label);
                     }
                   }}
-                  sx={{
-                    borderRadius: "50px",
-                    textTransform: "none",
-                    borderColor: "#19B8D7",
-                    color: "#19B8D7",
-                    "&:hover": {
-                      borderColor: "#15a0c0",
-                      backgroundColor: "#e3f2fd",
-                    },
-                  }}
+                                     sx={{
+                     borderRadius: "50px",
+                     textTransform: "none",
+                     borderColor: "#19B8D7",
+                     color: "#19B8D7",
+                     minHeight: { xs: "40px", md: "36px" },
+                     px: { xs: 2, md: 3 },
+                     fontSize: { xs: "0.75rem", md: "0.875rem" },
+                     "&:hover": {
+                       borderColor: "#15a0c0",
+                       backgroundColor: "#e3f2fd",
+                     },
+                   }}
                 >
                   {label}
                 </Button>
@@ -652,241 +742,101 @@ export default function ServerInfoPage() {
         </Container>
       </Box>
 
-      {/* Main Content */}
-      <Container maxWidth="xl" sx={{ py: 3 }}>
-        <Paper sx={{ width: "100%" }}>
-          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <Tabs
-              value={tabValue}
-              onChange={handleTabChange}
-              sx={{
-                minHeight: 40,
-                alignItems: "center",
-                "& .MuiTab-root": {
-                  textTransform: "none",
-                  fontWeight: "medium",
-                  minHeight: 40,
-                  fontSize: "1rem",
-                  px: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  lineHeight: 1.5,
-                },
-                "& .Mui-selected": {
-                  color: "#19B8D7",
-                },
-                "& .MuiTabs-indicator": {
-                  backgroundColor: "#19B8D7",
-                  height: 3,
-                },
-              }}
-            >
+             {/* Main Content */}
+       <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 3 } }}>
+         <Paper sx={{ width: "100%", mx: { xs: 0, md: "auto" } }}>
+           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+             <Tabs
+               value={tabValue}
+               onChange={handleTabChange}
+               variant="scrollable"
+               scrollButtons="auto"
+               sx={{
+                 minHeight: { xs: 36, md: 40 },
+                 alignItems: "center",
+                 "& .MuiTab-root": {
+                   textTransform: "none",
+                   fontWeight: "medium",
+                   minHeight: { xs: 36, md: 40 },
+                   fontSize: { xs: "0.875rem", md: "1rem" },
+                   px: { xs: 1, md: 2 },
+                   minWidth: { xs: "auto", md: 90 },
+                   display: "flex",
+                   alignItems: "center",
+                   lineHeight: 1.5,
+                 },
+                 "& .Mui-selected": {
+                   color: "#19B8D7",
+                 },
+                 "& .MuiTabs-indicator": {
+                   backgroundColor: "#19B8D7",
+                   height: 3,
+                 },
+               }}
+             >
               <Tab label="サーバー設定" />
-              <Tab label="プラン変更" />
               <Tab label="コンソール" />
               <Tab label="リソース" />
             </Tabs>
           </Box>
 
-          {/* Server Settings Tab */}
-          <TabPanel value={tabValue} index={0}>
-            <ServerSettingsTab
-              autoBackup={autoBackup}
-              deleteLock={deleteLock}
-              onAutoBackupChange={handleAutoBackupChange}
-              onDeleteLockChange={handleDeleteLockChange}
-              onNameTagChange={handleNameTagChange}
-            />
-          </TabPanel>
+                     {/* Server Settings Tab */}
+           <TabPanel value={tabValue} index={0}>
+             <Box sx={{ px: { xs: 0, md: 0 }, mx: { xs: -3, md: 0 } }}>
+               <ServerSettingsTab
+                 autoBackup={autoBackup}
+                 deleteLock={deleteLock}
+                 onAutoBackupChange={handleAutoBackupChange}
+                 onDeleteLockChange={handleDeleteLockChange}
+                 onNameTagChange={handleNameTagChange}
+               />
+             </Box>
+           </TabPanel>
 
-          {/* Plan Change Tab */}
-          <TabPanel value={tabValue} index={1}>
-            <Box sx={{ maxWidth: 600, mx: "auto" }}>
-              <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-                プランを変更しますか?
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  mb: 3,
-                  textAlign: "center",
-                  color: "text.secondary",
-                  display: "inline",
-                }}
-              >
-                ストレージ容量は変更されません。
-                <br />
-                これまでのリソースグラフのデータは削除されます。
-              </Typography>
-              <Card sx={{ mb: 3 }}>
-                <CardContent>
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                        変更前プラン
-                      </Typography>
-                      <Typography variant="body2">
-                        メモリ 4GB/CPU 4Core
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                        変更後プラン
-                      </Typography>
-                      <FormControl size="small" sx={{ minWidth: 200 }}>
-                        <Select
-                          value={selectedPlan}
-                          onChange={handlePlanChange}
-                          displayEmpty
-                          sx={{
-                            "& .MuiSelect-icon": { color: "#19B8D7" },
-                            fontSize: "1rem",
-                          }}
-                          MenuProps={{
-                            PaperProps: {
-                              sx: { fontSize: "1rem" },
-                            },
-                          }}
-                        >
-                          <MenuItem value="8GB/6Core" sx={{ fontSize: "1rem" }}>
-                            メモリ 8GB/CPU 6Core
-                          </MenuItem>
-                          <MenuItem
-                            value="16GB/8Core"
-                            sx={{ fontSize: "1rem" }}
-                          >
-                            メモリ 16GB/CPU 8Core
-                          </MenuItem>
-                          <MenuItem
-                            value="32GB/12Core"
-                            sx={{ fontSize: "1rem" }}
-                          >
-                            メモリ 32GB/CPU 12Core
-                          </MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                        プラン変更後の料金
-                      </Typography>
-                      <Typography variant="body2">
-                        8,082 円/月 (14.6 円/時間)
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
 
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: 2,
-                  mb: 2,
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  sx={{
-                    borderRadius: "50px",
-                    textTransform: "none",
-                    borderColor: "text.secondary",
-                    color: "text.secondary",
-                  }}
-                >
-                  いいえ
-                </Button>
-                <Button
-                  variant="contained"
-                  sx={{
-                    borderRadius: "50px",
-                    textTransform: "none",
-                    bgcolor: "#19B8D7",
-                    "&:hover": { bgcolor: "#15a0c0" },
-                  }}
-                >
-                  はい
-                </Button>
-              </Box>
+                     {/* Console Tab */}
+           <TabPanel value={tabValue} index={1}>
+             <Box sx={{ px: { xs: 0, md: 0 }, mx: { xs: -3, md: 0 } }}>
+               <ConsoleTab
+                 serverId={selectedServerId || ""}
+                 serverInfo={serverInfo}
+               />
+             </Box>
+           </TabPanel>
 
-              <Typography
-                variant="caption"
-                sx={{
-                  textAlign: "center",
-                  display: "block",
-                  color: "text.secondary",
-                }}
-              >
-                ※表示料金にはサービス維持調整費が含まれています。
-                <span
-                  style={{
-                    color: "#19B8D7",
-                    cursor: "pointer",
-                    textDecoration: "underline",
-                    fontSize: "inherit",
-                    marginLeft: 4,
-                  }}
-                >
-                  詳しくはこちら
-                </span>
-              </Typography>
-            </Box>
-          </TabPanel>
-
-          {/* Console Tab */}
-          <TabPanel value={tabValue} index={2}>
-            <ConsoleTab
-              serverId={selectedServerId || ""}
-              serverInfo={serverInfo}
-            />
-          </TabPanel>
-
-          {/* Resource Tab */}
-          <TabPanel value={tabValue} index={3}>
-            <ResourceTab
-              serverId={selectedServerId || ""}
-              serverInfo={serverInfo}
-            />
-          </TabPanel>
+           {/* Resource Tab */}
+           <TabPanel value={tabValue} index={2}>
+             <Box sx={{ px: { xs: 0, md: 0 }, mx: { xs: -3, md: 0 } }}>
+               <ResourceTab
+                 serverId={selectedServerId || ""}
+                 serverInfo={serverInfo}
+               />
+             </Box>
+           </TabPanel>
         </Paper>
 
         {/* Billing Cards */}
         <BillingCards />
 
-        {/* Help Link */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-          <Button
-            startIcon={<HelpOutline />}
-            sx={{
-              color: "#19B8D7",
-              textTransform: "none",
-              "&:hover": { backgroundColor: "transparent" },
-            }}
-          >
-            この画面のサポート &gt;
-          </Button>
-        </Box>
+                 {/* Help Link */}
+         <Box sx={{ 
+           display: "flex", 
+           justifyContent: { xs: "center", md: "flex-end" }, 
+           mt: 2,
+           px: { xs: 1, md: 0 }
+         }}>
+           <Button
+             startIcon={<HelpOutline />}
+             sx={{
+               color: "#19B8D7",
+               textTransform: "none",
+               fontSize: { xs: "0.875rem", md: "1rem" },
+               "&:hover": { backgroundColor: "transparent" },
+             }}
+           >
+             この画面のサポート &gt;
+           </Button>
+         </Box>
       </Container>
     </Box>
   );

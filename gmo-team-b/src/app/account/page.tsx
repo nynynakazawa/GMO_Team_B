@@ -221,23 +221,31 @@ function AccountPageContent() {
         </Container>
       </Box> */}
       <Header iconUrl={iconUrl} />
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Paper sx={{ width: "100%", borderRadius: "10px", boxShadow: 3 }}>
-          <Box sx={{ borderBottom: 1, borderColor: "divider", px: 3, pt: 3 }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 4 }, px: { xs: 1, md: 3 } }}>
+        <Paper sx={{ width: "100%", borderRadius: "10px", boxShadow: 3, mx: { xs: 0, md: "auto" } }}>
+          <Box sx={{ borderBottom: 1, borderColor: "divider", px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 } }}>
             <Typography
-              variant="h5"
-              sx={{ color: "#19B8D7", fontWeight: "bold", mb: 2 }}
+              sx={{ 
+                color: "#19B8D7", 
+                fontWeight: "bold", 
+                mb: 2,
+                fontSize: { xs: "1.25rem", md: "1.5rem" }
+              }}
             >
               アカウント情報
             </Typography>
             <Tabs
               value={tab}
               onChange={(_, v) => setTab(v)}
+              variant="scrollable"
+              scrollButtons="auto"
               sx={{
                 "& .MuiTab-root": {
                   textTransform: "none",
                   fontWeight: "medium",
-                  fontSize: "1.1rem",
+                  fontSize: { xs: "0.9rem", md: "1.1rem" },
+                  minWidth: { xs: "auto", md: 160 },
+                  px: { xs: 1, md: 2 },
                 },
                 "& .Mui-selected": {
                   color: "#19B8D7",
@@ -252,17 +260,27 @@ function AccountPageContent() {
               ))}
             </Tabs>
           </Box>
-          <Box sx={{ p: 4 }}>
+          <Box sx={{ p: { xs: 2, md: 4 } }}>
             {/* お支払いタブ */}
             {tab === 0 && (
               <Box>
-                <Typography variant="h6" sx={{ color: "#19B8D7", mb: 2 }}>
+                <Typography 
+                  sx={{ 
+                    color: "#19B8D7", 
+                    mb: 2,
+                    fontSize: { xs: "1.1rem", md: "1.25rem" }
+                  }}
+                >
                   ConoHaチャージ
                 </Typography>
                 <Box sx={{ mb: 3 }}>
                   <TableContainer
                     component={Paper}
-                    sx={{ mb: 2, borderRadius: "10px" }}
+                    sx={{ 
+                      mb: 2, 
+                      borderRadius: "10px",
+                      overflowX: { xs: "auto", md: "visible" }
+                    }}
                   >
                     <Table size="small">
                       <TableHead>
@@ -297,19 +315,34 @@ function AccountPageContent() {
                       bgcolor: "#19B8D7",
                       color: "white",
                       borderRadius: "10px",
-                      px: 4,
+                      px: { xs: 3, md: 4 },
+                      py: { xs: 1, md: 1.5 },
+                      fontSize: { xs: "0.875rem", md: "1rem" },
                       fontWeight: "bold",
+                      minHeight: { xs: "40px", md: "auto" },
                     }}
                   >
                     チャージ
                   </Button>
                 </Box>
                 <Divider sx={{ my: 4 }} />
-                <Typography variant="h6" sx={{ color: "#19B8D7", mb: 2 }}>
+                <Typography 
+                  sx={{ 
+                    color: "#19B8D7", 
+                    mb: 2,
+                    fontSize: { xs: "1.1rem", md: "1.25rem" }
+                  }}
+                >
                   クレジットカード情報
                 </Typography>
                 <Box sx={{ mb: 3 }}>
-                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 2 }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    gap: { xs: 1, md: 2 }, 
+                    flexWrap: 'wrap', 
+                    mb: 2,
+                    justifyContent: { xs: "center", md: "flex-start" }
+                  }}>
                     {!isEditingCreditCard ? (
                       <Button
                         variant="contained"
@@ -357,7 +390,10 @@ function AccountPageContent() {
                   </Box>
                   <TableContainer
                     component={Paper}
-                    sx={{ borderRadius: "10px" }}
+                    sx={{ 
+                      borderRadius: "10px",
+                      overflowX: { xs: "auto", md: "visible" }
+                    }}
                   >
                     <Table size="small">
                       <TableHead>
@@ -440,14 +476,23 @@ function AccountPageContent() {
                   </TableContainer>
                 </Box>
                 <Divider sx={{ my: 4 }} />
-                <Typography variant="h6" sx={{ color: "#19B8D7", mb: 2 }}>
+                <Typography 
+                  sx={{ 
+                    color: "#19B8D7", 
+                    mb: 2,
+                    fontSize: { xs: "1.1rem", md: "1.25rem" }
+                  }}
+                >
                   支払方法
                 </Typography>
                 <FormControl component="fieldset" sx={{ mb: 3 }}>
                   <RadioGroup
-                    row
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
+                    sx={{ 
+                      gap: { xs: 1, md: 0 },
+                      flexDirection: { xs: "column", sm: "row" }
+                    }}
                   >
                     <FormControlLabel
                       value="Credit"
@@ -796,30 +841,51 @@ function AccountPageContent() {
                   編集
                 </Button>
                 <Divider sx={{ my: 4 }} />
- <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-<Image
-  src={iconUrl}
-  alt="アイコン"
-  width={80}
-  height={80}
-  style={{ borderRadius: '20px', border: '2px solid #19B8D7', objectFit: 'cover' }}
-/>
-      <Button
-        variant="contained"
-        component="label"
-        sx={{ bgcolor: "#19B8D7", color: "white", borderRadius: "10px", px: 4, fontWeight: "bold" }}
-        disabled={uploading}
-      >
-        {uploading ? "アップロード中..." : "画像を選択"}
-        <input
-          type="file"
-          accept="image/*"
-          hidden
-          ref={fileInputRef}
-          onChange={handleIconUpload}
-        />
-      </Button>
-    </Box>
+ <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: { xs: 1, md: 2 },
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  textAlign: { xs: 'center', sm: 'left' }
+                }}>
+                  <Image
+                    src={iconUrl}
+                    alt="アイコン"
+                    width={80}
+                    height={80}
+                    style={{ 
+                      borderRadius: '20px', 
+                      border: '2px solid #19B8D7', 
+                      objectFit: 'cover',
+                      width: '80px',
+                      height: '80px'
+                    }}
+                  />
+                  <Button
+                    variant="contained"
+                    component="label"
+                    sx={{ 
+                      bgcolor: "#19B8D7", 
+                      color: "white", 
+                      borderRadius: "10px", 
+                      px: { xs: 3, md: 4 },
+                      py: { xs: 1, md: 1.5 },
+                      fontSize: { xs: "0.875rem", md: "1rem" },
+                      fontWeight: "bold",
+                      minHeight: { xs: "40px", md: "auto" },
+                    }}
+                    disabled={uploading}
+                  >
+                    {uploading ? "アップロード中..." : "画像を選択"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      ref={fileInputRef}
+                      onChange={handleIconUpload}
+                    />
+                  </Button>
+                </Box>
               </Box>
             )}
             {/* 過去の請求タブ */}

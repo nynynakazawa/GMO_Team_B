@@ -35,6 +35,11 @@ const PlanCardContainer = styled(Box, {
     transform: "translateY(-2px)",
     boxShadow: "0px 6px 8px rgba(0, 0, 0, 0.15)",
   },
+  [theme.breakpoints.down('sm')]: {
+    minHeight: 120,
+    minWidth: 'auto',
+    padding: theme.spacing(2),
+  },
 }));
 
 const PlanCapacity = styled(Typography)<{ selected: boolean }>(
@@ -47,6 +52,10 @@ const PlanCapacity = styled(Typography)<{ selected: boolean }>(
       : theme.palette.primary.main,
     textAlign: "center",
     marginBottom: theme.spacing(1),
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "18px",
+      marginBottom: theme.spacing(0.5),
+    },
   })
 );
 
@@ -60,6 +69,10 @@ const PlanPrice = styled(Typography)<{ selected: boolean }>(
       : theme.palette.text.primary,
     textAlign: "center",
     marginBottom: theme.spacing(0.5),
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "16px",
+      marginBottom: theme.spacing(0.25),
+    },
   })
 );
 
@@ -104,6 +117,10 @@ const SpecItem = styled(Typography)<{ selected: boolean }>(
       : theme.palette.text.secondary,
     textAlign: "center",
     lineHeight: 1.4,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "10px",
+      lineHeight: 1.2,
+    },
   })
 );
 
