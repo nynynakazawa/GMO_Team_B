@@ -35,7 +35,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 }) => {
   return (
     <DashboardContainer>
-      <SidebarNavigation />
+      {/* <SidebarNavigation /> */}
       
       <MainContent>
         <HeaderTabs />

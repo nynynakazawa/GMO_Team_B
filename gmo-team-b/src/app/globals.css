@@ -17,6 +17,15 @@
   box-sizing: border-box;
 }
 
+html, body, #__next {
+  height: 100%;
+}
+
+.layout-root {
+  display: flex;          /* ← 横並びレイアウトにする */
+  min-height: 100%;       /* ← body が伸びた分だけ追従 */
+}
+
 body {
   margin: 0;
   padding: 0;
