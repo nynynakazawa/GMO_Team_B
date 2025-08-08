@@ -40,7 +40,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
     <DashboardContainer sx={{
       flexDirection: isMobile ? 'column' : 'row'
     }}>
-      <SidebarNavigation />
       
       <MainContent sx={{
         width: isMobile ? '100%' : 'auto'

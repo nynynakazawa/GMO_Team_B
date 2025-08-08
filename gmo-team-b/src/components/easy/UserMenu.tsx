@@ -56,7 +56,7 @@ export default function UserMenu({
     >
       <Box sx={{ py: 1 }}>
         {/* Myサーバー */}
-        <Link href={easyMode ? "/easy/serverinfo" : "/nomal/serverinfo"}>
+        <Link href={easyMode ? "/easy/serverinfo" : "/nomal/serverinfo"} underline="none">
           <Box
             sx={{
               px: 3,
@@ -77,7 +77,7 @@ export default function UserMenu({
         <Divider sx={{ my: 0 }} />
 
         {/* 新規サーバー作成 */}
-        <Link href={easyMode ? "/easy/create" : "/nomal/create"}>
+        <Link href={easyMode ? "/easy/create" : "/nomal/create"} underline="none">
           <Box
             sx={{
               px: 3,
@@ -145,7 +145,7 @@ export default function UserMenu({
         <Divider sx={{ my: 0 }} />
 
         {/* アカウント設定 */}
-        <Link href="/account">
+        <Link href="/account" underline="none">
           <Box
             sx={{
               px: 3,
