@@ -127,10 +127,12 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
                   sx={{
                     bgcolor: "#e3f2fd",
                     color: "#19B8D7",
+
                     width: { xs: 50, md: 60 },
                     height: { xs: 50, md: 60 },
                     borderRadius: "50%",
                     padding: 0,
+
                   }}
                   onClick={handleUserMenuToggle}
                 >
@@ -140,8 +142,10 @@ export const Header: React.FC<HeaderProps> = ({ iconUrl }) => {
                     width={50}
                     height={50}
                     style={{
+
                       width: "100%",
                       height: "100%",
+
                       borderRadius: "50%",
                       objectFit: "cover",
                     }}
