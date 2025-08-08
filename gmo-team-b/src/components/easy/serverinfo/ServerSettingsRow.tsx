@@ -65,17 +65,25 @@ export default function ServerSettingsRow({
   return (
     <Box sx={{ 
       display: 'flex', 
-      justifyContent: 'space-between', 
-      alignItems: 'center', 
+      flexDirection: { xs: 'column', md: 'row' },
+      justifyContent: { xs: 'flex-start', md: 'space-between' }, 
+      alignItems: { xs: 'stretch', md: 'center' }, 
       py: 2, 
-      px: 3,
+      px: { xs: 2, md: 3 },
       borderBottom: borderWidth,
-      width: '100%'
+      width: '100%',
+      gap: { xs: 2, md: 0 }
     }}>
       {/* 左側の項目 */}
-      <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: '140px' }}>
-          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        flex: { xs: 'none', md: 1 },
+        justifyContent: 'space-between',
+        width: { xs: '100%', md: 'auto' }
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: { xs: 'auto', md: '140px' } }}>
+          <Typography variant="body2" sx={{ fontWeight: 'medium', fontSize: { xs: '0.875rem', md: '0.875rem' } }}>
             {leftItem.label}
           </Typography>
           {leftItem.help && (
@@ -86,7 +94,7 @@ export default function ServerSettingsRow({
             </Tooltip>
           )}
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 0.8, justifyContent: 'flex-end' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: { xs: 1, md: 0.8 }, justifyContent: 'flex-end' }}>
           {leftItem.label === 'ネームタグ' ? (
             isEditing ? (
               <input
@@ -110,11 +118,14 @@ export default function ServerSettingsRow({
                   border: '1px solid #ccc',
                   borderRadius: '4px',
                   minWidth: '120px',
+                  maxWidth: '200px',
                 }}
               />
             ) : (
               <>
-                <Typography variant="body2">{editValue}</Typography>
+                <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', md: '0.875rem' } }}>
+                  {editValue}
+                </Typography>
                 <IconButton
                   size="small"
                   sx={{ color: '#19B8D7' }}
@@ -124,8 +135,30 @@ export default function ServerSettingsRow({
                 </IconButton>
               </>
             )
+          ) : leftSwitch ? (
+            <>
+              <Typography variant="body2" sx={{ 
+                color: leftSwitch.checked ? '#19B8D7' : 'text.secondary',
+                fontSize: { xs: '0.875rem', md: '0.875rem' }
+              }}>
+                {leftSwitch.checked ? '有効' : '無効'}
+              </Typography>
+              <Switch
+                checked={leftSwitch.checked}
+                onChange={leftSwitch.onChange}
+                size="small"
+                sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: '#19B8D7',
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: '#19B8D7',
+                  },
+                }}
+              />
+            </>
           ) : (
-            <Typography variant="body2">
+            <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', md: '0.875rem' } }}>
               {leftValue !== undefined ? leftValue : leftItem.value}
             </Typography>
           )}
@@ -133,9 +166,16 @@ export default function ServerSettingsRow({
       </Box>
       
       {/* 右側の項目 */}
-      <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'flex-start', pl: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: '140px' }}>
-          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        flex: { xs: 'none', md: 1 }, 
+        justifyContent: 'space-between', 
+        pl: { xs: 0, md: 4 },
+        width: { xs: '100%', md: 'auto' }
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: { xs: 'auto', md: '140px' } }}>
+          <Typography variant="body2" sx={{ fontWeight: 'medium', fontSize: { xs: '0.875rem', md: '0.875rem' } }}>
             {rightItem.label}
           </Typography>
           {rightItem.help && (
@@ -146,10 +186,13 @@ export default function ServerSettingsRow({
             </Tooltip>
           )}
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 0.8, justifyContent: 'flex-end' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: { xs: 1, md: 0.8 }, justifyContent: 'flex-end' }}>
           {rightSwitch ? (
             <>
-              <Typography variant="body2" sx={{ color: rightSwitch.checked ? '#19B8D7' : 'text.secondary' }}>
+              <Typography variant="body2" sx={{ 
+                color: rightSwitch.checked ? '#19B8D7' : 'text.secondary',
+                fontSize: { xs: '0.875rem', md: '0.875rem' }
+              }}>
                 {rightSwitch.checked ? '有効' : '無効'}
               </Typography>
               <Switch
@@ -168,7 +211,7 @@ export default function ServerSettingsRow({
             </>
           ) : (
             <>
-              <Typography variant="body2">
+              <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', md: '0.875rem' } }}>
                 {rightValue !== undefined ? rightValue : rightItem.value}
               </Typography>
               {rightIcon || (

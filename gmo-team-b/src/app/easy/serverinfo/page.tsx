@@ -5,6 +5,7 @@ import { AuthGuard } from "../../../components/auth/AuthGuard";
 import {
   Box,
   Container,
+  Typography,
   Tabs,
   Tab,
   Paper,
@@ -30,6 +31,8 @@ import {
   CloudUpload,
   CloudDownload,
   Delete,
+  Edit,
+  Clear,
 } from "@mui/icons-material";
 import { KeyboardArrowRight, HelpOutline, Refresh } from "@mui/icons-material";
 import { serverInfoMockData } from "../../../data/serverInfoMockData";
@@ -533,35 +536,113 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
           <Box
             sx={{
               display: "flex",
-              alignItems: "center",
-              gap: 2,
+              flexDirection: { xs: "column", md: "row" },
+              alignItems: { xs: "center", md: "center" },
+              gap: { xs: 1, md: 2 },
               pt: 2,
-              pl: 2,
-              pr: 2,
+              pl: { xs: 1, md: 2 },
+              pr: { xs: 1, md: 2 },
             }}
           >
-            <IconButton
-              size="small"
-              sx={{ color: "text.secondary" }}
-              onClick={() => setIsServerListOpen((prev) => !prev)}
+            {/* First Row - Arrow, Server Name and Edit Icon */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: { xs: "center", md: "flex-start" },
+                gap: { xs: 1, md: 2 },
+                flexWrap: { xs: "wrap", md: "nowrap" },
+                width: { xs: "100%", md: "auto" },
+              }}
             >
-              <KeyboardArrowRight
+              <IconButton
+                size="small"
+                sx={{ color: "text.secondary" }}
+                onClick={() => setIsServerListOpen((prev) => !prev)}
+              >
+                <KeyboardArrowRight
+                  sx={{
+                    transform: isServerListOpen ? "rotate(90deg)" : "none",
+                    transition: "transform 0.2s",
+                  }}
+                />
+              </IconButton>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                {isEditingServerName ? (
+                  <>
+                    <input
+                      type="text"
+                      value={serverName}
+                      onChange={handleServerNameChange}
+                      style={{
+                        border: '1px solid #19B8D7',
+                        borderRadius: '4px',
+                        padding: '4px 8px',
+                        fontSize: '16px',
+                        fontWeight: '500',
+                        outline: 'none',
+                        minWidth: '150px'
+                      }}
+                      autoFocus
+                    />
+                    <IconButton
+                      size="small"
+                      sx={{ color: '#19B8D7' }}
+                      onClick={handleServerNameSave}
+                    >
+                      <Edit fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      sx={{ color: 'text.secondary' }}
+                      onClick={handleServerNameCancel}
+                    >
+                      <Clear fontSize="small" />
+                    </IconButton>
+                  </>
+                ) : (
+                  <>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: "medium",
+                        fontSize: { xs: "1.7rem", md: "2.0rem" }
+                      }}
+                    >
+                      {serverName}
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      sx={{ color: "#19B8D7" }}
+                      onClick={handleServerNameEdit}
+                    >
+                      <Edit fontSize="small" />
+                    </IconButton>
+                  </>
+                )}
+              </Box>
+            </Box>
+
+            {/* Second Row - IP Address and Status Switch */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: { xs: "center", md: "center" },
+                gap: { xs: 2, md: 2 },
+                width: { xs: "100%", md: "auto" },
+              }}
+            >
+              <Typography
+                variant="body1"
                 sx={{
-                  transform: isServerListOpen ? "rotate(90deg)" : "none",
-                  transition: "transform 0.2s",
+                  fontWeight: "medium",
+                  fontSize: { xs: "1.5rem", md: "1.125rem" },
+                  color: "text.secondary",
                 }}
-              />
-            </IconButton>
-            <ServerNameEditor
-              serverName={serverName}
-              ipAddress={serverInfo?.ipAddress ?? "Loading..."}
-              isEditing={isEditingServerName}
-              onEdit={handleServerNameEdit}
-              onSave={handleServerNameSave}
-              onCancel={handleServerNameCancel}
-              onChange={handleServerNameChange}
-            />
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+              >
+                {serverInfo?.ipAddress ?? "Loading..."}
+              </Typography>
               <Switch
                 checked={serverStatus}
                 onChange={(e) => requestStatusToggle(e.target.checked)}
@@ -578,19 +659,22 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
           </Box>
 
           {isServerListOpen && serverList.length > 1 && (
-            <Box sx={{ pb: 2, pl: 2, pr: 2 }}>
-              <Paper sx={{ maxHeight: 200, overflow: "auto" }}>
-                <List>
+            <Box sx={{ pb: 2, pl: { xs: 1, md: 2 }, pr: { xs: 1, md: 2 } }}>
+              <Paper sx={{ maxHeight: { xs: 150, md: 200 }, overflow: "auto" }}>
+                <List dense={window.innerWidth < 600}>
                   {serverList.map((server) => (
                     <ListItem key={server.id} disablePadding>
                       <ListItemButton
                         selected={selectedServerId === server.id}
                         onClick={() => handleServerSelect(server.id)}
                         disabled={serverListLoading}
+                        sx={{ py: { xs: 0.5, md: 1 } }}
                       >
                         <ListItemText
                           primary={server.displayName}
-                          // secondary={server.id}
+                          primaryTypographyProps={{
+                            fontSize: { xs: "0.875rem", md: "1rem" }
+                          }}
                         />
                       </ListItemButton>
                     </ListItem>
@@ -604,7 +688,13 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
           <Box
             mt={2}
             mb={2}
-            sx={{ display: "flex", gap: 2, flexWrap: "wrap", px: 2 }}
+            sx={{ 
+              display: "flex", 
+              gap: { xs: 1, md: 2 }, 
+              flexWrap: "wrap", 
+              px: { xs: 1, md: 2 },
+              justifyContent: { xs: "center", md: "flex-start" }
+            }}
           >
             {serverActions.map(
               ({ label, icon: IconComponent, slug }, index: number) => (
@@ -627,6 +717,9 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
                     textTransform: "none",
                     borderColor: "#19B8D7",
                     color: "#19B8D7",
+                    minHeight: { xs: "40px", md: "36px" },
+                    px: { xs: 2, md: 3 },
+                    fontSize: { xs: "0.75rem", md: "0.875rem" },
                     "&:hover": {
                       borderColor: "#15a0c0",
                       backgroundColor: "#e3f2fd",
@@ -669,21 +762,24 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
       </Box>
 
       {/* Main Content */}
-      <Container maxWidth="xl" sx={{ py: 3 }}>
-        <Paper sx={{ width: "100%" }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 3 } }}>
+        <Paper sx={{ width: "100%", mx: { xs: 0, md: "auto" } }}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
               value={tabValue}
               onChange={handleTabChange}
+              variant="scrollable"
+              scrollButtons="auto"
               sx={{
-                minHeight: 40,
+                minHeight: { xs: 36, md: 40 },
                 alignItems: "center",
                 "& .MuiTab-root": {
                   textTransform: "none",
                   fontWeight: "medium",
-                  minHeight: 40,
-                  fontSize: "1rem",
-                  px: 2,
+                  minHeight: { xs: 36, md: 40 },
+                  fontSize: { xs: "0.875rem", md: "1rem" },
+                  px: { xs: 1, md: 2 },
+                  minWidth: { xs: "auto", md: 90 },
                   display: "flex",
                   alignItems: "center",
                   lineHeight: 1.5,
@@ -703,14 +799,16 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
 
           {/* Server Settings Tab */}
           <TabPanel value={tabValue} index={0}>
-            <ServerSettingsTab
-              autoBackup={autoBackup}
-              deleteLock={deleteLock}
-              onAutoBackupChange={handleAutoBackupChange}
-              onDeleteLockChange={handleDeleteLockChange}
-              serverInfo={serverInfo}
-              onNameTagChange={handleNameTagChange}
-            />
+            <Box sx={{ px: { xs: 0, md: 0 }, mx: { xs: -3, md: 0 } }}>
+              <ServerSettingsTab
+                autoBackup={autoBackup}
+                deleteLock={deleteLock}
+                onAutoBackupChange={handleAutoBackupChange}
+                onDeleteLockChange={handleDeleteLockChange}
+                serverInfo={serverInfo}
+                onNameTagChange={handleNameTagChange}
+              />
+            </Box>
           </TabPanel>
         </Paper>
 
@@ -718,12 +816,18 @@ const [iconUrl, setIconUrl] = useState("/images/conohaIcon.png");
         <BillingCards />
 
         {/* Help Link */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+        <Box sx={{ 
+          display: "flex", 
+          justifyContent: { xs: "center", md: "flex-end" }, 
+          mt: 2,
+          px: { xs: 1, md: 0 }
+        }}>
           <Button
             startIcon={<HelpOutline />}
             sx={{
               color: "#19B8D7",
               textTransform: "none",
+              fontSize: { xs: "0.875rem", md: "1rem" },
               "&:hover": { backgroundColor: "transparent" },
             }}
           >

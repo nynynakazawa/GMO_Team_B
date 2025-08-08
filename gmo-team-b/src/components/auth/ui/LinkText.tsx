@@ -21,7 +21,7 @@ export const LinkText: React.FC<LinkTextProps> = ({
       onClick={onClick}
       sx={{
         fontFamily: "'Noto Sans', sans-serif",
-        fontSize: '24px',
+        fontSize: { xs: '14px', sm: '18px', md: '24px' },
         fontWeight: 400,
         color: '#000000',
         textDecoration: 'none',

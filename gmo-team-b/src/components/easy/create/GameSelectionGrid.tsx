@@ -8,8 +8,17 @@ import AddIcon from "@mui/icons-material/Add";
 import { GameCard } from "./GameCard";
 import { Game } from "../../../types/gameServerSetup";
 
-const SectionContainer = styled(Box)(() => ({
+const SectionContainer = styled(Box)(({ theme }) => ({
+  marginTop: 30,
   marginBottom: 40,
+  [theme.breakpoints.down('md')]: {
+    marginTop: 20,
+    marginBottom: 30,
+  },
+  [theme.breakpoints.down('sm')]: {
+    marginTop: 15,
+    marginBottom: 20,
+  },
 }));
 
 const SectionHeader = styled(Stack)(() => ({
@@ -23,6 +32,12 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 400,
   fontFamily: "Iceland",
   color: theme.palette.primary.main,
+  [theme.breakpoints.down('md')]: {
+    fontSize: "24px",
+  },
+  [theme.breakpoints.down('sm')]: {
+    fontSize: "20px",
+  },
 }));
 
 const HelpIconContainer = styled(Box)(({ theme }) => ({
@@ -48,14 +63,36 @@ const SearchField = styled(TextField)(({ theme }) => ({
     fontFamily: '"Noto Sans", sans-serif',
     color: theme.palette.secondary.main,
     padding: "12px 16px",
+    [theme.breakpoints.down('md')]: {
+      fontSize: "18px",
+      padding: "10px 14px",
+    },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "16px",
+      padding: "8px 12px",
+    },
   },
 }));
 
-const GamesGrid = styled(Box)(() => ({
+const GamesGrid = styled(Box)(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "repeat(6, 1fr)", // 6列固定
   gap: 20,
   marginTop: 20,
+  [theme.breakpoints.down('lg')]: {
+    gridTemplateColumns: "repeat(4, 1fr)", // 4列
+    gap: 15,
+  },
+  [theme.breakpoints.down('md')]: {
+    gridTemplateColumns: "repeat(4, 1fr)", // 4列維持
+    gap: 12,
+    marginTop: 15,
+  },
+  [theme.breakpoints.down('sm')]: {
+    gridTemplateColumns: "repeat(2, 1fr)", // 2列
+    gap: 10,
+    marginTop: 10,
+  },
 }));
 
 const OthersButton = styled(Button)(({ theme }) => ({
@@ -158,8 +195,12 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
 
   return (
     <SectionContainer>
-      <SectionHeader direction="row">
-        <Stack direction="row" alignItems="center" spacing={2}>
+      <SectionHeader 
+        direction={{ xs: "column", md: "row" }}
+        spacing={{ xs: 2, md: 0 }}
+        alignItems={{ xs: "stretch", md: "center" }}
+      >
+        <Stack direction="row" alignItems="center" spacing={2} sx={{ flexWrap: "wrap" }}>
           <SectionTitle sx={{ color: hasError ? 'error.main' : 'primary.main' }}>
             ゲームを選択
           </SectionTitle>
@@ -180,7 +221,10 @@ export const GameSelectionGrid: React.FC<GameSelectionGridProps> = ({
           placeholder="ゲームを検索"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ width: 300 }}
+          sx={{ 
+            width: { xs: "100%", sm: 250, md: 300 },
+            maxWidth: "100%"
+          }}
         />
       </SectionHeader>
 

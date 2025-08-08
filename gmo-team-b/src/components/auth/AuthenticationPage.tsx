@@ -1,9 +1,42 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Box, Stack, Container } from '@mui/material';
+import { Box, Stack } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { LoginForm } from './LoginForm';
 import { SignupForm } from './SignupForm';
+
+// createページのパターンに合わせたstyled components
+const MainContainer = styled(Box)(() => ({
+  minHeight: "100vh",
+  backgroundColor: "#f5f5f5",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  overflowX: "hidden",
+  width: "100%",
+}));
+
+const ContentContainer = styled(Box)(({ theme }) => ({
+  padding: "0 24px 24px 24px",
+  maxWidth: 1400,
+  margin: "0 auto",
+  width: "100%",
+  [theme.breakpoints.down('md')]: {
+    padding: "0 16px 20px 16px",
+  },
+  [theme.breakpoints.down('sm')]: {
+    padding: "0 8px 16px 8px",
+  },
+}));
+
+const FormStack = styled(Stack)(({ theme }) => ({
+  alignItems: "center",
+  [theme.breakpoints.down('sm')]: {
+    width: "100%",
+  },
+}));
 
 interface AuthenticationPageProps {
   onLogin?: (email: string, password: string) => void;
@@ -53,19 +86,9 @@ export const AuthenticationPage: React.FC<AuthenticationPageProps> = ({
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        backgroundColor: '#f5f5f5',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '50px'
-      }}
-    >
-      <Container component="main" maxWidth="md">
-        <Stack spacing={3} sx={{ mt: 4, alignItems: 'center' }}>
+    <MainContainer>
+      <ContentContainer>
+        <FormStack spacing={{ xs: 2, md: 3 }} sx={{ mt: { xs: 1, md: 2 } }}>
           {currentView === 'login' ? (
             <LoginForm
               onLogin={handleLogin}
@@ -78,8 +101,8 @@ export const AuthenticationPage: React.FC<AuthenticationPageProps> = ({
               onExistingAccount={handleExistingAccount}
             />
           )}
-        </Stack>
-      </Container>
-    </Box>
+        </FormStack>
+      </ContentContainer>
+    </MainContainer>
   );
 };

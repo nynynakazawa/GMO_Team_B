@@ -118,9 +118,6 @@ const theme = createTheme({
           padding: "4px 8px",
         },
       },
-      defaultProps: {
-        size: "small",
-      },
     },
   },
 });

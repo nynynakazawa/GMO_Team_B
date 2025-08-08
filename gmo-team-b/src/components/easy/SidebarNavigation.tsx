@@ -58,18 +58,18 @@ const NavListItem = styled(ListItemButton)(({ theme }) => ({
 }));
 
 const menuItems = [
-  { id: 'dashboard', label: 'ダッシュボード', icon: <IoLogoGameControllerB size={20} color="white"/>},
-  { id: 'addserver', label: 'サーバー追加', icon: <IoIosAdd size={20} color="white"/> },
-  { id: 'server', label: 'サーバー', icon: <FaServer size={20} color="white"/> },
-  { id: 'storage', label: 'ストレージ', icon: <HiServer size={20} color="white"/> },
-  { id: 'image', label: 'イメージ', icon: <FaCompactDisc size={20}color="white" /> },
-  { id: 'network', label: 'ネットワーク', icon: <FaNetworkWired size={20}color="white" /> },
-  { id: 'security', label: 'セキュリティ', icon: <FaKey size={20} color="white"/> },
-  { id: 'object-storage', label: 'オブジェクトストレージ', icon: <FaFolder size={20}color="white" /> },
-  { id: 'dns', label: 'DNS', icon: <MdLanguage size={20} color="white"/> },
-  { id: 'license', label: 'ライセンス', icon: <IoIosPaper size={20} color="white"/> },
-  { id: 'domain', label: 'ドメイン', icon: <GrDomain size={20}color="white" /> },
-  { id: 'api', label: 'API', icon: <GrDomain size={20} color="white"/> }
+  { id: 'dashboard', label: 'ダッシュボード', icon: <IoLogoGameControllerB size={20} color="white"/>, active: false},
+  { id: 'addserver', label: 'サーバー追加', icon: <IoIosAdd size={20} color="white"/>, active: false },
+  { id: 'server', label: 'サーバー', icon: <FaServer size={20} color="white"/>, active: false },
+  { id: 'storage', label: 'ストレージ', icon: <HiServer size={20} color="white"/>, active: false },
+  { id: 'image', label: 'イメージ', icon: <FaCompactDisc size={20}color="white" />, active: false },
+  { id: 'network', label: 'ネットワーク', icon: <FaNetworkWired size={20}color="white" />, active: false },
+  { id: 'security', label: 'セキュリティ', icon: <FaKey size={20} color="white"/>, active: false },
+  { id: 'object-storage', label: 'オブジェクトストレージ', icon: <FaFolder size={20}color="white" />, active: false },
+  { id: 'dns', label: 'DNS', icon: <MdLanguage size={20} color="white"/>, active: false },
+  { id: 'license', label: 'ライセンス', icon: <IoIosPaper size={20} color="white"/>, active: false },
+  { id: 'domain', label: 'ドメイン', icon: <GrDomain size={20}color="white" />, active: false },
+  { id: 'api', label: 'API', icon: <GrDomain size={20} color="white"/>, active: false }
 ];
 export const SidebarNavigation: React.FC = () => {
   return (
